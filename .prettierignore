@@ -1,0 +1,14 @@
+server-dist
+dist
+.next
+.env
+.prettierignore
+node_modules
+prod_node_modules
+Dockerfile
+yarn.lock
+nodemon.json
+.babelrc
+.yarnrc
+public
+Dockerfile
