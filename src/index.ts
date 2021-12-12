@@ -4,16 +4,20 @@ import net from 'net';
 const dnsPromises = dns.promises;
 
 /**
+ * @param  {String} smtpReply A message from the SMTP server.
+ * @return {Boolean} True if over quota.
+ */
+function isOverQuota(smtpReply: string) {
+  return smtpReply && /(over quota)/gi.test(smtpReply);
+}
+
+/**
  * @see http://www.serversmtp.com/en/smtp-error
  * @param {String} smtpReply A response from the SMTP server.
  * @return {boolean} True if the error is recognized as a mailbox missing error.
  */
 function isInvalidMailboxError(smtpReply: string): boolean {
-  return (
-    smtpReply &&
-    /^(510|511|513|550|551|553)/.test(smtpReply) &&
-    !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply)
-  );
+  return smtpReply && /^(510|511|513|550|551|553)/.test(smtpReply) && !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply);
 }
 
 /**
@@ -25,7 +29,7 @@ function isMultilineGreet(smtpReply: string) {
   return smtpReply && /^(250|220)-/.test(smtpReply);
 }
 
-const defaultOptions = {
+export const defaultOptions = {
   timeout: 10000,
   verifyDomain: true,
   verifyMailbox: true,
@@ -37,13 +41,7 @@ interface IVerifyEmail {
   validMailbox: boolean | null;
 }
 
-export async function verifyMailBox({
-                                      emailAddress,
-                                      options,
-                                    }: {
-  emailAddress: string;
-  options: Partial<typeof defaultOptions>;
-}): Promise<IVerifyEmail> {
+export async function verifyMailBox({ emailAddress, options }: { emailAddress: string; options?: Partial<typeof defaultOptions> }): Promise<IVerifyEmail> {
   const result: IVerifyEmail = { wellFormed: false, validDomain: null, validMailbox: null };
   options = { ...options, ...defaultOptions };
   let local: string;
@@ -81,11 +79,11 @@ export async function verifyMailBox({
   return result;
 }
 
-function isEmail(address: string) {
+export function isEmail(address: string) {
   return address.includes('@');
 }
 
-function extractAddressParts(address: string) {
+export function extractAddressParts(address: string) {
   if (!isEmail(address)) {
     throw new Error(`"${address}" is not a valid email address`);
   }
@@ -93,7 +91,7 @@ function extractAddressParts(address: string) {
   return address.split('@');
 }
 
-async function resolveMxRecords(domain: string) {
+export async function resolveMxRecords(domain: string) {
   const records: { exchange: string; priority: number }[] = await dnsPromises.resolveMx(domain);
   records.sort((a, b) => {
     if (a.priority < b.priority) {
@@ -141,6 +139,7 @@ async function verifyMailbox(local: string, domain: string, [mxRecord]: any, tim
       console.debug('Mailbox: got data', data);
 
       if (isInvalidMailboxError(data)) return ret(false);
+      if (isOverQuota(data)) return ret(false);
       if (!data.includes('220') && !data.includes('250')) return ret(null);
 
       if (isMultilineGreet(data)) return;
