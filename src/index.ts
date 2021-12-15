@@ -1,7 +1,5 @@
-import dns from 'dns';
 import net from 'net';
-
-const dnsPromises = dns.promises;
+import { promises as dnsPromises } from 'dns';
 
 /**
  * @param  {String} smtpReply A message from the SMTP server.
@@ -17,7 +15,11 @@ function isOverQuota(smtpReply: string) {
  * @return {boolean} True if the error is recognized as a mailbox missing error.
  */
 function isInvalidMailboxError(smtpReply: string): boolean {
-  return smtpReply && /^(510|511|513|550|551|553)/.test(smtpReply) && !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply);
+  return (
+    smtpReply &&
+    /^(510|511|513|550|551|553)/.test(smtpReply) &&
+    !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply)
+  );
 }
 
 /**
@@ -29,21 +31,28 @@ function isMultilineGreet(smtpReply: string) {
   return smtpReply && /^(250|220)-/.test(smtpReply);
 }
 
-export const defaultOptions = {
-  timeout: 10000,
-  verifyDomain: true,
-  verifyMailbox: true,
-};
-
-interface IVerifyEmail {
+interface IVerifyEmailResult {
   wellFormed: boolean;
   validDomain: boolean | null;
   validMailbox: boolean | null;
 }
 
-export async function verifyMailBox({ emailAddress, options }: { emailAddress: string; options?: Partial<typeof defaultOptions> }): Promise<IVerifyEmail> {
-  const result: IVerifyEmail = { wellFormed: false, validDomain: null, validMailbox: null };
-  options = { ...options, ...defaultOptions };
+interface IVerifyEmailParams {
+  emailAddress: string;
+  timeout?: number;
+  verifyDomain?: boolean;
+  verifyMailbox?: boolean;
+  debug?: boolean;
+}
+
+const logMethod = console.debug;
+
+export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
+  const { emailAddress, timeout = 4000, verifyDomain = true, verifyMailbox = false, debug = false } = params;
+  const result: IVerifyEmailResult = { wellFormed: false, validDomain: null, validMailbox: null };
+
+  const log = debug ? logMethod : (...args: any) => {};
+
   let local: string;
   let domain: string;
   let mxRecords: string[];
@@ -51,29 +60,35 @@ export async function verifyMailBox({ emailAddress, options }: { emailAddress: s
   try {
     [local, domain] = extractAddressParts(emailAddress);
   } catch (err) {
-    console.debug('Failed on wellFormed check', err);
+    log('Failed on wellFormed check', err);
     return result;
   }
 
   result.wellFormed = true;
 
   // save a DNS call
-  if (!options.verifyDomain && !options.verifyMailbox) return result;
+  if (!verifyDomain && !verifyMailbox) return result;
 
   try {
     mxRecords = await resolveMxRecords(domain);
-    console.debug('Found MX records', mxRecords);
+    log('Found MX records', mxRecords);
   } catch (err) {
-    console.debug('Failed to resolve MX records', err);
+    log('Failed to resolve MX records', err);
     mxRecords = [];
   }
 
-  if (options.verifyDomain) {
+  if (verifyDomain) {
     result.validDomain = mxRecords && mxRecords.length > 0;
   }
 
-  if (options.verifyMailbox) {
-    result.validMailbox = await verifyMailbox(local, domain, mxRecords, options.timeout);
+  if (verifyMailbox) {
+    result.validMailbox = await verifyMailboxSMTP({
+      local,
+      domain,
+      mxRecords,
+      timeout,
+      debug,
+    });
   }
 
   return result;
@@ -105,9 +120,16 @@ export async function resolveMxRecords(domain: string) {
   return records.map((record) => record.exchange);
 }
 
-async function verifyMailbox(local: string, domain: string, [mxRecord]: any, timeout: number): Promise<boolean> {
+type verifyMailBoxSMTP = { local: string; domain: string; mxRecords: string[]; timeout: number; debug: boolean };
+
+async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<boolean> {
+  const { local, domain, mxRecords = [], timeout, debug } = params;
+  const [mxRecord] = mxRecords;
+
+  const log = debug ? logMethod : (...args: any) => {};
+
   if (!mxRecord || /yahoo/.test(mxRecord)) {
-    console.debug('Cannot verify due to missing or unsupported MX record', mxRecord);
+    log('Cannot verify due to missing or unsupported MX record', mxRecord);
     return null;
   }
 
@@ -136,7 +158,7 @@ async function verifyMailbox(local: string, domain: string, [mxRecord]: any, tim
     socket.on('data', (data: string) => {
       data = data.toString();
 
-      console.debug('Mailbox: got data', data);
+      log('Mailbox: got data', data);
 
       if (isInvalidMailboxError(data)) return ret(false);
       if (isOverQuota(data)) return ret(false);
@@ -146,7 +168,7 @@ async function verifyMailbox(local: string, domain: string, [mxRecord]: any, tim
 
       if (messages.length > 0) {
         const message = messages.shift();
-        console.debug('Mailbox: writing message', message);
+        log('Mailbox: writing message', message);
         return socket.write(message + '\r\n');
       }
 
@@ -154,12 +176,12 @@ async function verifyMailbox(local: string, domain: string, [mxRecord]: any, tim
     });
 
     socket.on('error', (err) => {
-      console.debug('Mailbox: error in socket', err);
+      log('Mailbox: error in socket', err);
       ret(null);
     });
 
     resTimeout = setTimeout(() => {
-      console.debug(`Mailbox: timed out (${timeout} ms)`);
+      log(`Mailbox: timed out (${timeout} ms)`);
       ret(null);
     }, timeout);
   });
