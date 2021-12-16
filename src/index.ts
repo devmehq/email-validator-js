@@ -10,16 +10,13 @@ function isOverQuota(smtpReply: string) {
 }
 
 /**
- * @see http://www.serversmtp.com/en/smtp-error
+ * @see https://support.google.com/a/answer/3221692?hl=en
+ * @see http://www.greenend.org.uk/rjk/tech/smtpreplies.html
  * @param {String} smtpReply A response from the SMTP server.
  * @return {boolean} True if the error is recognized as a mailbox missing error.
  */
 function isInvalidMailboxError(smtpReply: string): boolean {
-  return (
-    smtpReply &&
-    /^(510|511|513|550|551|553)/.test(smtpReply) &&
-    !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply)
-  );
+  return smtpReply && /^(510|511|513|550|551|553)/.test(smtpReply) && !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply);
 }
 
 /**
@@ -95,7 +92,8 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
 }
 
 export function isEmail(address: string) {
-  return address.includes('@');
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(address).toLowerCase()) && address.indexOf('.+') === -1;
 }
 
 export function extractAddressParts(address: string) {
@@ -133,7 +131,6 @@ async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<boolean> {
     return null;
   }
 
-  // https://mailtrap.io/blog/smtp-commands-and-responses/
   return new Promise((resolve) => {
     const socket = net.connect(25, mxRecord);
     // eslint-disable-next-line prefer-const

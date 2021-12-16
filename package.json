@@ -15,7 +15,8 @@
     "mocha": "nyc mocha --report lcovonly -- test/*-test.ts",
     "prepare": "yarn husky install",
     "test": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
-    "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha"
+    "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
+    "prettier": "prettier --write \"src/**/*.{ts,json}\" \"test/**/*.{ts,json}\""
   },
   "lint-staged": {
     "src/*.{ts,tsx,js,jsx}": "prettier --write",

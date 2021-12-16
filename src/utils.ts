@@ -1,7 +1,7 @@
 function isDisposableEmail(email: string) {
-  return email.endsWith("@disposable.com");
+  return email.endsWith('@disposable.com');
 }
 
 function isFreeEmail(email: string) {
-  return email.endsWith("@free.com");
+  return email.endsWith('@free.com');
 }
