@@ -4,7 +4,7 @@ my_dir="$(dirname "$0")"
 yarn test
 yarn build
 git add .
-git commit -am "chose: update release"
+git commit -am "chose: update release" || true
 npm version patch
 git push
 git push --tags
