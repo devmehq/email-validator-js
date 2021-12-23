@@ -4,7 +4,7 @@ import should from 'should';
 import sinon, { SinonSandbox, SinonStub } from 'sinon';
 import { MxRecord, promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
-import { extractAddressParts, isEmail } from '../src/utils';
+import { extractAddressParts, isEmail, isValidTld } from '../src/utils';
 import { resolveMxRecords } from '../src/dns';
 
 type SelfMockType = {
@@ -306,6 +306,25 @@ describe('src/index', async () => {
 
     it('should throw an error if the email is not valid', async () => {
       (() => extractAddressParts('foo')).should.throw(Error);
+    });
+  });
+
+  describe('isValidTld', async () => {
+    it('should succeed', async () => {
+      isValidTld('foo@bar.com').should.eql(true);
+      isValidTld('foo@google.pl').should.eql(true);
+      isValidTld('foo@google.de').should.eql(true);
+      isValidTld('foo@google.co.uk').should.eql(true);
+      isValidTld('foo@google.cs').should.eql(true);
+      isValidTld('foo@google.tw').should.eql(true);
+      isValidTld('foo@google.ma').should.eql(true);
+    });
+
+    it('should fail', async () => {
+      isValidTld('foo').should.eql(false);
+      isValidTld('google.comx').should.eql(false);
+      isValidTld('google.xx').should.eql(false);
+      isValidTld('google.aa').should.eql(false);
     });
   });
 });

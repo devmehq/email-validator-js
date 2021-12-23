@@ -1,9 +1,8 @@
-import { publicSuffixList } from './psl';
+import { getDomain } from 'tldts';
 
 export function isValidTld(address: string): boolean {
-  const [_, domain] = address?.split('@') || [];
-  const ext: string = domain?.split('.').pop();
-  return publicSuffixList.includes(ext);
+  const [_, emailDomain] = address?.split('@') || [];
+  return !!getDomain(emailDomain);
 }
 
 export function isEmail(address: string) {

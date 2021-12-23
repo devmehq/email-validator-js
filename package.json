@@ -1,7 +1,7 @@
 {
   "name": "@devmehq/email-validator-js",
-  "private": false,
   "version": "1.0.3",
+  "private": false,
   "description": "Advanced Email Validation with DNS MX lookup and Mailbox Verification",
   "repository": {
     "type": "git",
@@ -25,11 +25,14 @@
     "docs/**": "prettier --write",
     "examples/**": "prettier --write"
   },
+  "dependencies": {
+    "tldts": "^5.7.57"
+  },
   "devDependencies": {
     "@types/chai": "4.3.0",
     "@types/eslint": "8.2.1",
     "@types/mocha": "9.0.0",
-    "@types/node": "17.0.3",
+    "@types/node": "17.0.4",
     "@types/prettier": "2.4.2",
     "@types/should": "13.0.0",
     "@types/sinon": "10.0.6",

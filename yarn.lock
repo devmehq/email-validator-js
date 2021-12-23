@@ -131,10 +131,10 @@
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-9.0.0.tgz#3205bcd15ada9bc681ac20bef64e9e6df88fd297"
   integrity sha512-scN0hAWyLVAvLR9AyW7HoFF5sJZglyBsbPuHO4fv7JRvfmPBMfp1ozWqOf/e4wwPNxezBZXRfWzMb6iFLgEVRA==
 
-"@types/node@17.0.3":
-  version "17.0.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.3.tgz#4b086e316ed4504f49bd78135d48642bf50aa135"
-  integrity sha512-bAKB1GcA28FR/D8HHQ5U4FYk7nvoZdp7TZSy9oIyQ8gpYCzpeESa3LCK2TbeocXic7GwIXCkCItJg0DttO3ZaQ==
+"@types/node@17.0.4":
+  version "17.0.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.4.tgz#fec0ce0526abb6062fd206d72a642811b887a111"
+  integrity sha512-6xwbrW4JJiJLgF+zNypN5wr2ykM9/jHcL7rQ8fZe2vuftggjzZeRSM4OwRc6Xk8qWjwJ99qVHo/JgOGmomWRog==
 
 "@types/prettier@2.4.2":
   version "2.4.2"
@@ -1560,6 +1560,18 @@ through@^2.3.8:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
+
+tldts-core@^5.7.57:
+  version "5.7.57"
+  resolved "https://registry.yarnpkg.com/tldts-core/-/tldts-core-5.7.57.tgz#de3c19c3facc77cdc47fa0ee1b949340edf51230"
+  integrity sha512-rk3UxpBGY/wEQSFv5bJCYDwl/suy6v5o6ZKWsi2Ej+U2CZqWDZBFrJJqDHW9PgS2YBsaqDtFkSUZoIzI0BviqQ==
+
+tldts@^5.7.57:
+  version "5.7.57"
+  resolved "https://registry.yarnpkg.com/tldts/-/tldts-5.7.57.tgz#3427596d0f7f1fa99cf113025a1c946249b50ca7"
+  integrity sha512-qYu5hGMAhxq5qV3/OgykhtyTrR63f+Imn1w+ZFwVFo5dFHvrgK2AlB/W5pnJ2ZdGArmL6YhMDqZAS5KfCIntmA==
+  dependencies:
+    tldts-core "^5.7.57"
 
 to-regex-range@^5.0.1:
   version "5.0.1"
