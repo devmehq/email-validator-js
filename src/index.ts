@@ -1,16 +1,24 @@
 import { verifyMailboxSMTP } from './smtp';
 import { resolveMxRecords } from './dns';
-import { disposableEmailProviders } from './disposable-email-providers';
-import { freeEmailProviders } from './free-email-providers';
 import { isValidEmail } from './validator';
+
+let disposableEmailProviders: string[];
+let freeEmailProviders: string[];
 
 export function isDisposableEmail(email: string): boolean {
   const [_, domain] = email?.split('@') || [];
+  if (!disposableEmailProviders) {
+    disposableEmailProviders = require('./disposable-email-providers').disposableEmailProviders;
+  }
   return domain && disposableEmailProviders.includes(domain);
 }
 
 export function isFreeEmail(email: string): boolean {
   const [_, domain] = email?.split('@') || [];
+  if (!freeEmailProviders) {
+    freeEmailProviders = require('./free-email-providers').freeEmailProviders;
+  }
+
   return domain && freeEmailProviders.includes(domain);
 }
 

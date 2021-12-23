@@ -4,7 +4,6 @@ import should from 'should';
 import sinon, { SinonSandbox, SinonStub } from 'sinon';
 import { MxRecord, promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
-import { isValidEmail, isValidEmailDomain } from '../src/validator';
 import { resolveMxRecords } from '../src/dns';
 
 type SelfMockType = {
@@ -25,7 +24,7 @@ function stubResolveMx(self: SelfMockType, domain = 'foo.com') {
 }
 
 function stubSocket(self: SelfMockType) {
-  self.socket = new net.Socket({});
+  self.socket = new Socket({});
   self.sandbox.stub(self.socket, 'write').callsFake(function (data) {
     if (!data.toString().includes('QUIT')) this.emit('data', '250 Foo');
     return true;
@@ -36,7 +35,7 @@ function stubSocket(self: SelfMockType) {
 
 const self: SelfMockType = {};
 
-describe('src/index', async () => {
+describe('verifyEmailTest', async () => {
   beforeEach(() => {
     self.sandbox = sinon.createSandbox();
   });
@@ -88,7 +87,7 @@ describe('src/index', async () => {
 
       it('returns false on over quota check', async () => {
         const msg = '452-4.2.2 The email account that you tried to reach is over quota. Please direct';
-        const socket = new net.Socket({});
+        const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
           if (!data.toString().includes('QUIT')) this.emit('data', msg);
@@ -97,7 +96,9 @@ describe('src/index', async () => {
 
         self.connectStub.returns(socket);
 
-        setTimeout(() => socket.write('250 Foo'), 10);
+        setTimeout(() => {
+          socket.write('250 Foo');
+        }, 10);
 
         const { validDomain, validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifyMailbox: true, verifyDomain: true, debug: false });
 
@@ -120,7 +121,7 @@ describe('src/index', async () => {
       });
 
       it('dodges multiline spam detecting greetings', async () => {
-        const socket = new net.Socket({});
+        const socket = new Socket({});
         let greeted = false;
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
@@ -173,7 +174,7 @@ describe('src/index', async () => {
       });
 
       it('should return null on unknown SMTP errors', async () => {
-        const socket = new net.Socket({});
+        const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
           if (!data.toString().includes('QUIT')) this.emit('data', '500 Foo');
@@ -182,14 +183,16 @@ describe('src/index', async () => {
 
         self.connectStub.returns(socket);
 
-        setTimeout(() => socket.write('250 Foo'), 300);
+        // setTimeout(() => {
+        //   socket.write('250 Foo');
+        // }, 300);
 
         const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com' });
         should(validMailbox).equal(null);
       });
 
       it('returns false on bad mailbox errors', async () => {
-        const socket = new net.Socket({});
+        const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
           if (!data.toString().includes('QUIT')) this.emit('data', '550 Foo');
@@ -198,7 +201,11 @@ describe('src/index', async () => {
 
         self.connectStub.returns(socket);
 
-        setTimeout(() => socket.write('250 Foo'), 10);
+        setTimeout(() => {
+          try {
+            socket.write('250 Foo');
+          } catch (e) {}
+        }, 10);
 
         const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifyMailbox: true, verifyDomain: true, debug: false });
         should(validMailbox).equal(false);
@@ -206,7 +213,7 @@ describe('src/index', async () => {
 
       it('returns null on spam errors', async () => {
         const msg = '550-"JunkMail rejected - ec2-54-74-157-229.eu-west-1.compute.amazonaws.com';
-        const socket = new net.Socket({});
+        const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
           if (!data.toString().includes('QUIT')) this.emit('data', msg);
@@ -214,8 +221,6 @@ describe('src/index', async () => {
         });
 
         self.connectStub.returns(socket);
-
-        setTimeout(() => socket.write('250 Foo'), 600);
 
         const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com' });
         should(validMailbox).equal(null);
@@ -223,7 +228,7 @@ describe('src/index', async () => {
 
       it('returns null on spam errors-#2', async () => {
         const msg = '553 5.3.0 flpd575 DNSBL:RBL 521< 54.74.114.115 >_is_blocked.For assistance forward this email to abuse_rbl@abuse-att.net';
-        const socket = new net.Socket({});
+        const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
           if (!data.toString().includes('QUIT')) this.emit('data', msg);
@@ -231,8 +236,6 @@ describe('src/index', async () => {
         });
 
         self.connectStub.returns(socket);
-
-        setTimeout(() => socket.write('250 Foo'), 800);
 
         const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com' });
         should(validMailbox).equal(null);
@@ -273,50 +276,9 @@ describe('src/index', async () => {
         should(validMailbox).equal(null);
       });
     });
-  });
-
-  describe('resolveMxRecords', async () => {
-    beforeEach(() => stubResolveMx(self));
-
     it('should return a list of mx records, ordered by priority', async () => {
       const records = await resolveMxRecords('bar@foo.com');
       should.deepEqual(records, ['mx2.foo.com', 'mx3.foo.com', 'mx1.foo.com']);
-    });
-  });
-
-  describe('isEmail', async () => {
-    it('should validate a correct address', async () => {
-      isValidEmail('foo@bar.com').should.equal(true);
-      isValidEmail('email@gmail.com').should.equal(true);
-      isValidEmail('email+plug@gmail.com').should.equal(true);
-      isValidEmail('email.name+plug@gmail.com').should.equal(true);
-      isValidEmail('email.name+plug.moea@gmail.com').should.equal(true); // todo this is invalid
-    });
-
-    it('should return false for an invalid address', async () => {
-      isValidEmail('bar.com').should.equal(false);
-      isValidEmail('email.+plug@gmail.com').should.equal(false);
-    });
-  });
-
-  describe('isValidTld', async () => {
-    it('should succeed', async () => {
-      isValidEmailDomain('foo@bar.com').should.eql(true);
-      isValidEmailDomain('foo@google.pl').should.eql(true);
-      isValidEmailDomain('foo@google.de').should.eql(true);
-      isValidEmailDomain('foo@google.co.uk').should.eql(true);
-      isValidEmailDomain('foo@google.sc').should.eql(true);
-      isValidEmailDomain('foo@google.tw').should.eql(true);
-      isValidEmailDomain('foo@google.ma').should.eql(true);
-    });
-
-    it('should fail', async () => {
-      isValidEmailDomain('foo').should.eql(false);
-      isValidEmailDomain('foo@google.coml').should.eql(false);
-      isValidEmailDomain('foo@foo@google.comd').should.eql(false);
-      isValidEmailDomain('foo@google.comx').should.eql(false);
-      isValidEmailDomain('foo@google.xx').should.eql(false);
-      isValidEmailDomain('foo@google.aa').should.eql(false);
     });
   });
 });
