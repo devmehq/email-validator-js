@@ -1,5 +1,6 @@
 {
   "name": "@devmehq/email-validator-js",
+  "private": false,
   "version": "1.0.2",
   "description": "Advanced Email Validation with DNS MX lookup and Mailbox Verification",
   "repository": {
