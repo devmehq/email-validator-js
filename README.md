@@ -41,9 +41,9 @@ npm insgall @devmehq/email-validator-js
 
 ## Examples
 ```javascript
-import { verifyMailbox } from '@devmehq/email-validator-js';
+import { verifyEmail } from '@devmehq/email-validator-js';
 
-const { wellFormed, validDomain, validMailbox } = await verifyMailbox({ mailbox: 'foo@email.com'});
+const { wellFormed, validDomain, validMailbox } = await verifyEmail({ mailbox: 'foo@email.com'});
 // wellFormed: true
 // validDomain: true
 // validMailbox: true
@@ -52,7 +52,7 @@ const { wellFormed, validDomain, validMailbox } = await verifyMailbox({ mailbox:
 When a domain does not exist or has no MX records, the domain validation will fail, and the mailbox validation will return `null` because it could not be performed:
 
 ```javascript
-const { wellFormed, validDomain, validMailbox } = await verifyMailbox({ mailbox: 'foo@bad-domain.com'});
+const { wellFormed, validDomain, validMailbox } = await verifyEmail({ mailbox: 'foo@bad-domain.com'});
 // wellFormed: true
 // validDomain: false
 // validMailbox: null
