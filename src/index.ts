@@ -1,8 +1,8 @@
 import { verifyMailboxSMTP } from './smtp';
 import { resolveMxRecords } from './dns';
-import { extractAddressParts } from './utils';
 import { disposableEmailProviders } from './disposable-email-providers';
 import { freeEmailProviders } from './free-email-providers';
+import { isValidEmail } from './validator';
 
 export function isDisposableEmail(email: string): boolean {
   const [_, domain] = email?.split('@') || [];
@@ -40,10 +40,14 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   let domain: string;
   let mxRecords: string[];
 
-  try {
-    [local, domain] = extractAddressParts(emailAddress);
-  } catch (err) {
-    log('Failed on wellFormed check', err);
+  if (!isValidEmail(emailAddress)) {
+    log('Failed on wellFormed check');
+    return result;
+  }
+
+  [local, domain] = emailAddress.split('@');
+  if (!domain) {
+    log('Failed on wellFormed check');
     return result;
   }
 

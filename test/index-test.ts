@@ -4,7 +4,7 @@ import should from 'should';
 import sinon, { SinonSandbox, SinonStub } from 'sinon';
 import { MxRecord, promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
-import { extractAddressParts, isEmail, isValidTld } from '../src/utils';
+import { isValidEmail, isValidEmailDomain } from '../src/validator';
 import { resolveMxRecords } from '../src/dns';
 
 type SelfMockType = {
@@ -286,45 +286,35 @@ describe('src/index', async () => {
 
   describe('isEmail', async () => {
     it('should validate a correct address', async () => {
-      isEmail('foo@bar.com').should.equal(true);
-      isEmail('email@gmail.com').should.equal(true);
-      isEmail('email+plug@gmail.com').should.equal(true);
-      isEmail('email.name+plug@gmail.com').should.equal(true);
-      isEmail('email.name+plug.moea@gmail.com').should.equal(true); // todo this is invalid
+      isValidEmail('foo@bar.com').should.equal(true);
+      isValidEmail('email@gmail.com').should.equal(true);
+      isValidEmail('email+plug@gmail.com').should.equal(true);
+      isValidEmail('email.name+plug@gmail.com').should.equal(true);
+      isValidEmail('email.name+plug.moea@gmail.com').should.equal(true); // todo this is invalid
     });
 
     it('should return false for an invalid address', async () => {
-      isEmail('bar.com').should.equal(false);
-      isEmail('email.+plug@gmail.com').should.equal(false);
-    });
-  });
-
-  describe('extractAddressParts', async () => {
-    it('should local + domain parts of an email address', async () => {
-      extractAddressParts('foo@bar.com').should.eql(['foo', 'bar.com']);
-    });
-
-    it('should throw an error if the email is not valid', async () => {
-      (() => extractAddressParts('foo')).should.throw(Error);
+      isValidEmail('bar.com').should.equal(false);
+      isValidEmail('email.+plug@gmail.com').should.equal(false);
     });
   });
 
   describe('isValidTld', async () => {
     it('should succeed', async () => {
-      isValidTld('foo@bar.com').should.eql(true);
-      isValidTld('foo@google.pl').should.eql(true);
-      isValidTld('foo@google.de').should.eql(true);
-      isValidTld('foo@google.co.uk').should.eql(true);
-      isValidTld('foo@google.cs').should.eql(true);
-      isValidTld('foo@google.tw').should.eql(true);
-      isValidTld('foo@google.ma').should.eql(true);
+      isValidEmailDomain('foo@bar.com').should.eql(true);
+      isValidEmailDomain('foo@google.pl').should.eql(true);
+      isValidEmailDomain('foo@google.de').should.eql(true);
+      isValidEmailDomain('foo@google.co.uk').should.eql(true);
+      isValidEmailDomain('foo@google.cs').should.eql(true);
+      isValidEmailDomain('foo@google.tw').should.eql(true);
+      isValidEmailDomain('foo@google.ma').should.eql(true);
     });
 
     it('should fail', async () => {
-      isValidTld('foo').should.eql(false);
-      isValidTld('google.comx').should.eql(false);
-      isValidTld('google.xx').should.eql(false);
-      isValidTld('google.aa').should.eql(false);
+      isValidEmailDomain('foo').should.eql(false);
+      isValidEmailDomain('google.comx').should.eql(false);
+      isValidEmailDomain('google.xx').should.eql(false);
+      isValidEmailDomain('google.aa').should.eql(false);
     });
   });
 });
