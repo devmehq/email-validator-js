@@ -141,6 +141,11 @@
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.4.2.tgz#4c62fae93eb479660c3bd93f9d24d561597a8281"
   integrity sha512-ekoj4qOQYp7CvjX8ZDBgN86w3MqQhLE1hczEJbEIjgFEumDy+na/4AJAbLXfgEWFNB2pKadM5rPFtuSGMWK7xA==
 
+"@types/psl@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/psl/-/psl-1.1.0.tgz#390c5df1613b166ce3c3eb9fda4d93dc3eeec7b5"
+  integrity sha512-HhZnoLAvI2koev3czVPzBNRYvdrzJGLjQbWZhqFmS9Q6a0yumc5qtfSahBGb5g+6qWvA8iiQktqGkwoIXa/BNQ==
+
 "@types/should@13.0.0":
   version "13.0.0"
   resolved "https://registry.yarnpkg.com/@types/should/-/should-13.0.0.tgz#96c00117f1896177848fdecfa336313c230c879e"
@@ -1298,6 +1303,11 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
+psl@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/psl/-/psl-1.8.0.tgz#9326f8bcfb013adcc005fdff056acce020e51c24"
+  integrity sha512-RIdOzyoavK+hA18OGGWDqUTsCLhtA7IcZ/6NCs4fFJaHBDab+pDDmDIByWFRQJq2Cd7r1OoQxBGKOaztq+hjIQ==
+
 pump@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/pump/-/pump-3.0.0.tgz#b4a2116815bde2f4e1ea602354e8c75565107a64"
@@ -1560,18 +1570,6 @@ through@^2.3.8:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
-
-tldts-core@^5.7.57:
-  version "5.7.57"
-  resolved "https://registry.yarnpkg.com/tldts-core/-/tldts-core-5.7.57.tgz#de3c19c3facc77cdc47fa0ee1b949340edf51230"
-  integrity sha512-rk3UxpBGY/wEQSFv5bJCYDwl/suy6v5o6ZKWsi2Ej+U2CZqWDZBFrJJqDHW9PgS2YBsaqDtFkSUZoIzI0BviqQ==
-
-tldts@^5.7.57:
-  version "5.7.57"
-  resolved "https://registry.yarnpkg.com/tldts/-/tldts-5.7.57.tgz#3427596d0f7f1fa99cf113025a1c946249b50ca7"
-  integrity sha512-qYu5hGMAhxq5qV3/OgykhtyTrR63f+Imn1w+ZFwVFo5dFHvrgK2AlB/W5pnJ2ZdGArmL6YhMDqZAS5KfCIntmA==
-  dependencies:
-    tldts-core "^5.7.57"
 
 to-regex-range@^5.0.1:
   version "5.0.1"

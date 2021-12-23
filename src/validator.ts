@@ -1,8 +1,12 @@
-import { getDomain } from 'tldts';
+import { isValid } from 'psl';
 
 export function isValidEmailDomain(address: string): boolean {
   const [_, emailDomain] = address?.split('@') || [];
-  return !!getDomain(emailDomain);
+  try {
+    return isValid(emailDomain);
+  } catch (e) {
+    return false;
+  }
 }
 
 export function isValidEmail(address: string) {

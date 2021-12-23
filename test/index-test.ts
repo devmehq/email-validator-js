@@ -305,16 +305,18 @@ describe('src/index', async () => {
       isValidEmailDomain('foo@google.pl').should.eql(true);
       isValidEmailDomain('foo@google.de').should.eql(true);
       isValidEmailDomain('foo@google.co.uk').should.eql(true);
-      isValidEmailDomain('foo@google.cs').should.eql(true);
+      isValidEmailDomain('foo@google.sc').should.eql(true);
       isValidEmailDomain('foo@google.tw').should.eql(true);
       isValidEmailDomain('foo@google.ma').should.eql(true);
     });
 
     it('should fail', async () => {
       isValidEmailDomain('foo').should.eql(false);
-      isValidEmailDomain('google.comx').should.eql(false);
-      isValidEmailDomain('google.xx').should.eql(false);
-      isValidEmailDomain('google.aa').should.eql(false);
+      isValidEmailDomain('foo@google.coml').should.eql(false);
+      isValidEmailDomain('foo@foo@google.comd').should.eql(false);
+      isValidEmailDomain('foo@google.comx').should.eql(false);
+      isValidEmailDomain('foo@google.xx').should.eql(false);
+      isValidEmailDomain('foo@google.aa').should.eql(false);
     });
   });
 });
