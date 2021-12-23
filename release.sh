@@ -8,3 +8,5 @@ git commit -am "chose: update release"
 npm version patch
 git push
 git push --tags
+cp package.json README.md LICENSE.md ./dist/
+npm publish ./dist

@@ -1,5 +1,5 @@
 {
-  "name": "email-validator-js",
+  "name": "@devmehq/email-validator-js",
   "version": "1.0.0",
   "description": "Advanced Email Validation with DNS MX lookup and Mailbox Verification",
   "repository": {
@@ -9,14 +9,14 @@
   "license": "MIT",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
   "scripts": {
-    "build": "rm -rf dist && tsc -p . --skipLibCheck",
+    "build": "rm -rf dist && tsc -p .",
     "lint": "eslint lib test",
     "lint-fix": "yarn lint -- --fix",
     "mocha": "nyc mocha --report lcovonly -- test/*-test.ts",
     "prepare": "yarn husky install",
+    "prettier": "prettier --write \"src/**/*.{ts,json}\" \"test/**/*.{ts,json}\"",
     "test": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
-    "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
-    "prettier": "prettier --write \"src/**/*.{ts,json}\" \"test/**/*.{ts,json}\""
+    "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha"
   },
   "lint-staged": {
     "src/*.{ts,tsx,js,jsx}": "prettier --write",
