@@ -1,9 +1,11 @@
-import { extractAddressParts, isEmail, resolveMxRecords, verifyEmail } from '../src';
+import { verifyEmail } from '../src';
 
 import should from 'should';
 import sinon, { SinonSandbox, SinonStub } from 'sinon';
 import { MxRecord, promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
+import { extractAddressParts, isEmail } from '../src/utils';
+import { resolveMxRecords } from '../src/dns';
 
 type SelfMockType = {
   resolveMxStub?: SinonStub<[string], Promise<MxRecord[]>>;
