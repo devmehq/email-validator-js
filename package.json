@@ -26,8 +26,8 @@
     "examples/**": "prettier --write"
   },
   "dependencies": {
-    "psl": "^1.8.0",
-    "@types/psl": "^1.1.0"
+    "psl": "1.8.0",
+    "@types/psl": "1.1.0"
   },
   "devDependencies": {
     "@types/chai": "4.3.0",
