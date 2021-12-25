@@ -1,7 +1,14 @@
 import { isValid } from 'psl';
 
 export function isValidEmailDomain(address: string): boolean {
-  const [_, emailDomain] = address?.split('@') || [];
+  let [_, emailDomain] = address?.split('@');
+  if (!emailDomain) {
+    emailDomain = _;
+  }
+  if (!emailDomain) {
+    return false;
+  }
+
   try {
     return isValid(emailDomain);
   } catch (e) {
@@ -9,7 +16,7 @@ export function isValidEmailDomain(address: string): boolean {
   }
 }
 
-export function isValidEmail(address: string) {
+export function isValidEmail(emailAddress: string) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(address).toLowerCase()) && address.indexOf('.+') === -1;
+  return re.test(String(emailAddress).toLowerCase()) && emailAddress.indexOf('.+') === -1;
 }

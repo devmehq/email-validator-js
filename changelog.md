@@ -1,3 +1,10 @@
+# @devmehq/email-validator-js Change Log 
+
+## v1.0.9
+- change response wellFormed to validEmailFormat
+- change response validDomain to validMx
+- change response validMailbox to validSmtp
+
 ## v1.0.8
 - change params verifyDomain to verifyMx
 - change params verifyMailbox to verifySmtp

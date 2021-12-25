@@ -1,6 +1,0 @@
-- Add disposable email list
-- Add free emails
-- Add domain information ( quality score )
-- Allow patch validation
-- Other libraries ( Java / GO / Ruby / PHP / Rust / Python  / R )
-- Build binary ( Windows / Linux / MacOS ) GoLang

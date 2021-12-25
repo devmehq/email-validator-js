@@ -5,27 +5,40 @@ import { isValidEmail } from './validator';
 let disposableEmailProviders: string[];
 let freeEmailProviders: string[];
 
-export function isDisposableEmail(email: string): boolean {
-  const [_, domain] = email?.split('@') || [];
+export function isDisposableEmail(address: string): boolean {
+  let [_, emailDomain] = address?.split('@');
+  if (!emailDomain) {
+    emailDomain = _;
+  }
+  if (!emailDomain) {
+    return false;
+  }
   if (!disposableEmailProviders) {
     disposableEmailProviders = require('./disposable-email-providers').disposableEmailProviders;
   }
-  return domain && disposableEmailProviders.includes(domain);
+  return emailDomain && disposableEmailProviders.includes(emailDomain);
 }
 
-export function isFreeEmail(email: string): boolean {
-  const [_, domain] = email?.split('@') || [];
+export function isFreeEmail(address: string): boolean {
+  let [_, emailDomain] = address?.split('@');
+  if (!emailDomain) {
+    emailDomain = _;
+  }
+  if (!emailDomain) {
+    return false;
+  }
+
   if (!freeEmailProviders) {
     freeEmailProviders = require('./free-email-providers').freeEmailProviders;
   }
 
-  return domain && freeEmailProviders.includes(domain);
+  return emailDomain && freeEmailProviders.includes(emailDomain);
 }
 
 interface IVerifyEmailResult {
-  wellFormed: boolean;
-  validDomain: boolean | null;
-  validMailbox: boolean | null;
+  validEmailFormat: boolean;
+  validMx: boolean | null;
+  validSmtp: boolean | null;
 }
 
 interface IVerifyEmailParams {
@@ -40,7 +53,7 @@ const logMethod = console.debug;
 
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
   const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false } = params;
-  const result: IVerifyEmailResult = { wellFormed: false, validDomain: null, validMailbox: null };
+  const result: IVerifyEmailResult = { validEmailFormat: false, validMx: null, validSmtp: null };
 
   const log = debug ? logMethod : (...args: any) => {};
 
@@ -59,7 +72,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     return result;
   }
 
-  result.wellFormed = true;
+  result.validEmailFormat = true;
 
   // save a DNS call
   if (!verifyMx && !verifySmtp) return result;
@@ -73,11 +86,11 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   }
 
   if (verifyMx) {
-    result.validDomain = mxRecords && mxRecords.length > 0;
+    result.validMx = mxRecords && mxRecords.length > 0;
   }
 
   if (verifySmtp) {
-    result.validMailbox = await verifyMailboxSMTP({
+    result.validSmtp = await verifyMailboxSMTP({
       local,
       domain,
       mxRecords,
