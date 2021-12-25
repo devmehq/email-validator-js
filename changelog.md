@@ -1,5 +1,8 @@
 # @devmehq/email-validator-js Change Log 
 
+## v1.0.10
+- change response validEmailFormat to validFormat
+
 ## v1.0.9
 - change response wellFormed to validEmailFormat
 - change response validDomain to validMx

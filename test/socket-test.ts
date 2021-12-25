@@ -50,19 +50,19 @@ describe('verifyEmailTest', async () => {
 
     it('should perform all tests', async () => {
       setTimeout(() => self.socket.write('250 Foo'), 10);
-      const { validEmailFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMx: true, verifySmtp: true, debug: false });
+      const { validFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMx: true, verifySmtp: true, debug: false });
       sinon.assert.called(self.resolveMxStub);
       sinon.assert.called(self.connectStub);
-      should(validEmailFormat).equal(true);
+      should(validFormat).equal(true);
       should(validMx).equal(true);
       should(validSmtp).equal(true);
     });
 
     it('returns immediately if email is malformed invalid', async () => {
-      const { validEmailFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'bar.com' });
+      const { validFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'bar.com' });
       sinon.assert.notCalled(self.resolveMxStub);
       sinon.assert.notCalled(self.connectStub);
-      should(validEmailFormat).equal(false);
+      should(validFormat).equal(false);
       should(validMx).equal(null);
       should(validSmtp).equal(null);
     });

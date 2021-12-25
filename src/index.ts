@@ -36,7 +36,7 @@ export function isFreeEmail(address: string): boolean {
 }
 
 interface IVerifyEmailResult {
-  validEmailFormat: boolean;
+  validFormat: boolean;
   validMx: boolean | null;
   validSmtp: boolean | null;
 }
@@ -53,7 +53,7 @@ const logMethod = console.debug;
 
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
   const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false } = params;
-  const result: IVerifyEmailResult = { validEmailFormat: false, validMx: null, validSmtp: null };
+  const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
   const log = debug ? logMethod : (...args: any) => {};
 
@@ -72,7 +72,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     return result;
   }
 
-  result.validEmailFormat = true;
+  result.validFormat = true;
 
   // save a DNS call
   if (!verifyMx && !verifySmtp) return result;
