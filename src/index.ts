@@ -31,15 +31,15 @@ interface IVerifyEmailResult {
 interface IVerifyEmailParams {
   emailAddress: string;
   timeout?: number;
-  verifyDomain?: boolean;
-  verifyMailbox?: boolean;
+  verifyMx?: boolean;
+  verifySmtp?: boolean;
   debug?: boolean;
 }
 
 const logMethod = console.debug;
 
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
-  const { emailAddress, timeout = 4000, verifyDomain = true, verifyMailbox = false, debug = false } = params;
+  const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false } = params;
   const result: IVerifyEmailResult = { wellFormed: false, validDomain: null, validMailbox: null };
 
   const log = debug ? logMethod : (...args: any) => {};
@@ -62,7 +62,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   result.wellFormed = true;
 
   // save a DNS call
-  if (!verifyDomain && !verifyMailbox) return result;
+  if (!verifyMx && !verifySmtp) return result;
 
   try {
     mxRecords = await resolveMxRecords(domain);
@@ -72,11 +72,11 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     mxRecords = [];
   }
 
-  if (verifyDomain) {
+  if (verifyMx) {
     result.validDomain = mxRecords && mxRecords.length > 0;
   }
 
-  if (verifyMailbox) {
+  if (verifySmtp) {
     result.validMailbox = await verifyMailboxSMTP({
       local,
       domain,

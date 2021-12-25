@@ -50,7 +50,7 @@ describe('verifyEmailTest', async () => {
 
     it('should perform all tests', async () => {
       setTimeout(() => self.socket.write('250 Foo'), 10);
-      const { wellFormed, validDomain, validMailbox } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyDomain: true, verifyMailbox: true, debug: false });
+      const { wellFormed, validDomain, validMailbox } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMx: true, verifySmtp: true, debug: false });
       sinon.assert.called(self.resolveMxStub);
       sinon.assert.called(self.connectStub);
       should(wellFormed).equal(true);
@@ -70,7 +70,7 @@ describe('verifyEmailTest', async () => {
     describe('mailbox verification', async () => {
       it('returns true when maibox exists', async () => {
         setTimeout(() => self.socket.write('250 Foo'), 10);
-        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifyMailbox: true, verifyDomain: true, debug: false });
+        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true, debug: false });
         should(validMailbox).equal(true);
       });
 
@@ -80,7 +80,7 @@ describe('verifyEmailTest', async () => {
 
         setTimeout(() => self.socket.write('250 Foo'), 10);
 
-        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@yahoo.com', verifyMailbox: true, verifyDomain: true, debug: false });
+        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@yahoo.com', verifySmtp: true, verifyMx: true, debug: false });
 
         should(validMailbox).equal(null);
       });
@@ -100,7 +100,7 @@ describe('verifyEmailTest', async () => {
           socket.write('250 Foo');
         }, 10);
 
-        const { validDomain, validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifyMailbox: true, verifyDomain: true, debug: false });
+        const { validDomain, validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true, debug: false });
 
         should(validMailbox).equal(false);
       });
@@ -144,7 +144,7 @@ describe('verifyEmailTest', async () => {
           }, 1000);
         }, 10);
 
-        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifyMailbox: true, verifyDomain: true, debug: false });
+        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true, debug: false });
         should(validMailbox).equal(true);
       });
 
@@ -207,7 +207,7 @@ describe('verifyEmailTest', async () => {
           } catch (e) {}
         }, 10);
 
-        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifyMailbox: true, verifyDomain: true, debug: false });
+        const { validMailbox } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true, debug: false });
         should(validMailbox).equal(false);
       });
 
@@ -256,7 +256,7 @@ describe('verifyEmailTest', async () => {
 
     context('given a verifyMailbox option false', async () => {
       it('should not check via socket', async () => {
-        const { validDomain, validMailbox } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMailbox: false });
+        const { validDomain, validMailbox } = await verifyEmail({ emailAddress: 'foo@bar.com', verifySmtp: false });
         sinon.assert.called(self.resolveMxStub);
         sinon.assert.notCalled(self.connectStub);
         should(validMailbox).equal(null);
@@ -267,8 +267,8 @@ describe('verifyEmailTest', async () => {
       it('should not check via socket', async () => {
         const { validDomain, validMailbox } = await verifyEmail({
           emailAddress: 'foo@bar.com',
-          verifyDomain: false,
-          verifyMailbox: false,
+          verifyMx: false,
+          verifySmtp: false,
         });
         sinon.assert.notCalled(self.resolveMxStub);
         sinon.assert.notCalled(self.connectStub);
