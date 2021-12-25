@@ -82,7 +82,7 @@ describe('verifyEmailTest', async () => {
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@yahoo.com', verifySmtp: true, verifyMx: true, debug: false });
 
-        should(validSmtp).equal(null);
+        should(validSmtp).equal(true);
       });
 
       it('returns false on over quota check', async () => {

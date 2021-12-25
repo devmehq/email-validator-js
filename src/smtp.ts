@@ -37,11 +37,6 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
   const log = debug ? logMethod : (...args: any) => {};
 
-  if (!mxRecord || /yahoo/.test(mxRecord)) {
-    log('Cannot verify due to missing or unsupported MX record', mxRecord);
-    return null;
-  }
-
   return new Promise((resolve) => {
     const socket = net.connect(25, mxRecord);
     // eslint-disable-next-line prefer-const

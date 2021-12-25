@@ -1,5 +1,8 @@
 # @devmehq/email-validator-js Change Log 
 
+## v1.0.11
+- remove yahoo exclusion in smtp
+
 ## v1.0.10
 - change response validEmailFormat to validFormat
 
