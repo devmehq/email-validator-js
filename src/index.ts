@@ -5,8 +5,8 @@ import { isValidEmail } from './validator';
 let disposableEmailProviders: string[];
 let freeEmailProviders: string[];
 
-export function isDisposableEmail(address: string): boolean {
-  let [_, emailDomain] = address?.split('@');
+export function isDisposableEmail(emailOrDomain: string): boolean {
+  let [_, emailDomain] = emailOrDomain?.split('@');
   if (!emailDomain) {
     emailDomain = _;
   }
@@ -19,8 +19,8 @@ export function isDisposableEmail(address: string): boolean {
   return emailDomain && disposableEmailProviders.includes(emailDomain);
 }
 
-export function isFreeEmail(address: string): boolean {
-  let [_, emailDomain] = address?.split('@');
+export function isFreeEmail(emailOrDomain: string): boolean {
+  let [_, emailDomain] = emailOrDomain?.split('@');
   if (!emailDomain) {
     emailDomain = _;
   }
@@ -52,7 +52,7 @@ interface IVerifyEmailParams {
 const logMethod = console.debug;
 
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
-  const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false } = params;
+  const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
   const log = debug ? logMethod : (...args: any) => {};
@@ -85,7 +85,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     mxRecords = [];
   }
 
-  if (verifyMx) {
+  if (verifyMx || verifySmtp) {
     result.validMx = mxRecords && mxRecords.length > 0;
   }
 

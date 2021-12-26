@@ -1,7 +1,7 @@
 import { isValid } from 'psl';
 
-export function isValidEmailDomain(address: string): boolean {
-  let [_, emailDomain] = address?.split('@');
+export function isValidEmailDomain(emailOrDomain: string): boolean {
+  let [_, emailDomain] = emailOrDomain?.split('@');
   if (!emailDomain) {
     emailDomain = _;
   }

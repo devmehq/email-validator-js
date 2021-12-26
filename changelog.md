@@ -1,5 +1,9 @@
 # @devmehq/email-validator-js Change Log 
 
+## v1.0.12
+- change default value verifyMx to false
+- fix validMx value check when verifySmtp is true
+
 ## v1.0.11
 - remove yahoo exclusion in smtp
 
