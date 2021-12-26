@@ -1,4 +1,4 @@
-# @devmehq/email-validator-js Change Log 
+# Change Log
 
 ## v1.0.13
 - minor refactoring
