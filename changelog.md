@@ -1,5 +1,11 @@
 # @devmehq/email-validator-js Change Log 
 
+## v1.0.13
+- minor refactoring
+- adding more tests and real dns tests
+- change free email domains to json file
+- change disposable email domains to json file
+
 ## v1.0.12
 - change default value verifyMx to false
 - fix validMx value check when verifySmtp is true

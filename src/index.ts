@@ -14,7 +14,7 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
     return false;
   }
   if (!disposableEmailProviders) {
-    disposableEmailProviders = require('./disposable-email-providers').disposableEmailProviders;
+    disposableEmailProviders = require('./disposable-email-providers.json');
   }
   return emailDomain && disposableEmailProviders.includes(emailDomain);
 }
@@ -29,7 +29,7 @@ export function isFreeEmail(emailOrDomain: string): boolean {
   }
 
   if (!freeEmailProviders) {
-    freeEmailProviders = require('./free-email-providers').freeEmailProviders;
+    freeEmailProviders = require('./free-email-providers.json');
   }
 
   return emailDomain && freeEmailProviders.includes(emailDomain);

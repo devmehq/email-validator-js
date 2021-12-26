@@ -33,9 +33,12 @@ type verifyMailBoxSMTP = { local: string; domain: string; mxRecords: string[]; t
 
 export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<boolean> {
   const { local, domain, mxRecords = [], timeout, debug } = params;
-  const [mxRecord] = mxRecords;
-
+  const mxRecord = mxRecords[0];
   const log = debug ? logMethod : (...args: any) => {};
+
+  if (!mxRecord) {
+    return false;
+  }
 
   return new Promise((resolve) => {
     const socket = net.connect(25, mxRecord);

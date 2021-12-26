@@ -35,7 +35,7 @@ function stubSocket(self: SelfMockType) {
 
 const self: SelfMockType = {};
 
-describe('verifyEmailTest', async () => {
+describe('verifyEmailMockTest', async () => {
   beforeEach(() => {
     self.sandbox = sinon.createSandbox();
   });
