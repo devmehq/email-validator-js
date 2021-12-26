@@ -1,4 +1,4 @@
-# email-validator-js
+# Advanced Email Validator 
 [![Build Status](https://github.com/devmehq/email-validator-js/actions/workflows/ci.yml/badge.svg)](https://github.com/devmehq/email-validator-js/actions/workflows/ci.yml)
 [![NPM version](https://img.shields.io/npm/v/@devmehq/email-validator-js.svg)](https://www.npmjs.com/package/@devmehq/email-validator-js)
 [![Downloads](https://img.shields.io/npm/dm/@devmehq/email-validator-js.svg)](https://www.npmjs.com/package/@devmehq/email-validator-js)
@@ -6,14 +6,14 @@
 Verify email address checking MX records, and SMTP connection, check for disposable email addresses and free email providers.
 
 ## Features
-- Check email address validity
-- Check email address domain validity in domain TLD list
-- Check email address MX records
-- Check email address SMTP connection
-- Check email address disposable or burnable status
-- Check email address free email provider status
-- Check domain age and quality score
-- Check domain registration status
+- ✅ Check email address validity
+- ✅ Check email address domain validity in domain TLD list
+- ✅ Check email address MX records
+- ✅ Check email address SMTP connection
+- ✅ Check email address disposable or burnable status
+- ✅ Check email address free email provider status
+- Check domain age and quality score - _**soon**_
+- Check domain registration status - _**soon**_
 
 ## Use cases
 - Increase delivery rate of email campaigns by removing spam emails
