@@ -1,7 +1,6 @@
 # email-validator-js
 [![Build Status](https://github.com/devmehq/email-validator-js/actions/workflows/ci.yml/badge.svg)](https://github.com/devmehq/email-validator-js/actions/workflows/ci.yml)
 [![NPM version](https://img.shields.io/npm/v/@devmehq/email-validator-js.svg)](https://www.npmjs.com/package/@devmehq/email-validator-js)
-[![Coverage Status](https://coveralls.io/repos/devmehq/email-validator-js/badge.svg?branch=master&service=github)](https://coveralls.io/github/devmehq/email-validator-js?branch=master)
 [![Downloads](https://img.shields.io/npm/dm/@devmehq/email-validator-js.svg)](https://www.npmjs.com/package/@devmehq/email-validator-js)
 
 Verify email address checking MX records, and SMTP connection, check for disposable email addresses and free email providers.
@@ -16,7 +15,7 @@ Verify email address checking MX records, and SMTP connection, check for disposa
 - Check domain age and quality score
 - Check domain registration status
 
-## Product use cases
+## Use cases
 - Increase delivery rate of email campaigns by removing spam emails
 - Increase email open rate and your marketing IPs reputation
 - Protect your website from spam, bots and fake emails
