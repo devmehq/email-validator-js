@@ -3,6 +3,15 @@
   "version": "1.0.13",
   "private": false,
   "description": "Advanced Email Validation with DNS MX lookup and Mailbox Verification",
+  "keywords": [
+    "email-validation",
+    "email-typos",
+    "email-regex",
+    "disposable-emails",
+    "free-emails",
+    "smtp",
+    "mx-records"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/devmehq/email-validator-js"
@@ -26,14 +35,14 @@
     "examples/**": "prettier --write"
   },
   "dependencies": {
-    "psl": "1.8.0",
-    "@types/psl": "1.1.0"
+    "@types/psl": "1.1.0",
+    "psl": "1.8.0"
   },
   "devDependencies": {
     "@types/chai": "4.3.0",
     "@types/eslint": "8.2.1",
     "@types/mocha": "9.0.0",
-    "@types/node": "17.0.4",
+    "@types/node": "17.0.5",
     "@types/prettier": "2.4.2",
     "@types/should": "13.0.0",
     "@types/sinon": "10.0.6",

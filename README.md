@@ -85,6 +85,11 @@ Enable or disable mailbox checking. Only a few SMTP servers allow this, and even
 * It returns `false` for SMTP errors specific to the address's formatting or mailbox existence.
 Default: `false`.
 
+### Disposable email providers database ( ✅ Always Updated )
+[Disposable email providers](./src/disposable-email-providers.json)
+
+### Free email providers database  ( ✅ Always Updated )
+[Free email providers](./src/free-email-providers.json)
 
 ## Testing
 ```shell

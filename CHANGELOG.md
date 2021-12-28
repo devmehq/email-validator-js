@@ -1,5 +1,10 @@
 # Change Log
 
+## v1.0.14
+- add socket.on('timeout') event
+- add socket.on('close') event
+- enhance email regex validation
+
 ## v1.0.13
 - minor refactoring
 - adding more tests and real dns tests

@@ -29,10 +29,12 @@ function isMultilineGreet(smtpReply: string) {
 
 const logMethod = console.debug;
 
-type verifyMailBoxSMTP = { local: string; domain: string; mxRecords: string[]; timeout: number; debug: boolean };
+type verifyMailBoxSMTP = { port?: number; local: string; domain: string; mxRecords: string[]; timeout: number; debug: boolean };
 
 export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<boolean> {
-  const { local, domain, mxRecords = [], timeout, debug } = params;
+  // Port 587 → STARTTLS
+  // Port 465 → TLS
+  const { local, domain, mxRecords = [], timeout, debug, port = 25 } = params;
   const mxRecord = mxRecords[0];
   const log = debug ? logMethod : (...args: any) => {};
 
@@ -41,7 +43,7 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
   }
 
   return new Promise((resolve) => {
-    const socket = net.connect(25, mxRecord);
+    const socket = net.connect(port, mxRecord);
     // eslint-disable-next-line prefer-const
     let resTimeout: NodeJS.Timeout;
     let resolved: boolean;
@@ -83,6 +85,16 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
     socket.on('error', (err) => {
       log('Mailbox: error in socket', err);
+      ret(null);
+    });
+
+    socket.on('close', (err) => {
+      log('Mailbox: close socket', err);
+      ret(null);
+    });
+
+    socket.on('timeout', () => {
+      log('Mailbox: timeout socket');
       ret(null);
     });
 
