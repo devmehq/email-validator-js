@@ -153,10 +153,10 @@
   dependencies:
     should "*"
 
-"@types/sinon@10.0.7":
-  version "10.0.7"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-10.0.7.tgz#a0d67d36e9a405e97a0ec78f684d1a1a7823ae29"
-  integrity sha512-934vFrtISamF0rWGnGdxU43pkKrkwfj5IbM8Q0VktXUH7GrNPn+QQ/t9WnaTjhStDKDHMb5qXXDdlKxXcJ6E0A==
+"@types/sinon@10.0.8":
+  version "10.0.8"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-10.0.8.tgz#e43c3722629248470a866c86ecc06e5523ac0b4e"
+  integrity sha512-XZbSLlox2KM7VaEJPZ5G/fMZXJNuAtYiFOax7UT51quZMAJRWKvugPMqNA0mV3jC9HIYpQSg6qbV+ilQMwLqyA==
   dependencies:
     "@sinonjs/fake-timers" "^7.1.0"
 
