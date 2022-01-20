@@ -103,10 +103,10 @@
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.3.0.tgz#23509ebc1fa32f1b4d50d6a66c4032d5b8eaabdc"
   integrity sha512-/ceqdqeRraGolFTcfoXNiqjyQhZzbINDngeoAq9GoHa8PPK1yNzTaxWjA6BFWp5Ua9JpXEMSS4s5i9tS0hOJtw==
 
-"@types/eslint@8.2.2":
-  version "8.2.2"
-  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.2.2.tgz#b64dbdb64b1957cfc8a698c68297fcf8983e94c7"
-  integrity sha512-nQxgB8/Sg+QKhnV8e0WzPpxjIGT3tuJDDzybkDi8ItE/IgTlHo07U0shaIjzhcvQxlq9SDRE42lsJ23uvEgJ2A==
+"@types/eslint@8.4.0":
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.4.0.tgz#95712d5b32fd99a0d9493c31c6197ea7471c3ba6"
+  integrity sha512-JUYa/5JwoqikCy7O7jKtuNe9Z4ZZt615G+1EKfaDGSNEpzaA2OwbV/G1v08Oa7fd1XzlFoSCvt9ePl9/6FyAug==
   dependencies:
     "@types/estree" "*"
     "@types/json-schema" "*"
@@ -126,10 +126,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
-"@types/mocha@9.0.0":
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-9.0.0.tgz#3205bcd15ada9bc681ac20bef64e9e6df88fd297"
-  integrity sha512-scN0hAWyLVAvLR9AyW7HoFF5sJZglyBsbPuHO4fv7JRvfmPBMfp1ozWqOf/e4wwPNxezBZXRfWzMb6iFLgEVRA==
+"@types/mocha@9.1.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-9.1.0.tgz#baf17ab2cca3fcce2d322ebc30454bff487efad5"
+  integrity sha512-QCWHkbMv4Y5U9oW10Uxbr45qMMSzl4OzijsozynUAgx3kEHUdXB00udx2dWDQ7f2TU2a2uuiFaRZjCe3unPpeg==
 
 "@types/node@17.0.5":
   version "17.0.5"
@@ -153,10 +153,10 @@
   dependencies:
     should "*"
 
-"@types/sinon@10.0.6":
-  version "10.0.6"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-10.0.6.tgz#bc3faff5154e6ecb69b797d311b7cf0c1b523a1d"
-  integrity sha512-6EF+wzMWvBNeGrfP3Nx60hhx+FfwSg1JJBLAAP/IdIUq0EYkqCYf70VT3PhuhPX9eLD+Dp+lNdpb/ZeHG8Yezg==
+"@types/sinon@10.0.7":
+  version "10.0.7"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-10.0.7.tgz#a0d67d36e9a405e97a0ec78f684d1a1a7823ae29"
+  integrity sha512-934vFrtISamF0rWGnGdxU43pkKrkwfj5IbM8Q0VktXUH7GrNPn+QQ/t9WnaTjhStDKDHMb5qXXDdlKxXcJ6E0A==
   dependencies:
     "@sinonjs/fake-timers" "^7.1.0"
 
@@ -979,10 +979,10 @@ lilconfig@2.0.4:
   resolved "https://registry.yarnpkg.com/lilconfig/-/lilconfig-2.0.4.tgz#f4507d043d7058b380b6a8f5cb7bcd4b34cee082"
   integrity sha512-bfTIN7lEsiooCocSISTWXkiWJkRqtL9wYtYy+8EK3Y41qh3mpwPU0ycTOgjdY9ErwXCc8QyrQp82bdL0Xkm9yA==
 
-lint-staged@12.1.7:
-  version "12.1.7"
-  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-12.1.7.tgz#fe9137992ac18a456422bb8484dd30be0140629f"
-  integrity sha512-bltv/ejiLWtowExpjU+s5z8j1Byjg9AlmaAjMmqNbIicY69u6sYIwXGg0dCn0TlkrrY2CphtHIXAkbZ+1VoWQQ==
+lint-staged@12.2.1:
+  version "12.2.1"
+  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-12.2.1.tgz#e37b5a81deaabf5823f43b3aa903a70c15c9d0b3"
+  integrity sha512-VCVcA9C2Vt5HHxSR4EZVZFJcQRJH984CGBeY+cJ/xed4mBd+JidbM/xbKcCq5ASaygAV0iITtdsCTnID7h/1OQ==
   dependencies:
     cli-truncate "^3.1.0"
     colorette "^2.0.16"
