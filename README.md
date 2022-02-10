@@ -46,7 +46,7 @@ yarn add @devmehq/email-validator-js
 ```
 Or NPM
 ```npm
-npm insgall @devmehq/email-validator-js
+npm install @devmehq/email-validator-js
 ```
 
 ## Examples
@@ -92,7 +92,7 @@ Default: `false`.
 [Free email providers](./src/free-email-providers.json)
 
 ## Testing
-```shell
+```bash
 yarn test
 ```
 
