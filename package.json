@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@types/psl": "1.1.0",
-    "psl": "1.8.0"
+    "psl": "1.9.0"
   },
   "devDependencies": {
     "@types/chai": "4.3.1",
