@@ -46,7 +46,7 @@
     "@types/prettier": "2.7.1",
     "@types/should": "13.0.0",
     "@types/sinon": "10.0.13",
-    "chai": "4.3.6",
+    "chai": "4.3.7",
     "eslint": "8.27.0",
     "husky": "8.0.1",
     "lint-staged": "13.0.3",
