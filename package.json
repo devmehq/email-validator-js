@@ -12,11 +12,11 @@
     "smtp",
     "mx-records"
   ],
-  "homepage": "https://github.com/devmehq/email-validator#readme",
-  "bugs": "https://github.com/devmehq/email-validator/issues",
+  "homepage": "https://github.com/devmehq/email-validator-js#readme",
+  "bugs": "https://github.com/devmehq/email-validator-js/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/devmehq/email-validator"
+    "url": "https://github.com/devmehq/email-validator-js"
   },
   "license": "MIT",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
