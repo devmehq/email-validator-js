@@ -1,10 +1,5 @@
-import { verifyEmail } from '../src';
-
 import should from 'should';
-import sinon, { SinonSandbox, SinonStub } from 'sinon';
-import { MxRecord, promises as dnsPromises } from 'dns';
-import net, { Socket } from 'net';
-import { resolveMxRecords } from '../src/dns';
+import { verifyEmail } from '../src';
 
 describe('verifyEmailRealTest', async () => {
   it('should success on real email gmail', async () => {

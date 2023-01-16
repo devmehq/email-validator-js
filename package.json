@@ -12,25 +12,27 @@
     "smtp",
     "mx-records"
   ],
+  "homepage": "https://github.com/devmehq/email-validator#readme",
+  "bugs": "https://github.com/devmehq/email-validator/issues",
   "repository": {
     "type": "git",
-    "url": "git://github.com/devmehq/email-validator-js"
+    "url": "https://github.com/devmehq/email-validator"
   },
   "license": "MIT",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
   "scripts": {
     "build": "rm -rf dist && tsc -p .",
-    "lint": "eslint lib test",
+    "lint": "eslint lib __tests__",
     "lint-fix": "yarn lint -- --fix",
-    "mocha": "nyc mocha --report lcovonly -- test/*-test.ts",
+    "mocha": "nyc mocha --report lcovonly -- __tests__/*-test.ts",
     "prepare": "yarn husky install",
-    "prettier": "prettier --write \"src/**/*.{ts,json}\" \"test/**/*.{ts,json}\"",
+    "prettier": "prettier --write \"src/**/*.{ts,json}\" \"__tests__/**/*.{ts,json}\"",
     "test": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
     "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha"
   },
   "lint-staged": {
     "src/*.{ts,tsx,js,jsx}": "prettier --write",
-    "test/*.{ts,tsx,js,jsx}": "prettier --write",
+    "__tests__/*.{ts,tsx,js,jsx}": "prettier --write",
     "docs/**": "prettier --write",
     "examples/**": "prettier --write"
   },
@@ -40,10 +42,8 @@
   },
   "devDependencies": {
     "@types/chai": "4.3.4",
-    "@types/eslint": "8.4.10",
     "@types/mocha": "10.0.1",
     "@types/node": "18.11.18",
-    "@types/prettier": "2.7.2",
     "@types/should": "13.0.0",
     "@types/sinon": "10.0.13",
     "chai": "4.3.7",
