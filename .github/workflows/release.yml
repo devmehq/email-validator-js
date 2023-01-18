@@ -19,6 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    permissions:
+      packages: write
+      contents: write
+
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - uses: styfle/cancel-workflow-action@0.11.0
@@ -35,7 +39,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 19
-          cache: 'yarn'
 
       - name: Yarn
         run: yarn install --frozen-lockfile
@@ -44,10 +47,7 @@ jobs:
         run: |
           yarn test
 
-      - name: Release Prep
-        run: |
-          npm i -g semantic-release @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
-
       - name: Release
         run: |
+          npm i -g semantic-release @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
           npx semantic-release --no-ci --debug
