@@ -1,10 +1,5 @@
 'use strict';
 
-// This is a JavaScript-based config file containing every Mocha option plus others.
-// If you need conditional logic, you might want to use this type of config,
-// e.g. set options via environment variables 'process.env'.
-// Otherwise, JSON or YAML is recommended.
-
 module.exports = {
   'allow-uncaught': false,
   'async-only': true,
@@ -23,7 +18,7 @@ module.exports = {
   recursive: false,
   reporter: 'spec',
   require: ['ts-node/register', 'should'],
-  spec: ['./test/*-test.ts'],
+  spec: ['./__tests__/*-test.ts'],
   timeout: '8s',
   'trace-warnings': true,
 };
