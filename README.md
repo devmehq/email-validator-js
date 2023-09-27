@@ -55,7 +55,7 @@ npm install @devmehq/email-validator-js
 ```typescript
 import { verifyEmail } from '@devmehq/email-validator-js';
 
-const { validFormat, validSmtp, validMx } = await verifyEmail({ mailbox: 'foo@email.com', verifyMx: true, verifySmtp: true, timeout: 3000 });
+const { validFormat, validSmtp, validMx } = await verifyEmail({ emailAddress: 'foo@email.com', verifyMx: true, verifySmtp: true, timeout: 3000 });
 // validFormat: true
 // validMx: true
 // validSmtp: true
@@ -64,7 +64,7 @@ const { validFormat, validSmtp, validMx } = await verifyEmail({ mailbox: 'foo@em
 When a domain does not exist or has no MX records, the domain validation will fail, and the mailbox validation will return `null` because it could not be performed:
 
 ```typescript
-const { validFormat, validSmtp, validMx } = await verifyEmail({ mailbox: 'foo@bad-domain.com', verifyMx: true, verifySmtp: true, timeout: 3000 });
+const { validFormat, validSmtp, validMx } = await verifyEmail({ emailAddress: 'foo@bad-domain.com', verifyMx: true, verifySmtp: true, timeout: 3000 });
 // validFormat: true
 // validMx: false
 // validSmtp: null
