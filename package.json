@@ -20,6 +20,11 @@
   },
   "license": "MIT",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rm -rf dist && tsc -p .",
     "lint": "eslint src __tests__",

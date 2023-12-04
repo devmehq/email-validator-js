@@ -1,6 +1,9 @@
 # Change Log
 
-## v1.0.15
+## v1.0.18
+- Fix npm release folder
+
+## v1.0.17
 - Update dependencies
 - Update disposable email domains
 - Update free email domains
