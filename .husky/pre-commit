@@ -1,2 +1,1 @@
 node_modules/.bin/lint-staged
-yarn run test
