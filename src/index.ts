@@ -57,8 +57,6 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
 
   const log = debug ? logMethod : (...args: any) => {};
 
-  let local: string;
-  let domain: string;
   let mxRecords: string[];
 
   if (!isValidEmail(emailAddress)) {
@@ -66,7 +64,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     return result;
   }
 
-  [local, domain] = emailAddress.split('@');
+  const [local, domain] = emailAddress.split('@');
   if (!domain) {
     log('Failed on wellFormed check');
     return result;

@@ -45,13 +45,6 @@
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/triple-slash-reference": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/typedef": [
-      "error",
-      {
-        "arrowParameter": false,
-        "variableDeclaration": true
-      }
-    ]
+    "@typescript-eslint/no-unused-vars": "off"
   }
 }
