@@ -2,7 +2,7 @@
 
 [![NPM version](https://badgen.net/npm/v/@devmehq/email-validator-js)](https://npm.im/@devmehq/email-validator-js)
 [![Build Status](https://github.com/devmehq/email-validator-js/workflows/CI/badge.svg)](https://github.com/devmehq/email-validator-js/actions)
-[![Downloads](https://img.shields.io/npm/dm/graphql-upload-ts.svg)](https://www.npmjs.com/package/graphql-upload-ts)
+[![Downloads](https://img.shields.io/npm/dm/email-validator-js.svg)](https://www.npmjs.com/package/email-validator-js)
 [![UNPKG](https://img.shields.io/badge/UNPKG-OK-179BD7.svg)](https://unpkg.com/browse/@devmehq/email-validator-js@latest/)
 
 Verify email address checking MX records, and SMTP connection, check for disposable email addresses and free email providers.
