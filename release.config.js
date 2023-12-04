@@ -50,7 +50,7 @@ module.exports = {
     ],
     ['@semantic-release/release-notes-generator'],
     // https://github.com/semantic-release/npm
-    ['@semantic-release/npm', { pkgRoot: './dist' }],
+    ['@semantic-release/npm'],
     // https://github.com/semantic-release/github
     [
       '@semantic-release/github',
