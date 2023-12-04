@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - uses: styfle/cancel-workflow-action@0.11.0
+      - uses: styfle/cancel-workflow-action@0.12.0
         with:
           workflow_id: ci.yml
           access_token: ${{ github.token }}
