@@ -34,8 +34,7 @@
     "prepublishOnly": "yarn build",
     "prettier": "prettier --write \"src/**/*.{ts,json}\" \"__tests__/**/*.{ts,json}\"",
     "test": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
-    "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha",
-    "postversion": "cp package.json README.md LICENSE.md CHANGELOG.md yarn.lock ./dist"
+    "test-ci": "TS_NODE_TRANSPILE_ONLY=1 TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha"
   },
   "lint-staged": {
     "src/*.{ts,tsx,js,jsx}": "prettier --write",
