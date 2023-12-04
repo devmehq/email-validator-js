@@ -1,5 +1,10 @@
 # Change Log
 
+## v1.0.15
+- Update dependencies
+- Update disposable email domains
+- Update free email domains
+
 ## v1.0.14
 - add socket.on('timeout') event
 - add socket.on('close') event

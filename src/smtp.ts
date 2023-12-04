@@ -4,7 +4,7 @@ import net from 'net';
  * @param  {String} smtpReply A message from the SMTP server.
  * @return {Boolean} True if over quota.
  */
-function isOverQuota(smtpReply: string) {
+function isOverQuota(smtpReply: string): boolean {
   return smtpReply && /(over quota)/gi.test(smtpReply);
 }
 
