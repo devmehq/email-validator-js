@@ -1,5 +1,8 @@
 # Change Log
 
+## v1.0.19
+- allow passing `smtpPort` to `verifyEmail` function
+
 ## v1.0.18
 - Fix npm release folder
 
