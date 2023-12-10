@@ -47,12 +47,13 @@ interface IVerifyEmailParams {
   verifyMx?: boolean;
   verifySmtp?: boolean;
   debug?: boolean;
+  smtpPort?: number;
 }
 
 const logMethod = console.debug;
 
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
-  const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false } = params;
+  const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false, smtpPort = 25 } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
   const log = debug ? logMethod : (...args: any) => {};
@@ -94,6 +95,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
       mxRecords,
       timeout,
       debug,
+      port: smtpPort,
     });
   }
 

@@ -36,7 +36,7 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
   // Port 465 → TLS
   const { local, domain, mxRecords = [], timeout, debug, port = 25 } = params;
   const mxRecord = mxRecords[0];
-  const log = debug ? logMethod : (...args: any) => {};
+  const log = debug ? logMethod : () => {};
 
   if (!mxRecord) {
     return false;
@@ -100,6 +100,7 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
     resTimeout = setTimeout(() => {
       log(`Mailbox: timed out (${timeout} ms)`);
+      socket.destroy();
       ret(null);
     }, timeout);
   });
