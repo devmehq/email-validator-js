@@ -23,7 +23,7 @@ function isInvalidMailboxError(smtpReply: string): boolean {
  * @param {String} smtpReply A message from the SMTP server.
  * @return {Boolean} True if this is a multiline greet.
  */
-function isMultilineGreet(smtpReply: string) {
+function isMultilineGreet(smtpReply: string): boolean {
   return smtpReply && /^(250|220)-/.test(smtpReply);
 }
 
@@ -51,9 +51,9 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
     const ret = (result: boolean) => {
       if (resolved) return;
 
-      if (!socket.destroyed) {
-        socket.write('QUIT\r\n');
-        socket.end();
+      if (!socket?.destroyed) {
+        socket?.write('QUIT\r\n');
+        socket?.end();
       }
 
       clearTimeout(resTimeout);
@@ -64,8 +64,6 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
     const messages = [`HELO ${domain}`, `MAIL FROM: <${local}@${domain}>`, `RCPT TO: <${local}@${domain}>`];
 
     socket.on('data', (data: string) => {
-      data = data.toString();
-
       log('Mailbox: got data', data);
 
       if (isInvalidMailboxError(data)) return ret(false);
