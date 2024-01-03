@@ -18,7 +18,7 @@
     "type": "git",
     "url": "https://github.com/devmehq/email-validator-js"
   },
-  "license": "MIT",
+  "license": "BSL 1.1",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

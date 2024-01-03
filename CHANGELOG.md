@@ -1,5 +1,8 @@
 # Change Log
 
+## v2.0.0
+- Update license from MIT to BSL-1.1
+
 ## v1.0.19
 - allow passing `smtpPort` to `verifyEmail` function
 
