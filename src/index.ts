@@ -63,7 +63,7 @@ interface IVerifyEmailParams {
 const mxDomainPorts: Record<string, number> = {
   // 465 or 587
   // https://help.ovhcloud.com/csm/en-ca-web-paas-development-email?id=kb_article_view&sysparm_article=KB0053893
-  'ovh.net': 587,
+  'ovh.net': 465,
 };
 
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
@@ -107,16 +107,17 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   }
 
   if (verifySmtp && mxRecords?.length > 0) {
+    // get custom port for domain if not provided in params
     let domainPort = params.smtpPort;
-
-    const mxDomain = parse(mxRecords[0]);
-    if ('domain' in mxDomain && mxDomain.domain) {
-      domainPort = mxDomainPorts[mxDomain.domain];
-      log(`[verifyEmail] Found mxDomain ${mxDomain.domain} with port ${domainPort}`);
-    }
-
-    if ('error' in mxDomain) {
-      log(`[verifyEmail] Failed to parse mxDomain ${mxDomain.error}`);
+    if (!domainPort) {
+      const mxDomain = parse(mxRecords[0]);
+      if ('domain' in mxDomain && mxDomain.domain) {
+        domainPort = mxDomainPorts[mxDomain.domain];
+        log(`[verifyEmail] Found mxDomain ${mxDomain.domain} with port ${domainPort}`);
+      }
+      if ('error' in mxDomain) {
+        log(`[verifyEmail] Failed to parse mxDomain ${mxDomain.error}`);
+      }
     }
 
     result.validSmtp = await verifyMailboxSMTP({

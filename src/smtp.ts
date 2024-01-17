@@ -27,8 +27,6 @@ function isMultilineGreet(smtpReply: string): boolean {
   return smtpReply && /^(250|220)-/.test(smtpReply);
 }
 
-const logMethod = console.debug;
-
 type verifyMailBoxSMTP = { port?: number; local: string; domain: string; mxRecords: string[]; timeout: number; debug: boolean };
 
 export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<boolean> {
@@ -36,13 +34,14 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
   // Port 465 → TLS
   const { local, domain, mxRecords = [], timeout, debug, port = 25 } = params;
   const mxRecord = mxRecords[0];
-  const log = debug ? logMethod : () => {};
+  const log = debug ? console.debug : () => {};
 
   if (!mxRecord) {
     return false;
   }
 
   return new Promise((resolve) => {
+    log('[verifyMailboxSMTP] connecting to', mxRecord, port);
     const socket = net.connect(port, mxRecord);
     // eslint-disable-next-line prefer-const
     let resTimeout: NodeJS.Timeout;
@@ -52,6 +51,7 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
       if (resolved) return;
 
       if (!socket?.destroyed) {
+        log('[verifyMailboxSMTP] closing socket');
         socket?.write('QUIT\r\n');
         socket?.end();
       }
@@ -62,9 +62,9 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
     };
 
     const messages = [`HELO ${domain}`, `MAIL FROM: <${local}@${domain}>`, `RCPT TO: <${local}@${domain}>`];
-
+    log('[verifyMailboxSMTP] writing messages', messages);
     socket.on('data', (data: string) => {
-      log('Mailbox: got data', data);
+      log('[verifyMailboxSMTP] got data', data);
 
       if (isInvalidMailboxError(data)) return ret(false);
       if (isOverQuota(data)) return ret(false);
@@ -74,7 +74,7 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
       if (messages.length > 0) {
         const message = messages.shift();
-        log('Mailbox: writing message', message);
+        log('[verifyMailboxSMTP] writing message', message);
         return socket.write(message + '\r\n');
       }
 
@@ -82,22 +82,22 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
     });
 
     socket.on('error', (err) => {
-      log('Mailbox: error in socket', err);
+      log('[verifyMailboxSMTP] error in socket', err);
       ret(null);
     });
 
     socket.on('close', (err) => {
-      log('Mailbox: close socket', err);
+      log('[verifyMailboxSMTP] close socket', err);
       ret(null);
     });
 
     socket.on('timeout', () => {
-      log('Mailbox: timeout socket');
+      log('[verifyMailboxSMTP] timeout socket');
       ret(null);
     });
 
     resTimeout = setTimeout(() => {
-      log(`Mailbox: timed out (${timeout} ms)`);
+      log(`[verifyMailboxSMTP] timed out (${timeout} ms)`);
       socket.destroy();
       ret(null);
     }, timeout);
