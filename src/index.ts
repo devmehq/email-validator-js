@@ -1,6 +1,7 @@
 import { verifyMailboxSMTP } from './smtp';
 import { resolveMxRecords } from './dns';
 import { isValidEmail } from './validator';
+import { parse } from 'psl';
 
 let disposableEmailProviders: string[];
 const disposableResults: Record<string, boolean> = {};
@@ -59,8 +60,14 @@ interface IVerifyEmailParams {
   smtpPort?: number;
 }
 
+const mxDomainPorts: Record<string, number> = {
+  // 465 or 587
+  // https://help.ovhcloud.com/csm/en-ca-web-paas-development-email?id=kb_article_view&sysparm_article=KB0053893
+  'ovh.net': 587,
+};
+
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
-  const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false, smtpPort = 25 } = params;
+  const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
   const log = debug ? console.debug : (...args: any) => {};
@@ -68,13 +75,13 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   let mxRecords: string[];
 
   if (!isValidEmail(emailAddress)) {
-    log('Failed on wellFormed check');
+    log('[verifyEmail] Failed on wellFormed check');
     return result;
   }
 
   const [local, domain] = emailAddress.split('@');
   if (!domain) {
-    log('Failed on wellFormed check');
+    log('[verifyEmail] Failed on wellFormed check');
     return result;
   }
 
@@ -85,9 +92,9 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
 
   try {
     mxRecords = await resolveMxRecords(domain);
-    log('Found MX records', mxRecords);
+    log('[verifyEmail] Found MX records', mxRecords);
   } catch (err) {
-    log('Failed to resolve MX records', err);
+    log('[verifyEmail] Failed to resolve MX records', err);
     mxRecords = [];
   }
 
@@ -95,14 +102,30 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     result.validMx = mxRecords && mxRecords.length > 0;
   }
 
-  if (verifySmtp) {
+  if (verifySmtp && !mxRecords?.length) {
+    result.validSmtp = false;
+  }
+
+  if (verifySmtp && mxRecords?.length > 0) {
+    let domainPort = params.smtpPort;
+
+    const mxDomain = parse(mxRecords[0]);
+    if ('domain' in mxDomain && mxDomain.domain) {
+      domainPort = mxDomainPorts[mxDomain.domain];
+      log(`[verifyEmail] Found mxDomain ${mxDomain.domain} with port ${domainPort}`);
+    }
+
+    if ('error' in mxDomain) {
+      log(`[verifyEmail] Failed to parse mxDomain ${mxDomain.error}`);
+    }
+
     result.validSmtp = await verifyMailboxSMTP({
       local,
       domain,
       mxRecords,
       timeout,
       debug,
-      port: smtpPort,
+      port: domainPort,
     });
   }
 
