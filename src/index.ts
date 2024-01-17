@@ -3,9 +3,9 @@ import { resolveMxRecords } from './dns';
 import { isValidEmail } from './validator';
 
 let disposableEmailProviders: string[];
-let disposableResults: Record<string, boolean>;
+const disposableResults: Record<string, boolean> = {};
 let freeEmailProviders: string[];
-let freeResults: Record<string, boolean>;
+const freeResults: Record<string, boolean> = {};
 
 export function isDisposableEmail(emailOrDomain: string): boolean {
   let [_, emailDomain] = emailOrDomain?.split('@');
