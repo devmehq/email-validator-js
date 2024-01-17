@@ -3,7 +3,9 @@ import { resolveMxRecords } from './dns';
 import { isValidEmail } from './validator';
 
 let disposableEmailProviders: string[];
+let disposableResults: Record<string, boolean>;
 let freeEmailProviders: string[];
+let freeResults: Record<string, boolean>;
 
 export function isDisposableEmail(emailOrDomain: string): boolean {
   let [_, emailDomain] = emailOrDomain?.split('@');
@@ -13,10 +15,14 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
   if (!emailDomain) {
     return false;
   }
+  // cache results
+  if (disposableResults[emailDomain]) return disposableResults[emailDomain];
+
   if (!disposableEmailProviders) {
     disposableEmailProviders = require('./disposable-email-providers.json');
   }
-  return emailDomain && disposableEmailProviders.includes(emailDomain);
+  disposableResults[emailDomain] = emailDomain && disposableEmailProviders.includes(emailDomain);
+  return disposableResults[emailDomain];
 }
 
 export function isFreeEmail(emailOrDomain: string): boolean {
@@ -27,12 +33,15 @@ export function isFreeEmail(emailOrDomain: string): boolean {
   if (!emailDomain) {
     return false;
   }
+  // cache results
+  if (freeResults[emailDomain]) return freeResults[emailDomain];
 
   if (!freeEmailProviders) {
     freeEmailProviders = require('./free-email-providers.json');
   }
 
-  return emailDomain && freeEmailProviders.includes(emailDomain);
+  freeResults[emailDomain] = emailDomain && freeEmailProviders.includes(emailDomain);
+  return freeResults[emailDomain];
 }
 
 interface IVerifyEmailResult {
@@ -50,13 +59,11 @@ interface IVerifyEmailParams {
   smtpPort?: number;
 }
 
-const logMethod = console.debug;
-
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
   const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false, smtpPort = 25 } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
-  const log = debug ? logMethod : (...args: any) => {};
+  const log = debug ? console.debug : (...args: any) => {};
 
   let mxRecords: string[];
 
