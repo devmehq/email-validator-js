@@ -36,6 +36,12 @@ function stubSocket(self: SelfMockType) {
 const self: SelfMockType = {};
 
 describe('verifyEmailMockTest', async () => {
+  let testContext: any;
+
+  beforeEach(() => {
+    testContext = {};
+  });
+
   beforeEach(() => {
     self.sandbox = sinon.createSandbox();
   });
@@ -90,7 +96,7 @@ describe('verifyEmailMockTest', async () => {
         const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
-          if (!data.toString().includes('QUIT')) this.emit('data', msg);
+          if (!data.toString().includes('QUIT')) testContext.emit('data', msg);
           return true;
         });
 
@@ -130,8 +136,8 @@ describe('verifyEmailMockTest', async () => {
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
           if (!data.toString().includes('QUIT')) {
-            if (!greeted) return this.emit('data', '550 5.5.1 Protocol Error');
-            this.emit('data', '250 Foo');
+            if (!greeted) return testContext.emit('data', '550 5.5.1 Protocol Error');
+            testContext.emit('data', '250 Foo');
           }
         });
 
@@ -181,7 +187,7 @@ describe('verifyEmailMockTest', async () => {
         const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
-          if (!data.toString().includes('QUIT')) this.emit('data', '500 Foo');
+          if (!data.toString().includes('QUIT')) testContext.emit('data', '500 Foo');
           return true;
         });
 
@@ -199,7 +205,7 @@ describe('verifyEmailMockTest', async () => {
         const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
-          if (!data.toString().includes('QUIT')) this.emit('data', '550 Foo');
+          if (!data.toString().includes('QUIT')) testContext.emit('data', '550 Foo');
           return true;
         });
 
@@ -220,7 +226,7 @@ describe('verifyEmailMockTest', async () => {
         const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
-          if (!data.toString().includes('QUIT')) this.emit('data', msg);
+          if (!data.toString().includes('QUIT')) testContext.emit('data', msg);
           return true;
         });
 
@@ -235,7 +241,7 @@ describe('verifyEmailMockTest', async () => {
         const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
-          if (!data.toString().includes('QUIT')) this.emit('data', msg);
+          if (!data.toString().includes('QUIT')) testContext.emit('data', msg);
           return true;
         });
 
@@ -246,7 +252,7 @@ describe('verifyEmailMockTest', async () => {
       });
     });
 
-    context('given no mx records', async () => {
+    describe('given no mx records', async () => {
       beforeEach(() => {
         self.resolveMxStub.yields(null, []);
       });
@@ -258,7 +264,7 @@ describe('verifyEmailMockTest', async () => {
       });
     });
 
-    context('given a verifyMailbox option false', async () => {
+    describe('given a verifyMailbox option false', async () => {
       it('should not check via socket', async () => {
         const { validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifySmtp: false, verifyMx: true });
         sinon.assert.called(self.resolveMxStub);
@@ -267,7 +273,7 @@ describe('verifyEmailMockTest', async () => {
       });
     });
 
-    context('given a verifyDomain option false', async () => {
+    describe('given a verifyDomain option false', async () => {
       it('should not check via socket', async () => {
         const { validMx, validSmtp } = await verifyEmail({
           emailAddress: 'foo@bar.com',
