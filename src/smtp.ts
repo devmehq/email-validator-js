@@ -1,4 +1,5 @@
 import net from 'net';
+import tls from 'tls';
 
 /**
  * @param  {String} smtpReply A message from the SMTP server.
@@ -42,7 +43,18 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
   return new Promise((resolve) => {
     log('[verifyMailboxSMTP] connecting to', mxRecord, port);
-    const socket = net.connect(port, mxRecord);
+    const socket =
+      port === 465
+        ? tls.connect({
+            host: mxRecord,
+            port,
+            requestCert: false,
+            rejectUnauthorized: false,
+          })
+        : net.connect({
+            host: mxRecord,
+            port,
+          });
     // eslint-disable-next-line prefer-const
     let resTimeout: NodeJS.Timeout;
     let resolved: boolean;
@@ -64,18 +76,19 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
     const messages = [`HELO ${domain}`, `MAIL FROM: <${local}@${domain}>`, `RCPT TO: <${local}@${domain}>`];
     log('[verifyMailboxSMTP] writing messages', messages);
     socket.on('data', (data: string) => {
-      log('[verifyMailboxSMTP] got data', data);
+      const dataString = String(data);
+      log('[verifyMailboxSMTP] got data', dataString);
 
-      if (isInvalidMailboxError(data)) return ret(false);
-      if (isOverQuota(data)) return ret(false);
-      if (!data.includes('220') && !data.includes('250')) return ret(null);
+      if (isInvalidMailboxError(dataString)) return ret(false);
+      if (isOverQuota(dataString)) return ret(false);
+      if (!dataString.includes('220') && !dataString.includes('250')) return ret(null);
 
-      if (isMultilineGreet(data)) return;
+      if (isMultilineGreet(dataString)) return;
 
       if (messages.length > 0) {
         const message = messages.shift();
         log('[verifyMailboxSMTP] writing message', message);
-        return socket.write(message + '\r\n');
+        return socket.write(`${message}\r\n`);
       }
 
       ret(true);

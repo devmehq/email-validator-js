@@ -60,7 +60,7 @@ interface IVerifyEmailParams {
   smtpPort?: number;
 }
 
-const mxDomainPorts: Record<string, number> = {
+export const domainPorts: Record<string, number> = {
   // 465 or 587
   // https://help.ovhcloud.com/csm/en-ca-web-paas-development-email?id=kb_article_view&sysparm_article=KB0053893
   'ovh.net': 465,
@@ -112,7 +112,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     if (!domainPort) {
       const mxDomain = parse(mxRecords[0]);
       if ('domain' in mxDomain && mxDomain.domain) {
-        domainPort = mxDomainPorts[mxDomain.domain];
+        domainPort = domainPorts[mxDomain.domain];
         log(`[verifyEmail] Found mxDomain ${mxDomain.domain} with port ${domainPort}`);
       }
       if ('error' in mxDomain) {

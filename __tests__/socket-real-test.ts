@@ -35,4 +35,10 @@ describe('verifyEmailRealTest', () => {
     expect(validMx).toBe(true);
     expect(validSmtp).toBe(null);
   });
+  it('should use custom port with mapped domain: qq.com', async () => {
+    const { validFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: '10000000000000@qq.com', debug: true, verifySmtp: true, verifyMx: true });
+    expect(validFormat).toBe(true);
+    expect(validMx).toBe(true);
+    expect(validSmtp).toBe(null);
+  });
 });
