@@ -1,5 +1,4 @@
 import net from 'net';
-import tls from 'tls';
 
 /**
  * @param  {String} smtpReply A message from the SMTP server.
@@ -43,18 +42,10 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
   return new Promise((resolve) => {
     log('[verifyMailboxSMTP] connecting to', mxRecord, port);
-    const socket =
-      port === 465
-        ? tls.connect({
-            host: mxRecord,
-            port,
-            requestCert: false,
-            rejectUnauthorized: false,
-          })
-        : net.connect({
-            host: mxRecord,
-            port,
-          });
+    const socket = net.connect({
+      host: mxRecord,
+      port,
+    });
     // eslint-disable-next-line prefer-const
     let resTimeout: NodeJS.Timeout;
     let resolved: boolean;
