@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
-    "@types/node": "20.11.20",
+    "@types/node": "20.11.21",
     "@types/sinon": "17.0.3",
     "@typescript-eslint/eslint-plugin": "7.1.0",
     "@typescript-eslint/parser": "7.1.0",
