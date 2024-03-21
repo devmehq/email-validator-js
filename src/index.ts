@@ -2,8 +2,8 @@ import { verifyMailboxSMTP } from './smtp';
 import { resolveMxRecords } from './dns';
 import { isValidEmail } from './validator';
 
-let disposableEmailProviders: string[];
-let freeEmailProviders: string[];
+let disposableEmailProviders: Set<string>;
+let freeEmailProviders: Set<string>;
 
 export function isDisposableEmail(emailOrDomain: string): boolean {
   let [_, emailDomain] = emailOrDomain?.split('@');
@@ -14,9 +14,10 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
     return false;
   }
   if (!disposableEmailProviders) {
-    disposableEmailProviders = require('./disposable-email-providers.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    disposableEmailProviders = new Set(require('./disposable-email-providers.json'));
   }
-  return emailDomain && disposableEmailProviders.includes(emailDomain);
+  return emailDomain && disposableEmailProviders.has(emailDomain);
 }
 
 export function isFreeEmail(emailOrDomain: string): boolean {
@@ -29,10 +30,11 @@ export function isFreeEmail(emailOrDomain: string): boolean {
   }
 
   if (!freeEmailProviders) {
-    freeEmailProviders = require('./free-email-providers.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    freeEmailProviders = new Set(require('./free-email-providers.json'));
   }
 
-  return emailDomain && freeEmailProviders.includes(emailDomain);
+  return emailDomain && freeEmailProviders.has(emailDomain);
 }
 
 interface IVerifyEmailResult {
