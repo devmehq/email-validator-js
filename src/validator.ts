@@ -1,5 +1,7 @@
 import { isValid } from 'psl';
 
+const isValidResults: Record<string, boolean> = {};
+
 export function isValidEmailDomain(emailOrDomain: string): boolean {
   let [_, emailDomain] = emailOrDomain?.split('@');
   if (!emailDomain) {
@@ -9,9 +11,14 @@ export function isValidEmailDomain(emailOrDomain: string): boolean {
     return false;
   }
 
+  // cache results
+  if (isValidResults[emailDomain]) return isValidResults[emailDomain];
+
   try {
-    return isValid(emailDomain);
+    isValidResults[emailDomain] = isValid(emailDomain);
+    return isValidResults[emailDomain];
   } catch (e) {
+    isValidResults[emailDomain] = false;
     return false;
   }
 }

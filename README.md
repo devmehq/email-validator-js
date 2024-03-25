@@ -38,8 +38,26 @@ Verify email address checking MX records, and SMTP connection, check for disposa
 ## API / Cloud Hosted Service
 We offer this `email verification and validation and more advanced features` in our Scalable Cloud API Service Offering - You could try it here [Email Verification](https://dev.me/products/email)
 
+---
 
-## Self-hosting - installation and usage instructions
+## License
+
+email-validator-js licensed under [Business Source License 1.1](LICENSE).
+The BSL allows use only for non-production purposes.
+
+| Use Case | Is a commercial license required?|
+|----------|-----------|
+| Exploring email-validator-js for your own research, hobbies, and testing purposes | **No** |
+| Using email-validator-js to build a proof-of-concept application | **No** |
+| Using email-validator-js to build revenue-generating applications | **Yes** |
+| Using email-validator-js to build software that is provided as a service (SaaS) | **Yes** |
+| Forking email-validator-js for any production purposes | **Yes** |
+
+To purchase a license for uses not authorized by BSL, please contact us at [sales@dev.me](mailto:sales@dev.me?subject=Interested%20in%20email-validator-js%20commercial%20license).
+
+---
+
+## installation and usage instructions
 
 ## Installation
 Install the module through YARN:
@@ -101,4 +119,4 @@ yarn test
 ## Contributing
 Please feel free to open an issue or create a pull request and fix bugs or add features, All contributions are welcome. Thank you!
 
-## LICENSE [MIT](LICENSE.md)
+## LICENSE [Business Source License 1.1](LICENSE.md)
