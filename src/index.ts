@@ -3,9 +3,9 @@ import { resolveMxRecords } from './dns';
 import { isValidEmail } from './validator';
 import { parse } from 'psl';
 
-let disposableEmailProviders: string[];
+let disposableEmailProviders: Set<string>;
 const disposableResults: Record<string, boolean> = {};
-let freeEmailProviders: string[];
+let freeEmailProviders: Set<string>;
 const freeResults: Record<string, boolean> = {};
 
 export function isDisposableEmail(emailOrDomain: string): boolean {
@@ -20,9 +20,10 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
   if (disposableResults[emailDomain]) return disposableResults[emailDomain];
 
   if (!disposableEmailProviders) {
-    disposableEmailProviders = require('./disposable-email-providers.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    disposableEmailProviders = new Set(require('./disposable-email-providers.json'));
   }
-  disposableResults[emailDomain] = emailDomain && disposableEmailProviders.includes(emailDomain);
+  disposableResults[emailDomain] = emailDomain && disposableEmailProviders.has(emailDomain);
   return disposableResults[emailDomain];
 }
 
@@ -38,10 +39,11 @@ export function isFreeEmail(emailOrDomain: string): boolean {
   if (freeResults[emailDomain]) return freeResults[emailDomain];
 
   if (!freeEmailProviders) {
-    freeEmailProviders = require('./free-email-providers.json');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    freeEmailProviders = new Set(require('./free-email-providers.json'));
   }
 
-  freeResults[emailDomain] = emailDomain && freeEmailProviders.includes(emailDomain);
+  freeResults[emailDomain] = emailDomain && freeEmailProviders.has(emailDomain);
   return freeResults[emailDomain];
 }
 
