@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "20.12.4",
+    "@types/node": "20.12.5",
     "@types/sinon": "17.0.3",
     "@typescript-eslint/eslint-plugin": "7.5.0",
     "@typescript-eslint/parser": "7.5.0",
@@ -62,7 +62,7 @@
     "prettier": "3.2.5",
     "sinon": "17.0.1",
     "ts-jest": "^29.1.2",
-    "typescript": "5.4.3"
+    "typescript": "5.4.4"
   },
   "engines": {
     "node": ">= 12.0"
