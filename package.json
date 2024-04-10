@@ -62,7 +62,7 @@
     "prettier": "3.2.5",
     "sinon": "17.0.1",
     "ts-jest": "^29.1.2",
-    "typescript": "5.4.4"
+    "typescript": "5.4.5"
   },
   "engines": {
     "node": ">= 12.0"
