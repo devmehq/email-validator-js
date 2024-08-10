@@ -20,7 +20,6 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
   if (disposableResults[emailDomain]) return disposableResults[emailDomain];
 
   if (!disposableEmailProviders) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     disposableEmailProviders = new Set(require('./disposable-email-providers.json'));
   }
   disposableResults[emailDomain] = emailDomain && disposableEmailProviders.has(emailDomain);
@@ -39,7 +38,6 @@ export function isFreeEmail(emailOrDomain: string): boolean {
   if (freeResults[emailDomain]) return freeResults[emailDomain];
 
   if (!freeEmailProviders) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     freeEmailProviders = new Set(require('./free-email-providers.json'));
   }
 
