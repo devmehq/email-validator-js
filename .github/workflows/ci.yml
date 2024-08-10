@@ -41,10 +41,9 @@ jobs:
           fetch-depth: 30
 
       - uses: FranzDiebold/github-env-vars-action@v2
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 21
 
       - name: Yarn
         run: yarn install --frozen-lockfile
