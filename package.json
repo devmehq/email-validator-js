@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "22.5.4",
+    "@types/node": "22.5.5",
     "@types/sinon": "17.0.3",
     "eslint": "9.10.0",
     "eslint-config-prettier": "9.1.0",
