@@ -1,6 +1,6 @@
+import expect from 'expect';
 import { verifyEmail } from '../src';
 
-import should from 'should';
 import sinon, { SinonSandbox, SinonStub } from 'sinon';
 import { MxRecord, promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
@@ -35,14 +35,14 @@ function stubSocket(self: SelfMockType) {
 
 const self: SelfMockType = {};
 
-describe('verifyEmailMockTest', async () => {
+describe('verifyEmailMockTest', () => {
   beforeEach(() => {
     self.sandbox = sinon.createSandbox();
   });
 
   afterEach(() => self.sandbox.restore());
 
-  describe('#verify', async () => {
+  describe('#verify', () => {
     beforeEach(async () => {
       stubResolveMx(self);
       stubSocket(self);
@@ -53,25 +53,25 @@ describe('verifyEmailMockTest', async () => {
       const { validFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMx: true, verifySmtp: true });
       sinon.assert.called(self.resolveMxStub);
       sinon.assert.called(self.connectStub);
-      should(validFormat).equal(true);
-      should(validMx).equal(true);
-      should(validSmtp).equal(true);
+      expect(validFormat).toBe(true);
+      expect(validMx).toBe(true);
+      expect(validSmtp).toBe(true);
     });
 
     it('returns immediately if email is malformed invalid', async () => {
       const { validFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'bar.com' });
       sinon.assert.notCalled(self.resolveMxStub);
       sinon.assert.notCalled(self.connectStub);
-      should(validFormat).equal(false);
-      should(validMx).equal(null);
-      should(validSmtp).equal(null);
+      expect(validFormat).toBe(false);
+      expect(validMx).toBe(null);
+      expect(validSmtp).toBe(null);
     });
 
-    describe('mailbox verification', async () => {
-      it('returns true when maibox exists', async () => {
+    describe('mailbox verification', () => {
+      it('returns true when mailbox exists', async () => {
         setTimeout(() => self.socket.write('250 Foo'), 10);
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
-        should(validSmtp).equal(true);
+        expect(validSmtp).toBe(true);
       });
 
       it('returns null if mailbox is yahoo', async () => {
@@ -82,7 +82,7 @@ describe('verifyEmailMockTest', async () => {
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@yahoo.com', verifySmtp: true, verifyMx: true });
 
-        should(validSmtp).equal(true);
+        expect(validSmtp).toBe(true);
       });
 
       it('returns false on over quota check', async () => {
@@ -102,9 +102,9 @@ describe('verifyEmailMockTest', async () => {
 
         const { validMx, validSmtp, validFormat } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: false });
 
-        should(validSmtp).equal(false);
-        should(validFormat).equal(true);
-        should(validMx).equal(true);
+        expect(validSmtp).toBe(false);
+        expect(validFormat).toBe(true);
+        expect(validMx).toBe(true);
       });
 
       it('should return null on socket error', async () => {
@@ -119,9 +119,9 @@ describe('verifyEmailMockTest', async () => {
         self.connectStub = self.connectStub.returns(socket as any);
 
         const { validSmtp, validFormat, validMx } = await verifyEmail({ emailAddress: 'bar@foo.com' });
-        should(validSmtp).equal(null);
-        should(validMx).equal(null);
-        should(validFormat).equal(true);
+        expect(validSmtp).toBe(null);
+        expect(validMx).toBe(null);
+        expect(validFormat).toBe(true);
       });
 
       it('dodges multiline spam detecting greetings', async () => {
@@ -149,7 +149,7 @@ describe('verifyEmailMockTest', async () => {
         }, 10);
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
-        should(validSmtp).equal(true);
+        expect(validSmtp).toBe(true);
       });
 
       it('regression: does not write infinitely if there is a socket error', async () => {
@@ -192,7 +192,7 @@ describe('verifyEmailMockTest', async () => {
         // }, 300);
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@foo.com' });
-        should(validSmtp).equal(null);
+        expect(validSmtp).toBe(null);
       });
 
       it('returns false on bad mailbox errors', async () => {
@@ -212,7 +212,7 @@ describe('verifyEmailMockTest', async () => {
         }, 10);
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
-        should(validSmtp).equal(false);
+        expect(validSmtp).toBe(false);
       });
 
       it('returns null on spam errors', async () => {
@@ -227,7 +227,7 @@ describe('verifyEmailMockTest', async () => {
         self.connectStub.returns(socket);
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@foo.com' });
-        should(validSmtp).equal(null);
+        expect(validSmtp).toBe(null);
       });
 
       it('returns null on spam errors-#2', async () => {
@@ -242,32 +242,32 @@ describe('verifyEmailMockTest', async () => {
         self.connectStub.returns(socket);
 
         const { validSmtp } = await verifyEmail({ emailAddress: 'bar@foo.com' });
-        should(validSmtp).equal(null);
+        expect(validSmtp).toBe(null);
       });
     });
 
-    context('given no mx records', async () => {
+    describe('given no mx records', () => {
       beforeEach(() => {
         self.resolveMxStub.yields(null, []);
       });
 
       it('should return false on the domain verification', async () => {
         const { validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMx: true });
-        should(validMx).equal(false);
-        should(validSmtp).equal(null);
+        expect(validMx).toBe(false);
+        expect(validSmtp).toBe(null);
       });
     });
 
-    context('given a verifyMailbox option false', async () => {
+    describe('given a verifyMailbox option false', () => {
       it('should not check via socket', async () => {
         const { validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifySmtp: false, verifyMx: true });
         sinon.assert.called(self.resolveMxStub);
         sinon.assert.notCalled(self.connectStub);
-        should(validSmtp).equal(null);
+        expect(validSmtp).toBe(null);
       });
     });
 
-    context('given a verifyDomain option false', async () => {
+    describe('given a verifyDomain option false', () => {
       it('should not check via socket', async () => {
         const { validMx, validSmtp } = await verifyEmail({
           emailAddress: 'foo@bar.com',
@@ -276,13 +276,13 @@ describe('verifyEmailMockTest', async () => {
         });
         sinon.assert.notCalled(self.resolveMxStub);
         sinon.assert.notCalled(self.connectStub);
-        should(validMx).equal(null);
-        should(validSmtp).equal(null);
+        expect(validMx).toBe(null);
+        expect(validSmtp).toBe(null);
       });
     });
     it('should return a list of mx records, ordered by priority', async () => {
       const records = await resolveMxRecords('bar@foo.com');
-      should.deepEqual(records, ['mx2.foo.com', 'mx3.foo.com', 'mx1.foo.com']);
+      expect(records).toEqual(['mx2.foo.com', 'mx3.foo.com', 'mx1.foo.com']);
     });
   });
 });
