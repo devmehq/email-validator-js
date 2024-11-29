@@ -3603,10 +3603,10 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-psl@1.13.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/psl/-/psl-1.13.0.tgz#8b2357f13ef3cf546af3f52de00543a94da86cfa"
-  integrity sha512-BFwmFXiJoFqlUpZ5Qssolv15DMyc84gTBds1BjsV1BfXEo1UyyD7GsmN67n7J77uRhoSNW1AXtXKPLcBFQn9Aw==
+psl@1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/psl/-/psl-1.14.0.tgz#f6ccbbd63e4e663f830ca39eeea08feb3caceaaf"
+  integrity sha512-Syk1bnf6fRZ9wQs03AtKJHcM12cKbOLo9L8JtCCdYj5/DTsHmTyXM4BK5ouWeG2P6kZ4nmFvuNTdtaqfobCOCg==
   dependencies:
     punycode "^2.3.1"
 
