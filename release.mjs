@@ -11,9 +11,6 @@ const config = {
   isPreRelease: branch !== 'master',
   preRelease: branch !== 'master',
   preReleaseId: branch === 'master' ? '' : branch,
-  npm: {
-    skipChecks: true,
-  },
   plugins: {
     '@release-it/conventional-changelog': {
       preset: {

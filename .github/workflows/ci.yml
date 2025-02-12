@@ -59,4 +59,5 @@ jobs:
       - name: Release
         if: github.ref == 'refs/heads/develop'
         run: |
+          npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
           node release.mjs
