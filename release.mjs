@@ -13,7 +13,6 @@ const config = {
   preReleaseId: branch === 'master' ? '' : branch,
   npm: {
     skipChecks: true,
-    publishArgs: ['--access', 'public', '--registry', 'https://registry.npmjs.org/'],
   },
   plugins: {
     '@release-it/conventional-changelog': {

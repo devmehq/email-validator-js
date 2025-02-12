@@ -16,7 +16,7 @@
   "bugs": "https://github.com/devmehq/email-validator-js/issues",
   "repository": {
     "type": "git",
-    "url": "git@github.com:devmehq/email-validator-js.git"
+    "url": "git+ssh://git@github.com/devmehq/email-validator-js.git"
   },
   "license": "BSL 1.1",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
@@ -69,6 +69,5 @@
   "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
   "engines": {
     "node": ">= 12.0"
-  },
-  "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca"
+  }
 }
