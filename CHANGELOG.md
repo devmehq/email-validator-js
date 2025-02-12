@@ -1,5 +1,8 @@
 # Change Log
 
+## v2.0.1
+- Update release script
+
 ## v2.0.0
 - Update license from MIT to BSL-1.1
 - Improve performance use es6 set to speed up domain lookups thanks to [@ArsenyYankovsky](https://github.com/ArsenyYankovsky) [#221](https://github.com/devmehq/email-validator-js/pull/221)

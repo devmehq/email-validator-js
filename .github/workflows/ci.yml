@@ -19,6 +19,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+
 env:
   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,6 +40,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 30
+          persist-credentials: false
 
       - uses: FranzDiebold/github-env-vars-action@v2
 
@@ -57,5 +59,7 @@ jobs:
       - name: Release
         if: github.ref == 'refs/heads/develop'
         run: |
-          npm i -g semantic-release @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
-          npx semantic-release --no-ci --debug
+          git config --global user.email "support@dev.me"
+          git config --global user.name "Dev.me Team"
+          npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
+          node release.mjs

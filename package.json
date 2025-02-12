@@ -16,7 +16,7 @@
   "bugs": "https://github.com/devmehq/email-validator-js/issues",
   "repository": {
     "type": "git",
-    "url": "git@github.com:devmehq/email-validator-js.git"
+    "url": "git+ssh://git@github.com/devmehq/email-validator-js.git"
   },
   "license": "BSL 1.1",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
@@ -46,6 +46,8 @@
     "psl": "1.15.0"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.0",
+    "@release-it/keep-a-changelog": "^6.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "22.13.1",
     "@types/sinon": "17.0.3",
@@ -58,6 +60,7 @@
     "jest": "^29.7.0",
     "lint-staged": "15.4.3",
     "prettier": "3.5.0",
+    "release-it": "^18.1.2",
     "sinon": "19.0.2",
     "ts-jest": "^29.2.5",
     "typescript": "5.7.3",
