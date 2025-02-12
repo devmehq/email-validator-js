@@ -1,6 +1,6 @@
 {
   "name": "@devmehq/email-validator-js",
-  "version": "1.0.19",
+  "version": "2.0.0",
   "private": false,
   "description": "Advanced Email Validation with DNS MX lookup and Mailbox Verification",
   "keywords": [
@@ -63,8 +63,8 @@
     "typescript": "5.7.3",
     "typescript-eslint": "^8.24.0"
   },
+  "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
   "engines": {
     "node": ">= 12.0"
-  },
-  "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca"
+  }
 }
