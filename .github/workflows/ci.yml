@@ -15,6 +15,10 @@ on:
       - '**'
       - '!master'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,10 +35,6 @@ jobs:
 
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          workflow_id: ci.yml
-          access_token: ${{ github.token }}
 
       - uses: actions/checkout@v4
         with:
