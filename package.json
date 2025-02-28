@@ -49,7 +49,7 @@
     "@release-it/conventional-changelog": "^10.0.0",
     "@release-it/keep-a-changelog": "^6.0.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "22.13.5",
+    "@types/node": "22.13.7",
     "@types/sinon": "17.0.4",
     "eslint": "9.21.0",
     "eslint-config-prettier": "10.0.2",
@@ -63,7 +63,7 @@
     "release-it": "^18.1.2",
     "sinon": "19.0.2",
     "ts-jest": "^29.2.5",
-    "typescript": "5.7.3",
+    "typescript": "5.8.2",
     "typescript-eslint": "^8.24.0"
   },
   "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
