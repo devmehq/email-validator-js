@@ -1137,10 +1137,10 @@
   dependencies:
     undici-types "~6.21.0"
 
-"@types/node@22.15.14":
-  version "22.15.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.14.tgz#889fd356a04d003a6d5650ccc003ef4d712430d7"
-  integrity sha512-BL1eyu/XWsFGTtDWOYULQEs4KR0qdtYfCxYAUYRoB7JP7h9ETYLgQTww6kH8Sj2C0pFGgrpM0XKv6/kbIzYJ1g==
+"@types/node@22.15.15":
+  version "22.15.15"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.15.tgz#8877c05c18e552e738438e477d7ba22c5d73a57c"
+  integrity sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==
   dependencies:
     undici-types "~6.21.0"
 
@@ -2530,10 +2530,10 @@ escodegen@^2.1.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-prettier@10.1.2:
-  version "10.1.2"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.2.tgz#31a4b393c40c4180202c27e829af43323bf85276"
-  integrity sha512-Epgp/EofAUeEpIdZkW60MHKvPyru1ruQJxPL+WIycnaPApuseK0Zpkrh/FwL9oIpQvIhJwV7ptOy0DWUjTlCiA==
+eslint-config-prettier@10.1.3:
+  version "10.1.3"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-10.1.3.tgz#b53b626e5fae39aa2a442a929488c35acec53c96"
+  integrity sha512-vDo4d9yQE+cS2tdIT4J02H/16veRvkHgiLDRpej+WL67oCfbOb97itZXn8wMPJ/GsiEBVjrjs//AVNw2Cp1EcA==
 
 eslint-import-resolver-node@^0.3.9:
   version "0.3.9"
