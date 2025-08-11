@@ -61,7 +61,7 @@
     "lint-staged": "16.1.5",
     "prettier": "3.6.2",
     "release-it": "^19.0.0",
-    "sinon": "20.0.0",
+    "sinon": "21.0.0",
     "ts-jest": "^29.2.5",
     "typescript": "5.9.2",
     "typescript-eslint": "^8.24.0"
