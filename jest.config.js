@@ -6,4 +6,9 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: false,
   coverageReporters: ['json', 'html'],
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
+      tsconfig: 'tsconfig.test.json'
+    }]
+  }
 };
