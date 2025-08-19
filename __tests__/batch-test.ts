@@ -1,6 +1,5 @@
 import expect from 'expect';
-import { verifyEmailBatch } from '../src/batch';
-import { clearAllCaches } from '../src';
+import { clearAllCaches, verifyEmailBatch, DetailedVerificationResult } from '../src';
 import sinon, { SinonSandbox } from 'sinon';
 import { promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
@@ -50,7 +49,7 @@ describe('Batch Email Verification', () => {
       let currentConcurrent = 0;
 
       const originalConnect = net.connect;
-      sandbox.stub(net, 'connect').callsFake((...args: any[]) => {
+      sandbox.stub(net, 'connect').callsFake(() => {
         currentConcurrent++;
         maxConcurrent = Math.max(maxConcurrent, currentConcurrent);
 
@@ -109,7 +108,7 @@ describe('Batch Email Verification', () => {
         checkFree: true,
       });
 
-      const detailedResult = result.results.get('user1@example.com') as any;
+      const detailedResult = result.results.get('user1@example.com') as DetailedVerificationResult;
       expect(detailedResult).toHaveProperty('format');
       expect(detailedResult).toHaveProperty('domain');
       expect(detailedResult).toHaveProperty('smtp');
@@ -117,7 +116,7 @@ describe('Batch Email Verification', () => {
       expect(detailedResult).toHaveProperty('freeProvider');
       expect(detailedResult).toHaveProperty('metadata');
 
-      const disposableResult = result.results.get('user2@yopmail.com') as any;
+      const disposableResult = result.results.get('user2@yopmail.com') as DetailedVerificationResult;
       expect(disposableResult.disposable).toBe(true);
     });
 

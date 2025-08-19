@@ -75,7 +75,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
-  const log = debug ? console.debug : (...args: any[]) => {};
+  const log = debug ? console.debug : (...args: unknown[]) => {};
 
   let mxRecords: string[];
 
@@ -159,7 +159,7 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false, checkDisposable = true, checkFree = true } = params;
 
   const startTime = Date.now();
-  const log = debug ? console.debug : (...args: any[]) => {};
+  const log = debug ? console.debug : (...args: unknown[]) => {};
 
   const result: DetailedVerificationResult = {
     valid: false,

@@ -1,8 +1,7 @@
 import expect from 'expect';
-import { clearAllCaches, mxCache, disposableCache, freeCache, domainValidCache, smtpCache } from '../src/cache';
+import { clearAllCaches, disposableCache, domainValidCache, freeCache, mxCache, smtpCache } from '../src/cache';
 import { resolveMxRecords } from '../src/dns';
-import { isDisposableEmail, isFreeEmail } from '../src';
-import { isValidEmailDomain } from '../src/validator';
+import { isDisposableEmail, isFreeEmail, isValidEmailDomain } from '../src';
 import sinon, { SinonSandbox } from 'sinon';
 import { promises as dnsPromises } from 'dns';
 

@@ -1,6 +1,5 @@
 import expect from 'expect';
-import { verifyEmail } from '../src';
-import { clearAllCaches } from '../src';
+import { clearAllCaches, verifyEmail } from '../src';
 
 import sinon, { SinonSandbox, SinonStub } from 'sinon';
 import { MxRecord, promises as dnsPromises } from 'dns';
@@ -124,7 +123,7 @@ describe('verifyEmailMockTest', () => {
           destroy: () => {},
         };
 
-        self.connectStub = self.connectStub.returns(socket as any);
+        self.connectStub = self.connectStub.returns(socket as unknown as Socket);
 
         const { validSmtp, validFormat, validMx } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
         expect(validSmtp).toBe(null);
@@ -182,7 +181,7 @@ describe('verifyEmailMockTest', () => {
           },
         };
 
-        self.connectStub = self.connectStub.returns(socket as any);
+        self.connectStub = self.connectStub.returns(socket as unknown as Socket);
 
         await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
         sinon.assert.notCalled(writeSpy);

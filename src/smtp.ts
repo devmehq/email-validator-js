@@ -33,7 +33,7 @@ export async function verifyMailboxSMTP(params: VerifyMailboxSMTPParams): Promis
   // Port 587 → STARTTLS
   // Port 465 → TLS
   const { local, domain, mxRecords = [], timeout, debug, port = 25, retryAttempts = 1 } = params;
-  const log = debug ? console.debug : (...args: any[]) => {};
+  const log = debug ? console.debug : (...args: unknown[]) => {};
 
   if (!mxRecords || mxRecords.length === 0) {
     return false;
@@ -69,7 +69,7 @@ export async function verifyMailboxSMTP(params: VerifyMailboxSMTPParams): Promis
   return null;
 }
 
-async function attemptVerification(params: { mxRecord: string; local: string; domain: string; port: number; timeout: number; log: (...args: any[]) => void; attempt: number }): Promise<boolean | null> {
+async function attemptVerification(params: { mxRecord: string; local: string; domain: string; port: number; timeout: number; log: (...args: unknown[]) => void; attempt: number }): Promise<boolean | null> {
   const { mxRecord, local, domain, port, timeout, log, attempt } = params;
 
   return new Promise((resolve) => {
@@ -120,7 +120,7 @@ async function attemptVerification(params: { mxRecord: string; local: string; do
 
       if (isInvalidMailboxError(dataString)) return ret(false);
       if (isOverQuota(dataString)) return ret(false);
-      if (!dataString.includes('220') && !dataString.includes('250')) return ret(null as any);
+      if (!dataString.includes('220') && !dataString.includes('250')) return ret(null);
 
       if (isMultilineGreet(dataString)) return;
 
@@ -135,26 +135,26 @@ async function attemptVerification(params: { mxRecord: string; local: string; do
 
     socket.on('error', (err) => {
       log('[verifyMailboxSMTP] error in socket', err);
-      ret(null as any);
+      ret(null);
     });
 
     socket.on('close', (err) => {
       if (!resolved) {
         log('[verifyMailboxSMTP] close socket', err);
-        ret(null as any);
+        ret(null);
       }
     });
 
     socket.on('timeout', () => {
       log('[verifyMailboxSMTP] timeout socket');
-      ret(null as any);
+      ret(null);
     });
 
     resTimeout = setTimeout(() => {
       log(`[verifyMailboxSMTP] timed out (${timeout} ms)`);
       if (!resolved) {
         socket.destroy();
-        ret(null as any);
+        ret(null);
       }
     }, timeout);
   });

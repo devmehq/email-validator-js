@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { verifyEmailDetailed, VerificationErrorCode, clearAllCaches } from '../src';
+import { clearAllCaches, VerificationErrorCode, verifyEmailDetailed } from '../src';
 import sinon, { SinonSandbox } from 'sinon';
 import { promises as dnsPromises } from 'dns';
 import net, { Socket } from 'net';
@@ -126,7 +126,7 @@ describe('Detailed Email Verification', () => {
         removeAllListeners: () => {},
         destroy: () => {},
       };
-      sandbox.stub(net, 'connect').returns(socket as any);
+      sandbox.stub(net, 'connect').returns(socket as unknown as Socket);
 
       const result = await verifyEmailDetailed({
         emailAddress: 'test@example.com',

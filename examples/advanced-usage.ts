@@ -1,4 +1,4 @@
-import { verifyEmail, verifyEmailDetailed, verifyEmailBatch, isDisposableEmail, isFreeEmail, clearAllCaches, VerificationErrorCode } from '../src';
+import { verifyEmail, verifyEmailDetailed, verifyEmailBatch, isDisposableEmail, isFreeEmail, clearAllCaches, VerificationErrorCode, DetailedVerificationResult } from '../src';
 
 async function basicUsage() {
   console.log('=== Basic Email Verification ===');
@@ -71,7 +71,7 @@ async function batchVerification() {
 
   console.log('\nDetailed results:');
   for (const [email, verification] of result.results) {
-    const detailed = verification as any;
+    const detailed = verification as DetailedVerificationResult;
     console.log(`  ${email}:`);
     console.log(`    Valid: ${detailed.valid}`);
     if (detailed.disposable) {

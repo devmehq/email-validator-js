@@ -83,7 +83,7 @@ export async function verifyEmailBatch(params: IBatchVerifyParams): Promise<Batc
   };
 }
 
-function createErrorDetailedResult(email: string, error: any): DetailedVerificationResult {
+function createErrorDetailedResult(email: string, error: unknown): DetailedVerificationResult {
   return {
     valid: false,
     email,
