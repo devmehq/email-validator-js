@@ -5,7 +5,7 @@ import net from 'net';
  * @return {Boolean} True if over quota.
  */
 function isOverQuota(smtpReply: string): boolean {
-  return smtpReply && /(over quota)/gi.test(smtpReply);
+  return Boolean(smtpReply && /(over quota)/gi.test(smtpReply));
 }
 
 /**
@@ -15,7 +15,7 @@ function isOverQuota(smtpReply: string): boolean {
  * @return {boolean} True if the error is recognized as a mailbox missing error.
  */
 function isInvalidMailboxError(smtpReply: string): boolean {
-  return smtpReply && /^(510|511|513|550|551|553)/.test(smtpReply) && !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply);
+  return Boolean(smtpReply && /^(510|511|513|550|551|553)/.test(smtpReply) && !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply));
 }
 
 /**
@@ -24,34 +24,83 @@ function isInvalidMailboxError(smtpReply: string): boolean {
  * @return {Boolean} True if this is a multiline greet.
  */
 function isMultilineGreet(smtpReply: string): boolean {
-  return smtpReply && /^(250|220)-/.test(smtpReply);
+  return Boolean(smtpReply && /^(250|220)-/.test(smtpReply));
 }
 
-type verifyMailBoxSMTP = { port?: number; local: string; domain: string; mxRecords: string[]; timeout: number; debug: boolean };
+import { VerifyMailboxSMTPParams } from './types';
 
-export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<boolean> {
+export async function verifyMailboxSMTP(params: VerifyMailboxSMTPParams): Promise<boolean | null> {
   // Port 587 → STARTTLS
   // Port 465 → TLS
-  const { local, domain, mxRecords = [], timeout, debug, port = 25 } = params;
-  const mxRecord = mxRecords[0];
-  const log = debug ? console.debug : () => {};
+  const { local, domain, mxRecords = [], timeout, debug, port = 25, retryAttempts = 1 } = params;
+  const log = debug ? console.debug : (...args: unknown[]) => {};
 
-  if (!mxRecord) {
+  if (!mxRecords || mxRecords.length === 0) {
     return false;
   }
 
+  // Try multiple MX records if first fails
+  for (let mxIndex = 0; mxIndex < Math.min(mxRecords.length, 3); mxIndex++) {
+    const mxRecord = mxRecords[mxIndex];
+
+    // Retry logic for each MX record
+    for (let attempt = 0; attempt < retryAttempts; attempt++) {
+      const result = await attemptVerification({
+        mxRecord,
+        local,
+        domain,
+        port,
+        timeout,
+        log,
+        attempt,
+      });
+
+      if (result !== null) {
+        return result;
+      }
+
+      // Wait before retry
+      if (attempt < retryAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, Math.min(1000 * (attempt + 1), 3000)));
+      }
+    }
+  }
+
+  return null;
+}
+
+async function attemptVerification(params: { mxRecord: string; local: string; domain: string; port: number; timeout: number; log: (...args: unknown[]) => void; attempt: number }): Promise<boolean | null> {
+  const { mxRecord, local, domain, port, timeout, log, attempt } = params;
+
   return new Promise((resolve) => {
-    log('[verifyMailboxSMTP] connecting to', mxRecord, port);
+    log(`[verifyMailboxSMTP] connecting to ${mxRecord}:${port} (attempt ${attempt + 1})`);
     const socket = net.connect({
       host: mxRecord,
       port,
     });
-    // eslint-disable-next-line prefer-const
-    let resTimeout: NodeJS.Timeout;
-    let resolved: boolean;
 
-    const ret = (result: boolean) => {
+    let resTimeout: NodeJS.Timeout | null = null;
+    let resolved = false;
+    let cleaned = false;
+
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+
+      if (resTimeout) {
+        clearTimeout(resTimeout);
+        resTimeout = null;
+      }
+
+      if (socket && !socket.destroyed) {
+        socket.removeAllListeners();
+        socket.destroy();
+      }
+    };
+
+    const ret = (result: boolean | null) => {
       if (resolved) return;
+      resolved = true;
 
       if (!socket?.destroyed) {
         log('[verifyMailboxSMTP] closing socket');
@@ -59,9 +108,8 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
         socket?.end();
       }
 
-      clearTimeout(resTimeout);
+      cleanup();
       resolve(result);
-      resolved = true;
     };
 
     const messages = [`HELO ${domain}`, `MAIL FROM: <${local}@${domain}>`, `RCPT TO: <${local}@${domain}>`];
@@ -91,8 +139,10 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
     });
 
     socket.on('close', (err) => {
-      log('[verifyMailboxSMTP] close socket', err);
-      ret(null);
+      if (!resolved) {
+        log('[verifyMailboxSMTP] close socket', err);
+        ret(null);
+      }
     });
 
     socket.on('timeout', () => {
@@ -102,8 +152,10 @@ export async function verifyMailboxSMTP(params: verifyMailBoxSMTP): Promise<bool
 
     resTimeout = setTimeout(() => {
       log(`[verifyMailboxSMTP] timed out (${timeout} ms)`);
-      socket.destroy();
-      ret(null);
+      if (!resolved) {
+        socket.destroy();
+        ret(null);
+      }
     }, timeout);
   });
 }

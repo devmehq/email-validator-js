@@ -1,12 +1,18 @@
 import { verifyMailboxSMTP } from './smtp';
 import { resolveMxRecords } from './dns';
-import { isValidEmail } from './validator';
+import { isValidEmail, isValidEmailDomain } from './validator';
 import { parse } from 'psl';
+import { disposableCache, freeCache, smtpCache } from './cache';
+import { IVerifyEmailParams, IVerifyEmailResult, DetailedVerificationResult, VerificationErrorCode } from './types';
+
+// Re-export types
+export * from './types';
+export { verifyEmailBatch } from './batch';
+export { clearAllCaches } from './cache';
+export { isValidEmail, isValidEmailDomain } from './validator';
 
 let disposableEmailProviders: Set<string>;
-const disposableResults: Record<string, boolean> = {};
 let freeEmailProviders: Set<string>;
-const freeResults: Record<string, boolean> = {};
 
 export function isDisposableEmail(emailOrDomain: string): boolean {
   let [_, emailDomain] = emailOrDomain?.split('@');
@@ -16,14 +22,20 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
   if (!emailDomain) {
     return false;
   }
-  // cache results
-  if (disposableResults[emailDomain]) return disposableResults[emailDomain];
+
+  // Check cache first
+  const cached = disposableCache.get(emailDomain);
+  if (cached !== undefined) {
+    return cached;
+  }
 
   if (!disposableEmailProviders) {
     disposableEmailProviders = new Set(require('./disposable-email-providers.json'));
   }
-  disposableResults[emailDomain] = emailDomain && disposableEmailProviders.has(emailDomain);
-  return disposableResults[emailDomain];
+
+  const result = disposableEmailProviders.has(emailDomain);
+  disposableCache.set(emailDomain, result);
+  return result;
 }
 
 export function isFreeEmail(emailOrDomain: string): boolean {
@@ -34,30 +46,20 @@ export function isFreeEmail(emailOrDomain: string): boolean {
   if (!emailDomain) {
     return false;
   }
-  // cache results
-  if (freeResults[emailDomain]) return freeResults[emailDomain];
+
+  // Check cache first
+  const cached = freeCache.get(emailDomain);
+  if (cached !== undefined) {
+    return cached;
+  }
 
   if (!freeEmailProviders) {
     freeEmailProviders = new Set(require('./free-email-providers.json'));
   }
 
-  freeResults[emailDomain] = emailDomain && freeEmailProviders.has(emailDomain);
-  return freeResults[emailDomain];
-}
-
-interface IVerifyEmailResult {
-  validFormat: boolean;
-  validMx: boolean | null;
-  validSmtp: boolean | null;
-}
-
-interface IVerifyEmailParams {
-  emailAddress: string;
-  timeout?: number;
-  verifyMx?: boolean;
-  verifySmtp?: boolean;
-  debug?: boolean;
-  smtpPort?: number;
+  const result = freeEmailProviders.has(emailDomain);
+  freeCache.set(emailDomain, result);
+  return result;
 }
 
 export const domainPorts: Record<string, number> = {
@@ -66,11 +68,14 @@ export const domainPorts: Record<string, number> = {
   'ovh.net': 465,
 };
 
+/**
+ * Verify email address with basic result format (backward compatible)
+ */
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
   const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
-  const log = debug ? console.debug : (...args: any) => {};
+  const log = debug ? console.debug : (...args: unknown[]) => {};
 
   let mxRecords: string[];
 
@@ -80,7 +85,7 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   }
 
   const [local, domain] = emailAddress.split('@');
-  if (!domain) {
+  if (!domain || !local) {
     log('[verifyEmail] Failed on wellFormed check');
     return result;
   }
@@ -107,6 +112,15 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   }
 
   if (verifySmtp && mxRecords?.length > 0) {
+    // Check SMTP cache first
+    const cacheKey = `${emailAddress}:smtp`;
+    const cachedSmtp = smtpCache.get(cacheKey);
+
+    if (cachedSmtp !== undefined) {
+      result.validSmtp = cachedSmtp;
+      return result;
+    }
+
     // get custom port for domain if not provided in params
     let domainPort = params.smtpPort;
     if (!domainPort) {
@@ -120,15 +134,141 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
       }
     }
 
-    result.validSmtp = await verifyMailboxSMTP({
+    const smtpResult = await verifyMailboxSMTP({
       local,
       domain,
       mxRecords,
       timeout,
       debug,
       port: domainPort,
+      retryAttempts: params.retryAttempts,
     });
+
+    // Cache SMTP result
+    smtpCache.set(cacheKey, smtpResult);
+    result.validSmtp = smtpResult;
   }
 
+  return result;
+}
+
+/**
+ * Verify email address with detailed result format
+ */
+export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<DetailedVerificationResult> {
+  const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false, checkDisposable = true, checkFree = true } = params;
+
+  const startTime = Date.now();
+  const log = debug ? console.debug : (...args: unknown[]) => {};
+
+  const result: DetailedVerificationResult = {
+    valid: false,
+    email: emailAddress,
+    format: { valid: false },
+    domain: { valid: null },
+    smtp: { valid: null },
+    disposable: false,
+    freeProvider: false,
+    metadata: {
+      verificationTime: 0,
+      cached: false,
+    },
+  };
+
+  // Format validation
+  if (!isValidEmail(emailAddress)) {
+    result.format.error = VerificationErrorCode.INVALID_FORMAT;
+    result.metadata!.verificationTime = Date.now() - startTime;
+    return result;
+  }
+  result.format.valid = true;
+
+  const [local, domain] = emailAddress.split('@');
+  if (!domain || !local) {
+    result.format.error = VerificationErrorCode.INVALID_FORMAT;
+    result.metadata!.verificationTime = Date.now() - startTime;
+    return result;
+  }
+
+  // Domain validation
+  if (!isValidEmailDomain(domain)) {
+    result.domain.error = VerificationErrorCode.INVALID_DOMAIN;
+    result.metadata!.verificationTime = Date.now() - startTime;
+    return result;
+  }
+
+  // Check disposable
+  if (checkDisposable) {
+    result.disposable = isDisposableEmail(emailAddress);
+    if (result.disposable) {
+      result.valid = false;
+      result.domain.error = VerificationErrorCode.DISPOSABLE_EMAIL;
+    }
+  }
+
+  // Check free provider
+  if (checkFree) {
+    result.freeProvider = isFreeEmail(emailAddress);
+  }
+
+  // MX Records verification
+  if (verifyMx || verifySmtp) {
+    try {
+      const mxRecords = await resolveMxRecords(domain);
+      result.domain.mxRecords = mxRecords;
+      result.domain.valid = mxRecords.length > 0;
+
+      if (!result.domain.valid) {
+        result.domain.error = VerificationErrorCode.NO_MX_RECORDS;
+      }
+
+      // SMTP verification
+      if (verifySmtp && mxRecords.length > 0) {
+        const cacheKey = `${emailAddress}:smtp`;
+        const cachedSmtp = smtpCache.get(cacheKey);
+
+        if (cachedSmtp !== undefined) {
+          result.smtp.valid = cachedSmtp;
+          result.metadata!.cached = true;
+        } else {
+          let domainPort = params.smtpPort;
+          if (!domainPort) {
+            const mxDomain = parse(mxRecords[0]);
+            if ('domain' in mxDomain && mxDomain.domain) {
+              domainPort = domainPorts[mxDomain.domain];
+            }
+          }
+
+          const smtpResult = await verifyMailboxSMTP({
+            local,
+            domain,
+            mxRecords,
+            timeout,
+            debug,
+            port: domainPort,
+            retryAttempts: params.retryAttempts,
+          });
+
+          smtpCache.set(cacheKey, smtpResult);
+          result.smtp.valid = smtpResult;
+        }
+
+        if (result.smtp.valid === false) {
+          result.smtp.error = VerificationErrorCode.MAILBOX_NOT_FOUND;
+        } else if (result.smtp.valid === null) {
+          result.smtp.error = VerificationErrorCode.SMTP_CONNECTION_FAILED;
+        }
+      }
+    } catch (err) {
+      log('[verifyEmailDetailed] Failed to resolve MX records', err);
+      result.domain.valid = false;
+      result.domain.error = VerificationErrorCode.NO_MX_RECORDS;
+    }
+  }
+
+  // Determine overall validity
+  result.valid = result.format.valid && result.domain.valid !== false && result.smtp.valid !== false && !result.disposable;
+
+  result.metadata!.verificationTime = Date.now() - startTime;
   return result;
 }

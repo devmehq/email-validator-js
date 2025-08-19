@@ -1,6 +1,5 @@
 import expect from 'expect';
-import { isDisposableEmail } from '../src';
-import { isValidEmail, isValidEmailDomain } from '../src/validator';
+import { isDisposableEmail, isValidEmail, isValidEmailDomain } from '../src';
 
 describe('utilsTest', () => {
   describe('isEmail', () => {

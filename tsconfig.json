@@ -6,8 +6,12 @@
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": true,
-    "strict": false,
-    "noImplicitThis": false,
+    "strict": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
     "esModuleInterop": true,
     "alwaysStrict": true,
     "noImplicitAny": true,
@@ -19,8 +23,10 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "typeRoots": [
-      "./node_modules/@types"
-    ]
+      "./node_modules/@types",
+      "./src"
+    ],
+    "types": ["node", "jest"]
   },
   "include": [
     "src",
