@@ -493,14 +493,6 @@ yarn lint       # Run ESLint
 yarn lint-fix   # Fix ESLint issues
 ```
 
-## Migration Guide
-
-Upgrading from v2.0.0? Check our [Migration Guide](./MIGRATION.md) for:
-- New features overview
-- API changes
-- Code examples
-- Breaking changes (none - fully backward compatible!)
-
 ## Contributing
 
 We welcome contributions! Please feel free to open an issue or create a pull request and fix bugs or add features. All contributions are welcome!
