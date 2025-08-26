@@ -1,4 +1,13 @@
-import { verifyEmail, verifyEmailDetailed, verifyEmailBatch, isDisposableEmail, isFreeEmail, clearAllCaches, VerificationErrorCode, DetailedVerificationResult } from '../src';
+import {
+  clearAllCaches,
+  type DetailedVerificationResult,
+  isDisposableEmail,
+  isFreeEmail,
+  VerificationErrorCode,
+  verifyEmail,
+  verifyEmailBatch,
+  verifyEmailDetailed,
+} from '../src';
 
 async function basicUsage() {
   console.log('=== Basic Email Verification ===');

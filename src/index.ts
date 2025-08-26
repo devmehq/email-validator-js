@@ -1,24 +1,38 @@
-import { verifyMailboxSMTP } from './smtp';
-import { resolveMxRecords } from './dns';
-import { isValidEmail, isValidEmailDomain } from './validator';
 import { parse } from 'psl';
 import { disposableCache, freeCache, smtpCache } from './cache';
-import { IVerifyEmailParams, IVerifyEmailResult, DetailedVerificationResult, VerificationErrorCode } from './types';
+import { resolveMxRecords } from './dns';
+import { suggestEmailDomain } from './domain-suggester';
+import { detectNameFromEmail } from './name-detector';
+import { verifyMailboxSMTP } from './smtp';
+import {
+  type DetailedVerificationResult,
+  type IVerifyEmailParams,
+  type IVerifyEmailResult,
+  VerificationErrorCode,
+} from './types';
+import { isValidEmail, isValidEmailDomain } from './validator';
 
-// Re-export types
-export * from './types';
 export { verifyEmailBatch } from './batch';
 export { clearAllCaches } from './cache';
+export {
+  COMMON_EMAIL_DOMAINS,
+  defaultDomainSuggestionMethod,
+  getDomainSimilarity,
+  isCommonDomain,
+  suggestDomain,
+  suggestEmailDomain,
+} from './domain-suggester';
+export { defaultNameDetectionMethod, detectName, detectNameFromEmail } from './name-detector';
+// Re-export types
+export * from './types';
 export { isValidEmail, isValidEmailDomain } from './validator';
 
 let disposableEmailProviders: Set<string>;
 let freeEmailProviders: Set<string>;
 
 export function isDisposableEmail(emailOrDomain: string): boolean {
-  let [_, emailDomain] = emailOrDomain?.split('@');
-  if (!emailDomain) {
-    emailDomain = _;
-  }
+  const parts = emailOrDomain.split('@');
+  const emailDomain = parts.length > 1 ? parts[1] : parts[0];
   if (!emailDomain) {
     return false;
   }
@@ -39,10 +53,8 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
 }
 
 export function isFreeEmail(emailOrDomain: string): boolean {
-  let [_, emailDomain] = emailOrDomain?.split('@');
-  if (!emailDomain) {
-    emailDomain = _;
-  }
+  const parts = emailOrDomain.split('@');
+  const emailDomain = parts.length > 1 ? parts[1] : parts[0];
   if (!emailDomain) {
     return false;
   }
@@ -72,10 +84,21 @@ export const domainPorts: Record<string, number> = {
  * Verify email address with basic result format (backward compatible)
  */
 export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEmailResult> {
-  const { emailAddress, timeout = 4000, verifyMx = false, verifySmtp = false, debug = false } = params;
+  const {
+    emailAddress,
+    timeout = 4000,
+    verifyMx = false,
+    verifySmtp = false,
+    debug = false,
+    detectName = false,
+    nameDetectionMethod,
+    suggestDomain = false,
+    domainSuggestionMethod,
+    commonDomains,
+  } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
-  const log = debug ? console.debug : (...args: unknown[]) => {};
+  const log = debug ? console.debug : (..._args: unknown[]) => {};
 
   let mxRecords: string[];
 
@@ -91,6 +114,24 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
   }
 
   result.validFormat = true;
+
+  // Detect name if requested
+  if (detectName) {
+    result.detectedName = detectNameFromEmail({
+      email: emailAddress,
+      customMethod: nameDetectionMethod,
+    });
+  }
+
+  // Suggest domain if requested
+  if (suggestDomain) {
+    const [, emailDomain] = emailAddress.split('@');
+    if (emailDomain) {
+      result.domainSuggestion = domainSuggestionMethod
+        ? domainSuggestionMethod(emailDomain)
+        : suggestEmailDomain(emailAddress, commonDomains);
+    }
+  }
 
   // save a DNS call
   if (!verifyMx && !verifySmtp) return result;
@@ -118,6 +159,13 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
 
     if (cachedSmtp !== undefined) {
       result.validSmtp = cachedSmtp;
+      // Still need to detect name if requested and not done yet
+      if (detectName && !result.detectedName) {
+        result.detectedName = detectNameFromEmail({
+          email: emailAddress,
+          customMethod: nameDetectionMethod,
+        });
+      }
       return result;
     }
 
@@ -156,10 +204,23 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
  * Verify email address with detailed result format
  */
 export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<DetailedVerificationResult> {
-  const { emailAddress, timeout = 4000, verifyMx = true, verifySmtp = false, debug = false, checkDisposable = true, checkFree = true } = params;
+  const {
+    emailAddress,
+    timeout = 4000,
+    verifyMx = true,
+    verifySmtp = false,
+    debug = false,
+    checkDisposable = true,
+    checkFree = true,
+    detectName = false,
+    nameDetectionMethod,
+    suggestDomain = true,
+    domainSuggestionMethod,
+    commonDomains,
+  } = params;
 
   const startTime = Date.now();
-  const log = debug ? console.debug : (...args: unknown[]) => {};
+  const log = debug ? console.debug : (..._args: unknown[]) => {};
 
   const result: DetailedVerificationResult = {
     valid: false,
@@ -182,6 +243,24 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
     return result;
   }
   result.format.valid = true;
+
+  // Detect name if requested
+  if (detectName) {
+    result.detectedName = detectNameFromEmail({
+      email: emailAddress,
+      customMethod: nameDetectionMethod,
+    });
+  }
+
+  // Suggest domain if requested
+  if (suggestDomain) {
+    const [, emailDomain] = emailAddress.split('@');
+    if (emailDomain) {
+      result.domainSuggestion = domainSuggestionMethod
+        ? domainSuggestionMethod(emailDomain)
+        : suggestEmailDomain(emailAddress, commonDomains);
+    }
+  }
 
   const [local, domain] = emailAddress.split('@');
   if (!domain || !local) {
@@ -230,6 +309,13 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
         if (cachedSmtp !== undefined) {
           result.smtp.valid = cachedSmtp;
           result.metadata!.cached = true;
+          // Still need to detect name if requested and not done yet
+          if (detectName && !result.detectedName) {
+            result.detectedName = detectNameFromEmail({
+              email: emailAddress,
+              customMethod: nameDetectionMethod,
+            });
+          }
         } else {
           let domainPort = params.smtpPort;
           if (!domainPort) {
@@ -267,7 +353,8 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   }
 
   // Determine overall validity
-  result.valid = result.format.valid && result.domain.valid !== false && result.smtp.valid !== false && !result.disposable;
+  result.valid =
+    result.format.valid && result.domain.valid !== false && result.smtp.valid !== false && !result.disposable;
 
   result.metadata!.verificationTime = Date.now() - startTime;
   return result;

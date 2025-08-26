@@ -1,11 +1,30 @@
-import { IBatchVerifyParams, BatchVerificationResult, DetailedVerificationResult, IVerifyEmailResult } from './types';
 import { verifyEmail, verifyEmailDetailed } from './index';
+import type {
+  BatchVerificationResult,
+  DetailedVerificationResult,
+  IBatchVerifyParams,
+  IVerifyEmailResult,
+} from './types';
 
 /**
  * Verify multiple email addresses in parallel with concurrency control
  */
 export async function verifyEmailBatch(params: IBatchVerifyParams): Promise<BatchVerificationResult> {
-  const { emailAddresses, concurrency = 5, timeout = 4000, verifyMx = true, verifySmtp = false, checkDisposable = true, checkFree = true, detailed = false } = params;
+  const {
+    emailAddresses,
+    concurrency = 5,
+    timeout = 4000,
+    verifyMx = true,
+    verifySmtp = false,
+    checkDisposable = true,
+    checkFree = true,
+    detailed = false,
+    detectName = false,
+    nameDetectionMethod,
+    suggestDomain = false,
+    domainSuggestionMethod,
+    commonDomains,
+  } = params;
 
   const startTime = Date.now();
   const results = new Map<string, DetailedVerificationResult | IVerifyEmailResult>();
@@ -31,12 +50,22 @@ export async function verifyEmailBatch(params: IBatchVerifyParams): Promise<Batc
               verifySmtp,
               checkDisposable,
               checkFree,
+              detectName,
+              nameDetectionMethod,
+              suggestDomain,
+              domainSuggestionMethod,
+              commonDomains,
             })
           : await verifyEmail({
               emailAddress: email,
               timeout,
               verifyMx,
               verifySmtp,
+              detectName,
+              nameDetectionMethod,
+              suggestDomain,
+              domainSuggestionMethod,
+              commonDomains,
             });
 
         if (detailed) {
@@ -60,7 +89,9 @@ export async function verifyEmailBatch(params: IBatchVerifyParams): Promise<Batc
         totalErrors++;
         return {
           email,
-          result: detailed ? createErrorDetailedResult(email, error) : { validFormat: false, validMx: null, validSmtp: null },
+          result: detailed
+            ? createErrorDetailedResult(email, error)
+            : { validFormat: false, validMx: null, validSmtp: null, detectedName: null, domainSuggestion: null },
         };
       }
     });
@@ -83,7 +114,7 @@ export async function verifyEmailBatch(params: IBatchVerifyParams): Promise<Batc
   };
 }
 
-function createErrorDetailedResult(email: string, error: unknown): DetailedVerificationResult {
+function createErrorDetailedResult(email: string, _error: unknown): DetailedVerificationResult {
   return {
     valid: false,
     email,

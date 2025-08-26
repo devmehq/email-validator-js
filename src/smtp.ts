@@ -1,4 +1,4 @@
-import net from 'net';
+import net from 'node:net';
 
 /**
  * @param  {String} smtpReply A message from the SMTP server.
@@ -15,7 +15,11 @@ function isOverQuota(smtpReply: string): boolean {
  * @return {boolean} True if the error is recognized as a mailbox missing error.
  */
 function isInvalidMailboxError(smtpReply: string): boolean {
-  return Boolean(smtpReply && /^(510|511|513|550|551|553)/.test(smtpReply) && !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply));
+  return Boolean(
+    smtpReply &&
+      /^(510|511|513|550|551|553)/.test(smtpReply) &&
+      !/(junk|spam|openspf|spoofing|host|rbl.+blocked)/gi.test(smtpReply)
+  );
 }
 
 /**
@@ -27,13 +31,13 @@ function isMultilineGreet(smtpReply: string): boolean {
   return Boolean(smtpReply && /^(250|220)-/.test(smtpReply));
 }
 
-import { VerifyMailboxSMTPParams } from './types';
+import type { VerifyMailboxSMTPParams } from './types';
 
 export async function verifyMailboxSMTP(params: VerifyMailboxSMTPParams): Promise<boolean | null> {
   // Port 587 → STARTTLS
   // Port 465 → TLS
   const { local, domain, mxRecords = [], timeout, debug, port = 25, retryAttempts = 1 } = params;
-  const log = debug ? console.debug : (...args: unknown[]) => {};
+  const log = debug ? console.debug : (..._args: unknown[]) => {};
 
   if (!mxRecords || mxRecords.length === 0) {
     return false;
@@ -69,7 +73,15 @@ export async function verifyMailboxSMTP(params: VerifyMailboxSMTPParams): Promis
   return null;
 }
 
-async function attemptVerification(params: { mxRecord: string; local: string; domain: string; port: number; timeout: number; log: (...args: unknown[]) => void; attempt: number }): Promise<boolean | null> {
+async function attemptVerification(params: {
+  mxRecord: string;
+  local: string;
+  domain: string;
+  port: number;
+  timeout: number;
+  log: (...args: unknown[]) => void;
+  attempt: number;
+}): Promise<boolean | null> {
   const { mxRecord, local, domain, port, timeout, log, attempt } = params;
 
   return new Promise((resolve) => {

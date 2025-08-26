@@ -1,4 +1,4 @@
-import { promises as dnsPromises } from 'dns';
+import { promises as dnsPromises } from 'node:dns';
 import { mxCache } from './cache';
 
 export async function resolveMxRecords(domain: string): Promise<string[]> {
