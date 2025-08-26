@@ -46,7 +46,12 @@ function parseCompositeNamePart(part: string): { base: string; hasNumbers: boole
   const pureAlpha = part.replace(/\d+/g, '');
 
   // If we have a reasonable alphabetic base (at least 2 chars), use it
+  // Also accept single letter if it's part of a pattern like j7.d2
   if (pureAlpha.length >= 2) {
+    cleaned = pureAlpha;
+  } else if (pureAlpha.length === 1) {
+    // For single letters (like 'j' from 'j7'), accept them as valid
+    // This handles patterns like j7.d2 -> J.D
     cleaned = pureAlpha;
   } else {
     // Otherwise, try to extract base name without trailing numbers
@@ -64,8 +69,12 @@ function parseCompositeNamePart(part: string): { base: string; hasNumbers: boole
 /**
  * Check if string is likely a name (not containing invalid patterns)
  */
-function isLikelyName(str: string, allowNumbers: boolean = false): boolean {
-  if (!str || str.length < 2) return false;
+function isLikelyName(str: string, allowNumbers: boolean = false, allowSingleLetter: boolean = false): boolean {
+  if (!str) return false;
+
+  // Allow single letters if explicitly permitted (for patterns like j7.d2)
+  if (str.length < 2 && !allowSingleLetter) return false;
+  if (str.length === 1 && allowSingleLetter && /^[a-zA-Z]$/.test(str)) return true;
 
   // Check if it's a common email prefix that's not a name
   if (COMMON_NAME_SUFFIXES.includes(str.toLowerCase())) return false;
@@ -142,8 +151,8 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
             const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : first;
             const cleanedLast = lastParsed.hasNumbers ? lastParsed.cleaned : last;
 
-            // Check if the cleaned versions are valid names
-            if (isLikelyName(cleanedFirst) && isLikelyName(cleanedLast)) {
+            // Check if the cleaned versions are valid names (allow single letters for patterns like j7.d2)
+            if (isLikelyName(cleanedFirst, false, true) && isLikelyName(cleanedLast, false, true)) {
               // Successfully cleaned to valid names
               firstName = capitalizeFirstLetter(cleanedFirst);
               lastName = capitalizeFirstLetter(cleanedLast);
@@ -194,7 +203,7 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
             const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : first;
             const cleanedMiddle = middleParsed.hasNumbers ? middleParsed.cleaned : middle;
 
-            if (isLikelyName(cleanedFirst) && isLikelyName(cleanedMiddle)) {
+            if (isLikelyName(cleanedFirst, false, true) && isLikelyName(cleanedMiddle, false, true)) {
               firstName = capitalizeFirstLetter(cleanedFirst);
               lastName = capitalizeFirstLetter(cleanedMiddle);
               confidence = 0.7;
@@ -210,7 +219,7 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
           const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : first;
           const cleanedLast = lastParsed.hasNumbers ? lastParsed.cleaned : last;
 
-          if (isLikelyName(cleanedFirst) && isLikelyName(cleanedLast)) {
+          if (isLikelyName(cleanedFirst, false, true) && isLikelyName(cleanedLast, false, true)) {
             firstName = capitalizeFirstLetter(cleanedFirst);
             lastName = capitalizeFirstLetter(cleanedLast);
             confidence = 0.75;
@@ -244,7 +253,7 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
           const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : firstPart;
           const cleanedLast = lastParsed.hasNumbers ? lastParsed.cleaned : lastToUse;
 
-          if (isLikelyName(cleanedFirst) && isLikelyName(cleanedLast)) {
+          if (isLikelyName(cleanedFirst, false, true) && isLikelyName(cleanedLast, false, true)) {
             firstName = capitalizeFirstLetter(cleanedFirst);
             lastName = capitalizeFirstLetter(cleanedLast);
             confidence = 0.6;

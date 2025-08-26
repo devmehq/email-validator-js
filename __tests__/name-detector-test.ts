@@ -231,7 +231,8 @@ describe('Name Detection', () => {
         { email: 'user1.admin2@example.com', firstName: 'User1', lastName: 'Admin2' }, // 'admin' is a reserved suffix, keeps original
         { email: 'dev3.ops4@example.com', firstName: 'Dev', lastName: 'Ops' },
         { email: 'test123.user456@example.com', firstName: 'Test', lastName: 'User' },
-        { email: 'a1.b2@example.com', firstName: 'A1', lastName: 'B2' }, // Too short after cleaning (a, b), keeps original
+        { email: 'a1.b2@example.com', firstName: 'A', lastName: 'B' }, // Now extracts single letters A and B
+        { email: 'j7.d2@example.com', firstName: 'J', lastName: 'D' }, // Should extract single letters J and D
       ];
 
       testCases.forEach(({ email, firstName, lastName }) => {
