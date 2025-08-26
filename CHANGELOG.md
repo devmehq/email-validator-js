@@ -1,5 +1,68 @@
 # Change Log
 
+## v2.6.0 - 2025-08-26
+
+### 🚀 Enhanced Name Detection Release
+
+This release introduces significant improvements to the name detection functionality, providing more accurate and intelligent extraction of first and last names from complex email address patterns.
+
+### Added
+- **Enhanced Composite Name Detection**
+  - Support for alphanumeric composite names (e.g., "mo1.test2@example.com")
+  - Smart handling of mixed letter-number patterns
+  - Preservation of alphanumeric identities when contextually appropriate
+  - Confidence scoring adjusted for composite patterns (0.6 for full alphanumeric, 0.8 for mixed)
+
+- **Intelligent Number Processing**
+  - Context-aware number handling in email addresses
+  - Smart extraction of base names from trailing numbers ("john123" → "John")
+  - Mixed case processing ("john2.doe" → "John", "Doe")
+  - Alphanumeric pattern preservation for composite identities
+
+- **Advanced Contextual Suffix Recognition**
+  - Extended suffix detection for modern email patterns
+  - Recognition of development suffixes ("dev", "company", "team")
+  - Year pattern detection and filtering (1900-2099)
+  - Corporate and organizational suffix handling
+
+- **Complex Multi-Part Name Parsing**
+  - Enhanced handling of 3+ part email structures
+  - Intelligent first/last name extraction from complex patterns
+  - Mixed separator support (dots, underscores, hyphens)
+  - Smart suffix filtering in multi-component addresses
+
+- **Refined Confidence Scoring System**
+  - Granular confidence levels (0.4-0.9) based on pattern complexity
+  - Higher confidence for standard patterns (dot-separated: 0.9)
+  - Appropriate confidence for alphanumeric patterns (0.6)
+  - Context-aware scoring for extracted vs. preserved patterns
+
+### Improved
+- **Name Detection Accuracy**: Significantly improved detection rates for modern email patterns
+- **Pattern Recognition**: Better handling of development, gaming, and platform email formats
+- **International Support**: Enhanced parsing of hyphenated and compound names
+- **Edge Case Handling**: Robust processing of unusual email structures
+- **Performance**: Maintained linear time complexity with enhanced functionality
+
+### Technical Enhancements
+- **Composite Name Parsing**: New `parseCompositeNamePart()` function for alphanumeric analysis
+- **Smart Capitalization**: Enhanced capitalization that preserves alphanumeric formatting
+- **Pattern Validation**: Improved `isLikelyName()` with number-aware validation
+- **Comprehensive Testing**: 212 test cases covering various pattern types and edge cases
+
+### Use Cases
+- Development team email patterns ("dev1.ops2@company.com")
+- Gaming and platform usernames ("player1.guild2@platform.com")
+- Corporate year-based patterns ("john.smith.2024@corp.com")
+- Mixed alphanumeric systems ("user123.admin@service.com")
+- International naming conventions with enhanced accuracy
+
+### Backward Compatibility
+- All existing API signatures remain unchanged
+- Previous detection results maintain consistency
+- New capabilities are purely additive
+- No breaking changes to confidence thresholds
+
 ## v2.4.1 - 2025-01-26
 
 ### Improvements

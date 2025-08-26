@@ -58,7 +58,7 @@ describe('Name Detection', () => {
       expect(result).toBeTruthy();
       expect(result?.firstName).toBe('John');
       expect(result?.lastName).toBe('Doe');
-      expect(result?.confidence).toBeLessThanOrEqual(0.7); // Lower confidence due to numbers (0.9 - 0.2 = 0.7)
+      expect(result?.confidence).toBeCloseTo(0.8, 1); // 0.8 for mixed case (one with numbers)
     });
 
     it('should handle three-part names', () => {
@@ -206,6 +206,233 @@ describe('Name Detection', () => {
       expect(result).toBeTruthy();
       expect(result?.firstName).toBe('John');
       expect(result?.lastName).toBe('Doe');
+    });
+  });
+
+  describe('Composite and alphanumeric name detection', () => {
+    it('should handle alphanumeric composite names like mo1.test2', () => {
+      const result = defaultNameDetectionMethod('mo1.test2@example.com');
+      expect(result).toBeTruthy();
+      expect(result?.firstName).toBe('Mo1');
+      expect(result?.lastName).toBe('Test2');
+      expect(result?.confidence).toBeGreaterThanOrEqual(0.6);
+    });
+
+    it('should handle mixed alphanumeric patterns', () => {
+      const testCases = [
+        { email: 'user1.admin2@example.com', firstName: 'User1', lastName: 'Admin2' },
+        { email: 'dev3.ops4@example.com', firstName: 'Dev3', lastName: 'Ops4' },
+        { email: 'test123.user456@example.com', firstName: 'Test123', lastName: 'User456' },
+        { email: 'a1.b2@example.com', firstName: 'A1', lastName: 'B2' },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBe(lastName);
+      });
+    });
+
+    it('should handle names with numbers in different positions', () => {
+      const testCases = [
+        { email: '2john.doe@example.com', firstName: '2john', lastName: 'Doe' },
+        { email: 'john2.doe@example.com', firstName: 'John', lastName: 'Doe', confidence: 0.8 },
+        { email: 'john.2doe@example.com', firstName: 'John', lastName: '2doe' },
+        { email: 'john.doe3@example.com', firstName: 'John', lastName: 'Doe', confidence: 0.8 },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName, confidence }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBe(lastName);
+        if (confidence) {
+          expect(result?.confidence).toBeCloseTo(confidence, 1);
+        }
+      });
+    });
+
+    it('should handle complex composite names with multiple parts', () => {
+      const testCases = [
+        { email: 'user.test.dev.admin@example.com', firstName: 'User', lastName: 'Dev' },
+        { email: 'mo1.test2.dev3@example.com', firstName: 'Mo1', lastName: 'Dev3' },
+        { email: 'alpha.beta.gamma.delta@example.com', firstName: 'Alpha', lastName: 'Delta' },
+        { email: 'first.middle1.middle2.last@example.com', firstName: 'First', lastName: 'Last' },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBe(lastName);
+      });
+    });
+
+    it('should handle camelCase with numbers', () => {
+      // Regular camelCase still works
+      const result1 = defaultNameDetectionMethod('johnDoe@example.com');
+      expect(result1).toBeTruthy();
+      expect(result1?.firstName).toBe('John');
+      expect(result1?.lastName).toBe('Doe');
+
+      // CamelCase with numbers treated differently
+      const result2 = defaultNameDetectionMethod('user1Admin@example.com');
+      expect(result2).toBeTruthy();
+      expect(result2?.firstName).toBe('User1admin');
+      expect(result2?.lastName).toBeUndefined();
+    });
+  });
+
+  describe('Comprehensive first and last name parsing', () => {
+    it('should handle various international name formats', () => {
+      const testCases = [
+        // Common Western formats
+        { email: 'john.smith@example.com', firstName: 'John', lastName: 'Smith' },
+        { email: 'mary-jane.watson@example.com', firstName: 'Mary-jane', lastName: 'Watson' },
+        { email: 'jean_pierre.dupont@example.com', firstName: 'Jean_pierre', lastName: 'Dupont' },
+
+        // Hyphenated names
+        { email: 'anne-marie.smith-jones@example.com', firstName: 'Anne-marie', lastName: 'Smith-jones' },
+
+        // Short names
+        { email: 'li.wu@example.com', firstName: 'Li', lastName: 'Wu' },
+        { email: 'jo.su@example.com', firstName: 'Jo', lastName: 'Su' },
+
+        // Longer names
+        { email: 'christopher.alexander@example.com', firstName: 'Christopher', lastName: 'Alexander' },
+        { email: 'elizabeth.margaret@example.com', firstName: 'Elizabeth', lastName: 'Margaret' },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBe(lastName);
+        expect(result?.confidence).toBeGreaterThan(0);
+      });
+    });
+
+    it('should handle edge cases in name parsing', () => {
+      const testCases = [
+        // Names with apostrophes (though rare in email)
+        { email: "o'neil.smith@example.com", firstName: "O'neil", lastName: 'Smith' },
+
+        // Mixed case preservation
+        { email: 'MacDonald.OConnor@example.com', firstName: 'Macdonald', lastName: 'Oconnor' },
+        { email: 'VanDerWaal.DeLaCruz@example.com', firstName: 'Vanderwaal', lastName: 'Delacruz' },
+
+        // Names with common suffixes that should be ignored
+        { email: 'john.doe.mail@example.com', firstName: 'John', lastName: 'Doe' },
+        { email: 'jane.smith.contact@example.com', firstName: 'Jane', lastName: 'Smith' },
+        { email: 'bob.jones.support@example.com', firstName: 'Bob', lastName: 'Jones' },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBe(lastName);
+      });
+    });
+
+    it('should handle single name variations', () => {
+      const testCases = [
+        { email: 'alexander@example.com', firstName: 'Alexander', confidence: 0.5 },
+        { email: 'maria@example.com', firstName: 'Maria', confidence: 0.5 },
+        { email: 'giuseppe@example.com', firstName: 'Giuseppe', confidence: 0.5 },
+        { email: 'mohammed@example.com', firstName: 'Mohammed', confidence: 0.5 },
+        // Single name with numbers should extract base
+        { email: 'user123@example.com', firstName: 'User', confidence: 0.4 },
+        { email: 'test456@example.com', firstName: 'Test', confidence: 0.4 },
+      ];
+
+      testCases.forEach(({ email, firstName, confidence }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBeUndefined();
+        expect(result?.confidence).toBeCloseTo(confidence, 1);
+      });
+    });
+
+    it('should handle various separator combinations', () => {
+      const testCases = [
+        // Dot separator (most common)
+        { email: 'first.last@example.com', firstName: 'First', lastName: 'Last', minConfidence: 0.8 },
+
+        // Underscore separator
+        { email: 'first_last@example.com', firstName: 'First', lastName: 'Last', minConfidence: 0.7 },
+
+        // Hyphen separator
+        { email: 'first-last@example.com', firstName: 'First', lastName: 'Last', minConfidence: 0.7 },
+
+        // Mixed separators (takes first valid pattern)
+        { email: 'first.middle_last@example.com', firstName: 'First', lastName: 'Middle_last' },
+        { email: 'first_middle.last@example.com', firstName: 'First_middle', lastName: 'Last' },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName, minConfidence }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        expect(result?.lastName).toBe(lastName);
+        if (minConfidence) {
+          expect(result?.confidence).toBeGreaterThanOrEqual(minConfidence);
+        }
+      });
+    });
+
+    it('should properly handle names that should not be detected', () => {
+      const invalidEmails = [
+        'admin@example.com',
+        'support@example.com',
+        'info@example.com',
+        'noreply@example.com',
+        'contact@example.com',
+        'sales@example.com',
+        'help@example.com',
+        '123456@example.com',
+        '...@example.com',
+        'a@example.com', // Too short
+      ];
+
+      invalidEmails.forEach((email) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeNull();
+      });
+
+      // Special case for no-reply
+      expect(defaultNameDetectionMethod('no-reply@example.com')).toBeNull();
+    });
+
+    it('should handle complex real-world examples', () => {
+      const testCases = [
+        // Developer/tech usernames that might be names
+        { email: 'jsmith2024@example.com', firstName: 'Jsmith', confidence: 0.4 },
+        { email: 'dev.john.doe@example.com', firstName: 'Dev', lastName: 'Doe' },
+        { email: 'john.doe.dev@example.com', firstName: 'John', lastName: 'Doe' },
+
+        // With year/numbers
+        { email: 'john.smith.2024@example.com', firstName: 'John', lastName: 'Smith' },
+        { email: 'mary2024.jones@example.com', firstName: 'Mary', lastName: 'Jones' },
+
+        // Company patterns that might contain names
+        { email: 'john.doe.company@example.com', firstName: 'John', lastName: 'Doe' },
+        { email: 'jane.smith.sales@example.com', firstName: 'Jane', lastName: 'Smith' },
+      ];
+
+      testCases.forEach(({ email, firstName, lastName, confidence }) => {
+        const result = defaultNameDetectionMethod(email);
+        expect(result).toBeTruthy();
+        expect(result?.firstName).toBe(firstName);
+        if (lastName !== undefined) {
+          expect(result?.lastName).toBe(lastName);
+        }
+        if (confidence !== undefined) {
+          expect(result?.confidence).toBeCloseTo(confidence, 1);
+        }
+      });
     });
   });
 });
