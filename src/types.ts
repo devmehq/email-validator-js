@@ -185,3 +185,46 @@ export interface IDetectNameParams {
   email: string;
   customMethod?: NameDetectionMethod;
 }
+
+/**
+ * WHOIS data structure
+ */
+export interface WhoisData {
+  domainName: string | null;
+  registrar: string | null;
+  creationDate: Date | null;
+  expirationDate: Date | null;
+  updatedDate: Date | null;
+  status: string[];
+  nameServers: string[];
+  rawData: string;
+}
+
+/**
+ * Domain age information
+ */
+export interface DomainAgeInfo {
+  domain: string;
+  creationDate: Date;
+  ageInDays: number;
+  ageInYears: number;
+  expirationDate: Date | null;
+  updatedDate: Date | null;
+}
+
+/**
+ * Domain registration status information
+ */
+export interface DomainRegistrationInfo {
+  domain: string;
+  isRegistered: boolean;
+  isAvailable: boolean;
+  status: string[];
+  registrar: string | null;
+  nameServers: string[];
+  expirationDate: Date | null;
+  isExpired: boolean;
+  daysUntilExpiration: number | null;
+  isPendingDelete?: boolean;
+  isLocked?: boolean;
+}

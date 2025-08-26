@@ -53,9 +53,9 @@
 
 ✅ **NEW:** Domain typo detection and suggestions with caching
 
-🚨 Check domain age and quality score - _**soon**_
+✅ **NEW:** Get domain age via WHOIS lookup
 
-🚨 Check domain registration status - _**soon**_
+✅ **NEW:** Get domain registration status via WHOIS lookup
 
 ## Use Cases
 
@@ -328,6 +328,68 @@ getDomainSimilarity('gmail.com', 'gmial.com'); // 0.8
 getDomainSimilarity('gmail.com', 'yahoo.com'); // 0.3
 ```
 
+### WHOIS Functions
+
+#### `getDomainAge(domain: string, timeout?: number): Promise<DomainAgeInfo | null>`
+Get domain age information via WHOIS lookup.
+
+```typescript
+const ageInfo = await getDomainAge('example.com');
+// Returns:
+// {
+//   domain: 'example.com',
+//   creationDate: Date,
+//   ageInDays: 7890,
+//   ageInYears: 21.6,
+//   expirationDate: Date,
+//   updatedDate: Date
+// }
+
+// Works with email addresses and URLs too
+await getDomainAge('user@example.com');
+await getDomainAge('https://example.com/path');
+```
+
+**Parameters:**
+- `domain` (string): Domain, email, or URL to check
+- `timeout` (number): Timeout in milliseconds (default: 5000)
+
+**Returns:** `DomainAgeInfo` object or `null` if lookup fails
+
+#### `getDomainRegistrationStatus(domain: string, timeout?: number): Promise<DomainRegistrationInfo | null>`
+Get detailed domain registration status via WHOIS.
+
+```typescript
+const status = await getDomainRegistrationStatus('example.com');
+// Returns:
+// {
+//   domain: 'example.com',
+//   isRegistered: true,
+//   isAvailable: false,
+//   status: ['clientTransferProhibited'],
+//   registrar: 'Example Registrar',
+//   nameServers: ['ns1.example.com', 'ns2.example.com'],
+//   expirationDate: Date,
+//   isExpired: false,
+//   daysUntilExpiration: 365,
+//   isPendingDelete: false,
+//   isLocked: true
+// }
+```
+
+**Parameters:**
+- `domain` (string): Domain, email, or URL to check
+- `timeout` (number): Timeout in milliseconds (default: 5000)
+
+**Returns:** `DomainRegistrationInfo` object or `null` if lookup fails
+
+**Features:**
+- Supports 50+ TLDs with specific WHOIS servers
+- Automatic WHOIS server discovery for unknown TLDs
+- Parses various WHOIS response formats
+- 1-hour result caching
+- Extracts domain from emails and URLs
+
 ### Utility Functions
 
 #### `isDisposableEmail(emailOrDomain: string): boolean`
@@ -407,6 +469,35 @@ type NameDetectionMethod = (email: string) => DetectedName | null;
 #### `DomainSuggestionMethod`
 ```typescript
 type DomainSuggestionMethod = (domain: string) => DomainSuggestion | null;
+```
+
+#### `DomainAgeInfo`
+```typescript
+interface DomainAgeInfo {
+  domain: string;
+  creationDate: Date;
+  ageInDays: number;
+  ageInYears: number;
+  expirationDate: Date | null;
+  updatedDate: Date | null;
+}
+```
+
+#### `DomainRegistrationInfo`
+```typescript
+interface DomainRegistrationInfo {
+  domain: string;
+  isRegistered: boolean;
+  isAvailable: boolean;
+  status: string[];
+  registrar: string | null;
+  nameServers: string[];
+  expirationDate: Date | null;
+  isExpired: boolean;
+  daysUntilExpiration: number | null;
+  isPendingDelete?: boolean;
+  isLocked?: boolean;
+}
 ```
 
 ### Constants
