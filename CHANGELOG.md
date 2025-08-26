@@ -1,5 +1,16 @@
 # Change Log
 
+## v2.4.1 - 2025-01-26
+
+### Improvements
+- **Enhanced Domain Validation**: WHOIS functions now use PSL (Public Suffix List) for consistent domain validation
+- **Type Safety**: Fixed TypeScript type assertions in WHOIS cache
+- **Code Quality**: Removed non-null assertions for safer code
+
+### Changed
+- WHOIS domain validation now uses `psl.isValid()` matching email domain validation
+- Invalid domains without valid TLDs now correctly return `null`
+
 ## v2.4.0 - 2025-01-26
 
 ### 🎉 WHOIS Domain Information Release

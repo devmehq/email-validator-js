@@ -1,6 +1,8 @@
 import net from 'node:net';
+import { isValid } from 'psl';
 import { whoisCache } from './cache';
-import type { DomainAgeInfo, DomainRegistrationInfo, WhoisData } from './types';
+import type { DomainAgeInfo, DomainRegistrationInfo } from './types';
+import { type ParsedWhoisResult, parseWhoisData } from './whois-parser';
 
 const WHOIS_SERVERS: Record<string, string> = {
   com: 'whois.verisign-grs.com',
@@ -81,72 +83,11 @@ function queryWhoisServer(domain: string, server: string, timeout = 5000): Promi
   });
 }
 
-function parseWhoisData(whoisText: string): WhoisData {
-  const data: WhoisData = {
-    domainName: null,
-    registrar: null,
-    creationDate: null,
-    expirationDate: null,
-    updatedDate: null,
-    status: [],
-    nameServers: [],
-    rawData: whoisText,
-  };
-
-  const lines = whoisText.split('\n');
-
-  for (const line of lines) {
-    const trimmedLine = line.trim();
-
-    if (trimmedLine.match(/^Domain Name:/i)) {
-      data.domainName = trimmedLine.split(':')[1]?.trim().toLowerCase() || null;
-    } else if (trimmedLine.match(/^Registrar:/i)) {
-      data.registrar = trimmedLine.split(':')[1]?.trim() || null;
-    } else if (trimmedLine.match(/^Creation Date:|^Created:|^Registered:|^Domain registered:/i)) {
-      const dateStr = trimmedLine.split(/:|:/)[1]?.trim();
-      if (dateStr) {
-        const date = new Date(dateStr);
-        if (!isNaN(date.getTime())) {
-          data.creationDate = date;
-        }
-      }
-    } else if (trimmedLine.match(/^Registry Expiry Date:|^Expiration Date:|^Expires:|^Expiry Date:/i)) {
-      const dateStr = trimmedLine.split(/:|:/)[1]?.trim();
-      if (dateStr) {
-        const date = new Date(dateStr);
-        if (!isNaN(date.getTime())) {
-          data.expirationDate = date;
-        }
-      }
-    } else if (trimmedLine.match(/^Updated Date:|^Last Modified:|^Changed:/i)) {
-      const dateStr = trimmedLine.split(/:|:/)[1]?.trim();
-      if (dateStr) {
-        const date = new Date(dateStr);
-        if (!isNaN(date.getTime())) {
-          data.updatedDate = date;
-        }
-      }
-    } else if (trimmedLine.match(/^Domain Status:|^Status:/i)) {
-      const status = trimmedLine.split(/:|:/)[1]?.trim();
-      if (status) {
-        data.status.push(status);
-      }
-    } else if (trimmedLine.match(/^Name Server:|^Nameserver:|^nserver:/i)) {
-      const nameServer = trimmedLine.split(/:|:/)[1]?.trim().toLowerCase();
-      if (nameServer && !data.nameServers.includes(nameServer)) {
-        data.nameServers.push(nameServer);
-      }
-    }
-  }
-
-  return data;
-}
-
-async function getWhoisData(domain: string, timeout = 5000): Promise<WhoisData | null> {
+async function getWhoisData(domain: string, timeout = 5000): Promise<ParsedWhoisResult | null> {
   const cacheKey = `whois:${domain}`;
   const cached = whoisCache.get(cacheKey);
   if (cached) {
-    return cached;
+    return cached as ParsedWhoisResult;
   }
 
   try {
@@ -164,18 +105,18 @@ async function getWhoisData(domain: string, timeout = 5000): Promise<WhoisData |
       if (referMatch?.[1]) {
         const referredServer = referMatch[1];
         const whoisResponse = await queryWhoisServer(domain, referredServer, timeout);
-        const whoisData = parseWhoisData(whoisResponse);
+        const whoisData = parseWhoisData({ rawData: whoisResponse, domain });
         whoisCache.set(cacheKey, whoisData);
         return whoisData;
       }
 
-      const whoisData = parseWhoisData(ianaResponse);
+      const whoisData = parseWhoisData({ rawData: ianaResponse, domain });
       whoisCache.set(cacheKey, whoisData);
       return whoisData;
     }
 
     const whoisResponse = await queryWhoisServer(domain, whoisServer, timeout);
-    const whoisData = parseWhoisData(whoisResponse);
+    const whoisData = parseWhoisData({ rawData: whoisResponse, domain });
     whoisCache.set(cacheKey, whoisData);
     return whoisData;
   } catch (_error) {
@@ -194,13 +135,18 @@ export async function getDomainAge(domain: string, timeout = 5000): Promise<Doma
       return null;
     }
 
+    // Use psl isValid to check if domain is valid
+    if (!isValid(cleanDomain)) {
+      return null;
+    }
+
     const whoisData = await getWhoisData(cleanDomain, timeout);
     if (!whoisData || !whoisData.creationDate) {
       return null;
     }
 
     const now = new Date();
-    const creationDate = whoisData.creationDate;
+    const creationDate = new Date(whoisData.creationDate);
     const ageInMilliseconds = now.getTime() - creationDate.getTime();
     const ageInDays = Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
     const ageInYears = ageInDays / 365.25;
@@ -210,8 +156,8 @@ export async function getDomainAge(domain: string, timeout = 5000): Promise<Doma
       creationDate,
       ageInDays,
       ageInYears: parseFloat(ageInYears.toFixed(2)),
-      expirationDate: whoisData.expirationDate || null,
-      updatedDate: whoisData.updatedDate || null,
+      expirationDate: whoisData.expirationDate ? new Date(whoisData.expirationDate) : null,
+      updatedDate: whoisData.updatedDate ? new Date(whoisData.updatedDate) : null,
     };
   } catch (_error) {
     return null;
@@ -232,8 +178,14 @@ export async function getDomainRegistrationStatus(
       return null;
     }
 
+    // Use psl isValid to check if domain is valid
+    if (!isValid(cleanDomain)) {
+      return null;
+    }
+
     const whoisData = await getWhoisData(cleanDomain, timeout);
-    if (!whoisData) {
+
+    if (!whoisData || whoisData.isAvailable) {
       return {
         domain: cleanDomain,
         isRegistered: false,
@@ -244,16 +196,20 @@ export async function getDomainRegistrationStatus(
         expirationDate: null,
         isExpired: false,
         daysUntilExpiration: null,
+        isPendingDelete: false,
+        isLocked: false,
       };
     }
 
     const isRegistered = !!(whoisData.domainName || whoisData.creationDate || whoisData.registrar);
     let isExpired = false;
     let daysUntilExpiration: number | null = null;
+    let expirationDate: Date | null = null;
 
     if (whoisData.expirationDate) {
+      expirationDate = new Date(whoisData.expirationDate);
       const now = new Date();
-      const expirationTime = whoisData.expirationDate.getTime();
+      const expirationTime = expirationDate.getTime();
       const currentTime = now.getTime();
 
       isExpired = currentTime > expirationTime;
@@ -262,16 +218,17 @@ export async function getDomainRegistrationStatus(
       }
     }
 
-    const statusList = whoisData.status.map((s) => {
+    const statusList = whoisData.status || [];
+    const formattedStatusList = statusList.map((s) => {
       const statusCode = s.split(' ')[0];
       return statusCode;
     });
 
-    const isPendingDelete = statusList.some(
+    const isPendingDelete = formattedStatusList.some(
       (s) => s.toLowerCase().includes('pendingdelete') || s.toLowerCase().includes('redemption')
     );
 
-    const isLocked = statusList.some(
+    const isLocked = formattedStatusList.some(
       (s) =>
         s.toLowerCase().includes('clienttransferprohibited') || s.toLowerCase().includes('servertransferprohibited')
     );
@@ -280,10 +237,10 @@ export async function getDomainRegistrationStatus(
       domain: cleanDomain,
       isRegistered,
       isAvailable: !isRegistered,
-      status: statusList,
-      registrar: whoisData.registrar,
-      nameServers: whoisData.nameServers,
-      expirationDate: whoisData.expirationDate,
+      status: formattedStatusList,
+      registrar: whoisData.registrar || null,
+      nameServers: whoisData.nameServers || [],
+      expirationDate,
       isExpired,
       daysUntilExpiration,
       isPendingDelete,

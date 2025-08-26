@@ -11,6 +11,7 @@ import {
   VerificationErrorCode,
 } from './types';
 import { isValidEmail, isValidEmailDomain } from './validator';
+import { getDomainAge, getDomainRegistrationStatus } from './whois';
 
 export { verifyEmailBatch } from './batch';
 export { clearAllCaches } from './cache';
@@ -96,6 +97,9 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
     suggestDomain = false,
     domainSuggestionMethod,
     commonDomains,
+    checkDomainAge = false,
+    checkDomainRegistration = false,
+    whoisTimeout = 5000,
   } = params;
   const result: IVerifyEmailResult = { validFormat: false, validMx: null, validSmtp: null };
 
@@ -131,6 +135,26 @@ export async function verifyEmail(params: IVerifyEmailParams): Promise<IVerifyEm
       result.domainSuggestion = domainSuggestionMethod
         ? domainSuggestionMethod(emailDomain)
         : suggestEmailDomain(emailAddress, commonDomains);
+    }
+  }
+
+  // Check domain age if requested
+  if (checkDomainAge) {
+    try {
+      result.domainAge = await getDomainAge(domain, whoisTimeout);
+    } catch (err) {
+      log('[verifyEmail] Failed to get domain age', err);
+      result.domainAge = null;
+    }
+  }
+
+  // Check domain registration if requested
+  if (checkDomainRegistration) {
+    try {
+      result.domainRegistration = await getDomainRegistrationStatus(domain, whoisTimeout);
+    } catch (err) {
+      log('[verifyEmail] Failed to get domain registration status', err);
+      result.domainRegistration = null;
     }
   }
 
@@ -218,6 +242,9 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
     suggestDomain = true,
     domainSuggestionMethod,
     commonDomains,
+    checkDomainAge = false,
+    checkDomainRegistration = false,
+    whoisTimeout = 5000,
   } = params;
 
   const startTime = Date.now();
@@ -240,7 +267,9 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   // Format validation
   if (!isValidEmail(emailAddress)) {
     result.format.error = VerificationErrorCode.INVALID_FORMAT;
-    result.metadata!.verificationTime = Date.now() - startTime;
+    if (result.metadata) {
+      result.metadata.verificationTime = Date.now() - startTime;
+    }
     return result;
   }
   result.format.valid = true;
@@ -266,14 +295,18 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   const [local, domain] = emailAddress.split('@');
   if (!domain || !local) {
     result.format.error = VerificationErrorCode.INVALID_FORMAT;
-    result.metadata!.verificationTime = Date.now() - startTime;
+    if (result.metadata) {
+      result.metadata.verificationTime = Date.now() - startTime;
+    }
     return result;
   }
 
   // Domain validation
   if (!isValidEmailDomain(domain)) {
     result.domain.error = VerificationErrorCode.INVALID_DOMAIN;
-    result.metadata!.verificationTime = Date.now() - startTime;
+    if (result.metadata) {
+      result.metadata.verificationTime = Date.now() - startTime;
+    }
     return result;
   }
 
@@ -289,6 +322,26 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   // Check free provider
   if (checkFree) {
     result.freeProvider = isFreeEmail(emailAddress);
+  }
+
+  // Check domain age if requested
+  if (checkDomainAge) {
+    try {
+      result.domainAge = await getDomainAge(domain, whoisTimeout);
+    } catch (err) {
+      log('[verifyEmailDetailed] Failed to get domain age', err);
+      result.domainAge = null;
+    }
+  }
+
+  // Check domain registration if requested
+  if (checkDomainRegistration) {
+    try {
+      result.domainRegistration = await getDomainRegistrationStatus(domain, whoisTimeout);
+    } catch (err) {
+      log('[verifyEmailDetailed] Failed to get domain registration status', err);
+      result.domainRegistration = null;
+    }
   }
 
   // MX Records verification
@@ -309,7 +362,9 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
 
         if (cachedSmtp !== undefined) {
           result.smtp.valid = cachedSmtp;
-          result.metadata!.cached = true;
+          if (result.metadata) {
+            result.metadata.cached = true;
+          }
           // Still need to detect name if requested and not done yet
           if (detectName && !result.detectedName) {
             result.detectedName = detectNameFromEmail({
@@ -357,6 +412,8 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   result.valid =
     result.format.valid && result.domain.valid !== false && result.smtp.valid !== false && !result.disposable;
 
-  result.metadata!.verificationTime = Date.now() - startTime;
+  if (result.metadata) {
+    result.metadata.verificationTime = Date.now() - startTime;
+  }
   return result;
 }

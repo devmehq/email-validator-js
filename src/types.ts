@@ -39,6 +39,8 @@ export interface DetailedVerificationResult {
   suggestion?: string;
   domainSuggestion?: DomainSuggestion | null;
   detectedName?: DetectedName | null;
+  domainAge?: DomainAgeInfo | null;
+  domainRegistration?: DomainRegistrationInfo | null;
   metadata?: {
     verificationTime: number;
     cached: boolean;
@@ -54,6 +56,8 @@ export interface IVerifyEmailResult {
   validSmtp: boolean | null;
   detectedName?: DetectedName | null;
   domainSuggestion?: DomainSuggestion | null;
+  domainAge?: DomainAgeInfo | null;
+  domainRegistration?: DomainRegistrationInfo | null;
 }
 
 /**
@@ -75,6 +79,9 @@ export interface IVerifyEmailParams {
   suggestDomain?: boolean;
   domainSuggestionMethod?: DomainSuggestionMethod;
   commonDomains?: string[];
+  checkDomainAge?: boolean;
+  checkDomainRegistration?: boolean;
+  whoisTimeout?: number;
 }
 
 /**
