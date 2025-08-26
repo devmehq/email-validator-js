@@ -29,15 +29,36 @@ function capitalizeFirstLetter(str: string): string {
 
 /**
  * Parse composite name parts that may contain numbers
- * e.g., "mo1" could be "mo" + "1" or a composite name
+ * Intelligently strips numbers and special characters that are likely not part of the actual name
+ * e.g., "john1" -> "john", "due2" -> "due", "test123" -> "test"
  */
-function parseCompositeNamePart(part: string): { base: string; hasNumbers: boolean } {
+function parseCompositeNamePart(part: string): { base: string; hasNumbers: boolean; cleaned: string } {
   const hasNumbers = /\d/.test(part);
-  // Try to extract base name without trailing numbers
+
+  // Multiple strategies for cleaning names:
+  // 1. Remove trailing numbers (john123 -> john)
+  // 2. Remove interspersed numbers if they seem unnatural (jo1hn -> john)
+  // 3. Remove leading numbers if followed by a valid name (1john -> john)
+
+  let cleaned = part;
+
+  // First, try to extract alphabetic base by removing all numbers
+  const pureAlpha = part.replace(/\d+/g, '');
+
+  // If we have a reasonable alphabetic base (at least 2 chars), use it
+  if (pureAlpha.length >= 2) {
+    cleaned = pureAlpha;
+  } else {
+    // Otherwise, try to extract base name without trailing numbers
+    const baseMatch = part.match(/^([a-zA-Z]+[a-zA-Z0-9]*?)\d*$/);
+    cleaned = baseMatch ? baseMatch[1] : part;
+  }
+
+  // For backward compatibility, also provide the old 'base' format
   const baseMatch = part.match(/^([a-zA-Z]+[a-zA-Z0-9]*?)\d*$/);
   const base = baseMatch ? baseMatch[1] : part;
 
-  return { base, hasNumbers };
+  return { base, hasNumbers, cleaned };
 }
 
 /**
@@ -113,14 +134,32 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
         const bothPartsValid = isLikelyName(first, true) && isLikelyName(last, true);
 
         if (bothPartsValid) {
-          // For composite names with numbers (like mo1.test2), keep original
-          // For regular names, remove trailing numbers
-          if (firstParsed.hasNumbers && lastParsed.hasNumbers) {
-            // Both have numbers - likely composite identifiers
-            firstName = capitalizeFirstLetter(first);
-            lastName = capitalizeFirstLetter(last);
-            confidence = 0.6; // Lower confidence for alphanumeric patterns
-          } else if (!firstParsed.hasNumbers && !lastParsed.hasNumbers) {
+          // Smart handling: Always try to extract clean names when possible
+          // For patterns like john1.due2, we want "John" and "Due"
+
+          if (firstParsed.hasNumbers || lastParsed.hasNumbers) {
+            // At least one part has numbers - intelligently clean them
+            const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : first;
+            const cleanedLast = lastParsed.hasNumbers ? lastParsed.cleaned : last;
+
+            // Check if the cleaned versions are valid names
+            if (isLikelyName(cleanedFirst) && isLikelyName(cleanedLast)) {
+              // Successfully cleaned to valid names
+              firstName = capitalizeFirstLetter(cleanedFirst);
+              lastName = capitalizeFirstLetter(cleanedLast);
+              confidence = 0.75; // Good confidence for cleaned names
+
+              if (separator === '.') {
+                confidence = 0.85; // Higher for dot separator
+              }
+            } else {
+              // Fallback to keeping numbers if cleaning doesn't produce valid names
+              // This handles cases like "a1.b2" where removing numbers leaves too little
+              firstName = capitalizeFirstLetter(first);
+              lastName = capitalizeFirstLetter(last);
+              confidence = 0.6; // Lower confidence for alphanumeric patterns
+            }
+          } else {
             // Neither has numbers - regular name
             firstName = capitalizeFirstLetter(first);
             lastName = capitalizeFirstLetter(last);
@@ -129,20 +168,6 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
             // Higher confidence for dot separator (most common)
             if (separator === '.') {
               confidence = 0.9;
-            }
-          } else {
-            // Mixed case - one has numbers, one doesn't
-            // Remove trailing numbers from the one that has them
-            firstName = capitalizeFirstLetter(
-              firstParsed.hasNumbers && firstParsed.base.length >= 2 ? firstParsed.base : first
-            );
-            lastName = capitalizeFirstLetter(
-              lastParsed.hasNumbers && lastParsed.base.length >= 2 ? lastParsed.base : last
-            );
-            confidence = 0.7;
-
-            if (separator === '.') {
-              confidence = 0.8;
             }
           }
 
@@ -165,23 +190,35 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
 
         if (isLastSuffix) {
           if (isLikelyName(first, true) && isLikelyName(middle, true)) {
-            firstName = capitalizeFirstLetter(firstParsed.hasNumbers ? firstParsed.base : first);
-            lastName = capitalizeFirstLetter(middleParsed.hasNumbers ? middleParsed.base : middle);
-            confidence = 0.7;
+            // Clean numbers from names if present
+            const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : first;
+            const cleanedMiddle = middleParsed.hasNumbers ? middleParsed.cleaned : middle;
+
+            if (isLikelyName(cleanedFirst) && isLikelyName(cleanedMiddle)) {
+              firstName = capitalizeFirstLetter(cleanedFirst);
+              lastName = capitalizeFirstLetter(cleanedMiddle);
+              confidence = 0.7;
+            } else {
+              firstName = capitalizeFirstLetter(first);
+              lastName = capitalizeFirstLetter(middle);
+              confidence = 0.65;
+            }
             break;
           }
         } else if (isLikelyName(first, true) && isLikelyName(last, true)) {
-          // Handle composite three-part names (e.g., mo1.test2.dev3)
-          if (firstParsed.hasNumbers && middleParsed.hasNumbers && lastParsed.hasNumbers) {
-            // All have numbers - likely composite identifier
+          // Intelligently handle three-part names
+          const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : first;
+          const cleanedLast = lastParsed.hasNumbers ? lastParsed.cleaned : last;
+
+          if (isLikelyName(cleanedFirst) && isLikelyName(cleanedLast)) {
+            firstName = capitalizeFirstLetter(cleanedFirst);
+            lastName = capitalizeFirstLetter(cleanedLast);
+            confidence = 0.75;
+          } else {
+            // Fallback if cleaning doesn't produce valid names
             firstName = capitalizeFirstLetter(first);
             lastName = capitalizeFirstLetter(last);
             confidence = 0.55;
-          } else {
-            // Regular three-part name
-            firstName = capitalizeFirstLetter(firstParsed.hasNumbers ? firstParsed.base : first);
-            lastName = capitalizeFirstLetter(lastParsed.hasNumbers ? lastParsed.base : last);
-            confidence = 0.75;
           }
           break;
         }
@@ -203,9 +240,19 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
           const firstParsed = parseCompositeNamePart(firstPart);
           const lastParsed = parseCompositeNamePart(lastToUse);
 
-          firstName = capitalizeFirstLetter(firstParsed.hasNumbers ? firstParsed.base : firstPart);
-          lastName = capitalizeFirstLetter(lastParsed.hasNumbers ? lastParsed.base : lastToUse);
-          confidence = 0.5; // Lower confidence for complex patterns
+          // Try to clean names intelligently
+          const cleanedFirst = firstParsed.hasNumbers ? firstParsed.cleaned : firstPart;
+          const cleanedLast = lastParsed.hasNumbers ? lastParsed.cleaned : lastToUse;
+
+          if (isLikelyName(cleanedFirst) && isLikelyName(cleanedLast)) {
+            firstName = capitalizeFirstLetter(cleanedFirst);
+            lastName = capitalizeFirstLetter(cleanedLast);
+            confidence = 0.6;
+          } else {
+            firstName = capitalizeFirstLetter(firstPart);
+            lastName = capitalizeFirstLetter(lastToUse);
+            confidence = 0.5;
+          }
           break;
         }
       }
@@ -236,9 +283,9 @@ export function defaultNameDetectionMethod(email: string): DetectedName | null {
         // Pure alphabetic - likely a single name
         firstName = capitalizeFirstLetter(cleanedLocal);
         confidence = 0.5;
-      } else if (parsed.hasNumbers && parsed.base.length >= 2) {
-        // Has numbers but has a meaningful base
-        firstName = capitalizeFirstLetter(parsed.base);
+      } else if (parsed.hasNumbers && parsed.cleaned.length >= 2) {
+        // Has numbers but we can extract a clean name
+        firstName = capitalizeFirstLetter(parsed.cleaned);
         confidence = 0.4; // Lower confidence for alphanumeric single names
       }
     }

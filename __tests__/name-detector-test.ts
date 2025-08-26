@@ -210,20 +210,28 @@ describe('Name Detection', () => {
   });
 
   describe('Composite and alphanumeric name detection', () => {
+    it('should intelligently strip numbers from names like john1.due2', () => {
+      const result = defaultNameDetectionMethod('john1.due2@example.com');
+      expect(result).toBeTruthy();
+      expect(result?.firstName).toBe('John');
+      expect(result?.lastName).toBe('Due');
+      expect(result?.confidence).toBeGreaterThanOrEqual(0.75);
+    });
+
     it('should handle alphanumeric composite names like mo1.test2', () => {
       const result = defaultNameDetectionMethod('mo1.test2@example.com');
       expect(result).toBeTruthy();
-      expect(result?.firstName).toBe('Mo1');
-      expect(result?.lastName).toBe('Test2');
-      expect(result?.confidence).toBeGreaterThanOrEqual(0.6);
+      expect(result?.firstName).toBe('Mo');
+      expect(result?.lastName).toBe('Test');
+      expect(result?.confidence).toBeGreaterThanOrEqual(0.75);
     });
 
     it('should handle mixed alphanumeric patterns', () => {
       const testCases = [
-        { email: 'user1.admin2@example.com', firstName: 'User1', lastName: 'Admin2' },
-        { email: 'dev3.ops4@example.com', firstName: 'Dev3', lastName: 'Ops4' },
-        { email: 'test123.user456@example.com', firstName: 'Test123', lastName: 'User456' },
-        { email: 'a1.b2@example.com', firstName: 'A1', lastName: 'B2' },
+        { email: 'user1.admin2@example.com', firstName: 'User1', lastName: 'Admin2' }, // 'admin' is a reserved suffix, keeps original
+        { email: 'dev3.ops4@example.com', firstName: 'Dev', lastName: 'Ops' },
+        { email: 'test123.user456@example.com', firstName: 'Test', lastName: 'User' },
+        { email: 'a1.b2@example.com', firstName: 'A1', lastName: 'B2' }, // Too short after cleaning (a, b), keeps original
       ];
 
       testCases.forEach(({ email, firstName, lastName }) => {
@@ -236,10 +244,10 @@ describe('Name Detection', () => {
 
     it('should handle names with numbers in different positions', () => {
       const testCases = [
-        { email: '2john.doe@example.com', firstName: '2john', lastName: 'Doe' },
-        { email: 'john2.doe@example.com', firstName: 'John', lastName: 'Doe', confidence: 0.8 },
-        { email: 'john.2doe@example.com', firstName: 'John', lastName: '2doe' },
-        { email: 'john.doe3@example.com', firstName: 'John', lastName: 'Doe', confidence: 0.8 },
+        { email: '2john.doe@example.com', firstName: 'John', lastName: 'Doe' }, // Strips leading number
+        { email: 'john2.doe@example.com', firstName: 'John', lastName: 'Doe', confidence: 0.85 },
+        { email: 'john.2doe@example.com', firstName: 'John', lastName: 'Doe' }, // Strips leading number from second part
+        { email: 'john.doe3@example.com', firstName: 'John', lastName: 'Doe', confidence: 0.85 },
       ];
 
       testCases.forEach(({ email, firstName, lastName, confidence }) => {
@@ -256,7 +264,7 @@ describe('Name Detection', () => {
     it('should handle complex composite names with multiple parts', () => {
       const testCases = [
         { email: 'user.test.dev.admin@example.com', firstName: 'User', lastName: 'Dev' },
-        { email: 'mo1.test2.dev3@example.com', firstName: 'Mo1', lastName: 'Dev3' },
+        { email: 'mo1.test2.dev3@example.com', firstName: 'Mo', lastName: 'Dev' }, // Strips numbers intelligently
         { email: 'alpha.beta.gamma.delta@example.com', firstName: 'Alpha', lastName: 'Delta' },
         { email: 'first.middle1.middle2.last@example.com', firstName: 'First', lastName: 'Last' },
       ];
@@ -276,10 +284,10 @@ describe('Name Detection', () => {
       expect(result1?.firstName).toBe('John');
       expect(result1?.lastName).toBe('Doe');
 
-      // CamelCase with numbers treated differently
+      // CamelCase with numbers treated differently (strips numbers)
       const result2 = defaultNameDetectionMethod('user1Admin@example.com');
       expect(result2).toBeTruthy();
-      expect(result2?.firstName).toBe('User1admin');
+      expect(result2?.firstName).toBe('Useradmin'); // Strips numbers from single name
       expect(result2?.lastName).toBeUndefined();
     });
   });
@@ -415,7 +423,7 @@ describe('Name Detection', () => {
 
         // With year/numbers
         { email: 'john.smith.2024@example.com', firstName: 'John', lastName: 'Smith' },
-        { email: 'mary2024.jones@example.com', firstName: 'Mary', lastName: 'Jones' },
+        { email: 'mary2024.jones@example.com', firstName: 'Mary', lastName: 'Jones', confidence: 0.85 },
 
         // Company patterns that might contain names
         { email: 'john.doe.company@example.com', firstName: 'John', lastName: 'Doe' },
