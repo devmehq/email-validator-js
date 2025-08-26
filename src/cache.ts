@@ -1,7 +1,4 @@
-import { type LRU, lru } from 'tiny-lru';
-
-// Use the original LRU type from tiny-lru
-export type Cache<T> = LRU<T>;
+import { lru } from 'tiny-lru';
 
 // Global cache instances with TTL in milliseconds
 export const mxCache = lru<string[]>(500, 3600000); // 1 hour TTL for MX records
@@ -10,6 +7,7 @@ export const freeCache = lru<boolean>(1000, 86400000); // 24 hour TTL for free e
 export const domainValidCache = lru<boolean>(1000, 86400000); // 24 hour TTL for domain validation
 export const smtpCache = lru<boolean | null>(500, 1800000); // 30 minute TTL for SMTP verification
 export const domainSuggestionCache = lru<{ suggested: string; confidence: number } | null>(1000, 86400000); // 24 hour TTL for domain suggestions
+export const whoisCache = lru<any>(200, 3600000); // 1 hour TTL for WHOIS data
 
 // Helper to clear all caches
 export function clearAllCaches(): void {
@@ -19,4 +17,5 @@ export function clearAllCaches(): void {
   domainValidCache.clear();
   smtpCache.clear();
   domainSuggestionCache.clear();
+  whoisCache.clear();
 }

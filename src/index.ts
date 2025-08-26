@@ -26,6 +26,7 @@ export { defaultNameDetectionMethod, detectName, detectNameFromEmail } from './n
 // Re-export types
 export * from './types';
 export { isValidEmail, isValidEmailDomain } from './validator';
+export { getDomainAge, getDomainRegistrationStatus } from './whois';
 
 let disposableEmailProviders: Set<string>;
 let freeEmailProviders: Set<string>;

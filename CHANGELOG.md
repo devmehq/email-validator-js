@@ -1,5 +1,49 @@
 # Change Log
 
+## v2.4.0 - 2025-01-26
+
+### 🎉 WHOIS Domain Information Release
+
+This release adds WHOIS lookup capabilities to retrieve domain age and registration status, providing deeper insights into email domain validity and reputation.
+
+### Added
+- **Domain Age Detection via WHOIS**
+  - New `getDomainAge()` function retrieves domain creation date and age
+  - Calculates age in days and years
+  - Returns expiration and last updated dates
+  - Supports extraction from email addresses and URLs
+  - 1-hour caching for performance optimization
+
+- **Domain Registration Status via WHOIS**
+  - New `getDomainRegistrationStatus()` function checks domain registration
+  - Detects if domain is registered or available
+  - Returns registrar information and name servers
+  - Provides domain status codes (locked, pending deletion, etc.)
+  - Calculates days until expiration
+  - Identifies expired domains
+
+- **WHOIS Infrastructure**
+  - Support for 50+ TLDs with specific WHOIS servers
+  - Automatic WHOIS server discovery for unknown TLDs
+  - Intelligent parsing of various WHOIS response formats
+  - Robust error handling and timeout support
+  - Built-in caching with 1-hour TTL
+
+- **New Type Definitions**
+  - `DomainAgeInfo` interface for domain age results
+  - `DomainRegistrationInfo` interface for registration status
+  - `WhoisData` interface for raw WHOIS data
+
+### Performance
+- WHOIS results cached for 1 hour to reduce network calls
+- Timeout support (default 5 seconds) for unresponsive WHOIS servers
+- Graceful degradation when WHOIS servers are unavailable
+
+### Testing
+- Added comprehensive test suite for WHOIS functions
+- 19 tests covering various scenarios and edge cases
+- Integration tests with real WHOIS servers
+
 ## v2.3.0 - 2025-01-26
 
 ### 🎉 Name Detection & Domain Suggestion Release
