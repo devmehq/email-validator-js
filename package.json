@@ -1,6 +1,6 @@
 {
   "name": "@devmehq/email-validator-js",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "private": false,
   "description": "Advanced email validation with MX records, SMTP verification, disposable email detection, batch processing, and caching. Production-ready with TypeScript support.",
   "keywords": [
