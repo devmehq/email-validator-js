@@ -412,6 +412,8 @@ export async function verifyEmailDetailed(params: IVerifyEmailParams): Promise<D
   result.valid =
     result.format.valid && result.domain.valid !== false && result.smtp.valid !== false && !result.disposable;
 
-  result.metadata!.verificationTime = Date.now() - startTime;
+  if (result.metadata) {
+    result.metadata.verificationTime = Date.now() - startTime;
+  }
   return result;
 }

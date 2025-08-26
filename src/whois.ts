@@ -1,4 +1,5 @@
 import net from 'node:net';
+import { isValid } from 'psl';
 import { whoisCache } from './cache';
 import type { DomainAgeInfo, DomainRegistrationInfo } from './types';
 import { type ParsedWhoisResult, parseWhoisData } from './whois-parser';
@@ -86,7 +87,7 @@ async function getWhoisData(domain: string, timeout = 5000): Promise<ParsedWhois
   const cacheKey = `whois:${domain}`;
   const cached = whoisCache.get(cacheKey);
   if (cached) {
-    return cached;
+    return cached as ParsedWhoisResult;
   }
 
   try {
@@ -134,6 +135,11 @@ export async function getDomainAge(domain: string, timeout = 5000): Promise<Doma
       return null;
     }
 
+    // Use psl isValid to check if domain is valid
+    if (!isValid(cleanDomain)) {
+      return null;
+    }
+
     const whoisData = await getWhoisData(cleanDomain, timeout);
     if (!whoisData || !whoisData.creationDate) {
       return null;
@@ -169,6 +175,11 @@ export async function getDomainRegistrationStatus(
       .split('@')
       .pop();
     if (!cleanDomain) {
+      return null;
+    }
+
+    // Use psl isValid to check if domain is valid
+    if (!isValid(cleanDomain)) {
       return null;
     }
 
