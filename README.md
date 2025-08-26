@@ -49,7 +49,7 @@
 
 ✅ **NEW:** RFC 5321 compliant validation
 
-✅ **NEW:** Name detection from email addresses
+✅ **NEW:** Enhanced name detection from email addresses with composite name support
 
 ✅ **NEW:** Domain typo detection and suggestions with caching
 
@@ -239,11 +239,17 @@ const name = detectName('john.doe@example.com');
 - Underscore: `jane_smith` → Jane Smith (80% confidence)
 - Hyphen: `mary-johnson` → Mary Johnson (80% confidence)
 - CamelCase: `johnDoe` → John Doe (70% confidence)
+- **Composite names**: `mo1.test2` → Mo1 Test2 (60% confidence)
+- **Mixed alphanumeric**: `user1.admin2` → User1 Admin2 (60% confidence)
+- **Smart number handling**: `john.doe123` → John Doe (80% confidence)
+- **Contextual suffixes**: `john.doe.dev` → John Doe (70% confidence)
 - Single name: `alice` → Alice (50% confidence)
 
-**Features:**
+**Enhanced Features:**
 - Removes email aliases (text after +)
-- Strips trailing numbers
+- Smart handling of numbers (preserves in composite names, removes trailing)
+- Recognizes contextual suffixes (dev, company, sales, years)
+- Handles complex multi-part names
 - Proper name capitalization
 - Filters out common non-name prefixes (admin, support, info, etc.)
 
@@ -623,13 +629,24 @@ const result = await verifyEmailBatch({
 // result.summary.processingTime: 234
 ```
 
-### Name Detection (NEW)
+### Name Detection (ENHANCED)
 ```typescript
 import { detectName, verifyEmailDetailed } from '@devmehq/email-validator-js';
 
-// Standalone name detection
+// Standalone name detection - now with composite name support
 const name = detectName('john.doe@example.com');
 // name: { firstName: 'John', lastName: 'Doe', confidence: 0.9 }
+
+// Handle alphanumeric composite names
+const composite = detectName('mo1.test2@example.com');
+// composite: { firstName: 'Mo1', lastName: 'Test2', confidence: 0.6 }
+
+// Smart handling of numbers and suffixes
+const withNumbers = detectName('john.doe123@example.com');
+// withNumbers: { firstName: 'John', lastName: 'Doe', confidence: 0.8 }
+
+const withSuffix = detectName('jane.smith.dev@example.com');
+// withSuffix: { firstName: 'Jane', lastName: 'Smith', confidence: 0.7 }
 
 // Integrated with email verification
 const result = await verifyEmailDetailed({
