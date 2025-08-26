@@ -1,5 +1,16 @@
 # Change Log
 
+## v2.2.1 - 2025-01-26
+
+### Changed
+- Move `@types/psl` from dependencies to devDependencies for cleaner production installs
+- Update `typescript-eslint` to v8.41.0
+- Update `eslint` to v9.34.0
+- Update README documentation
+
+### Fixed
+- Reduced production dependencies footprint by correctly categorizing development-only packages
+
 ## v2.1.0 - 2024-01-19
 
 ### 🎉 Major Improvements Release
