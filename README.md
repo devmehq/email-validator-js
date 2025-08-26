@@ -330,6 +330,8 @@ getDomainSimilarity('gmail.com', 'yahoo.com'); // 0.3
 
 ### WHOIS Functions
 
+> **Note:** WHOIS functions use PSL (Public Suffix List) validation to ensure domain validity before performing lookups. Invalid domains or domains without valid TLDs will return `null`.
+
 #### `getDomainAge(domain: string, timeout?: number): Promise<DomainAgeInfo | null>`
 Get domain age information via WHOIS lookup.
 
@@ -387,6 +389,7 @@ const status = await getDomainRegistrationStatus('example.com');
 - Supports 50+ TLDs with specific WHOIS servers
 - Automatic WHOIS server discovery for unknown TLDs
 - Parses various WHOIS response formats
+- Uses PSL (Public Suffix List) for domain validation
 - 1-hour result caching
 - Extracts domain from emails and URLs
 
