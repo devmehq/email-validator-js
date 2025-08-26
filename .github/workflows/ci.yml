@@ -59,6 +59,6 @@ jobs:
         if: github.ref == 'refs/heads/develop'
         run: |
           git config --global user.email "support@dev.me"
-          git config --global user.name "Dev.me Team"
+          git config --global user.name "DEV.ME Team"
           npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
           node release.mjs

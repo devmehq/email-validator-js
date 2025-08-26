@@ -1,9 +1,8 @@
+import { promises as dnsPromises, type MxRecord } from 'node:dns';
+import net, { Socket } from 'node:net';
 import expect from 'expect';
+import sinon, { type SinonSandbox, type SinonStub } from 'sinon';
 import { clearAllCaches, verifyEmail } from '../src';
-
-import sinon, { SinonSandbox, SinonStub } from 'sinon';
-import { MxRecord, promises as dnsPromises } from 'dns';
-import net, { Socket } from 'net';
 import { resolveMxRecords } from '../src/dns';
 
 type SelfMockType = {
@@ -14,13 +13,11 @@ type SelfMockType = {
 };
 
 function stubResolveMx(self: SelfMockType, domain = 'foo.com') {
-  self.resolveMxStub = self.sandbox.stub(dnsPromises, 'resolveMx').callsFake(async function (hostname: string) {
-    return [
-      { exchange: `mx1.${domain}`, priority: 30 },
-      { exchange: `mx2.${domain}`, priority: 10 },
-      { exchange: `mx3.${domain}`, priority: 20 },
-    ];
-  });
+  self.resolveMxStub = self.sandbox.stub(dnsPromises, 'resolveMx').callsFake(async (_hostname: string) => [
+    { exchange: `mx1.${domain}`, priority: 30 },
+    { exchange: `mx2.${domain}`, priority: 10 },
+    { exchange: `mx3.${domain}`, priority: 20 },
+  ]);
 }
 
 function stubSocket(self: SelfMockType) {
@@ -54,7 +51,11 @@ describe('verifyEmailMockTest', () => {
 
     it('should perform all tests', async () => {
       setTimeout(() => self.socket.write('250 Foo'), 10);
-      const { validFormat, validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifyMx: true, verifySmtp: true });
+      const { validFormat, validMx, validSmtp } = await verifyEmail({
+        emailAddress: 'foo@bar.com',
+        verifyMx: true,
+        verifySmtp: true,
+      });
       sinon.assert.called(self.resolveMxStub);
       sinon.assert.called(self.connectStub);
       expect(validFormat).toBe(true);
@@ -104,7 +105,11 @@ describe('verifyEmailMockTest', () => {
           socket.write('250 Foo');
         }, 10);
 
-        const { validMx, validSmtp, validFormat } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
+        const { validMx, validSmtp, validFormat } = await verifyEmail({
+          emailAddress: 'bar@foo.com',
+          verifySmtp: true,
+          verifyMx: true,
+        });
 
         expect(validSmtp).toBe(false);
         expect(validFormat).toBe(true);
@@ -125,7 +130,11 @@ describe('verifyEmailMockTest', () => {
 
         self.connectStub = self.connectStub.returns(socket as unknown as Socket);
 
-        const { validSmtp, validFormat, validMx } = await verifyEmail({ emailAddress: 'bar@foo.com', verifySmtp: true, verifyMx: true });
+        const { validSmtp, validFormat, validMx } = await verifyEmail({
+          emailAddress: 'bar@foo.com',
+          verifySmtp: true,
+          verifyMx: true,
+        });
         expect(validSmtp).toBe(null);
         expect(validMx).toBe(true);
         expect(validFormat).toBe(true);
@@ -238,7 +247,8 @@ describe('verifyEmailMockTest', () => {
       });
 
       it('returns null on spam errors-#2', async () => {
-        const msg = '553 5.3.0 flpd575 DNSBL:RBL 521< 54.74.114.115 >_is_blocked.For assistance forward this email to abuse_rbl@abuse-att.net';
+        const msg =
+          '553 5.3.0 flpd575 DNSBL:RBL 521< 54.74.114.115 >_is_blocked.For assistance forward this email to abuse_rbl@abuse-att.net';
         const socket = new Socket({});
 
         self.sandbox.stub(socket, 'write').callsFake(function (data) {
@@ -269,7 +279,11 @@ describe('verifyEmailMockTest', () => {
 
     describe('given a verifyMailbox option false', () => {
       it('should not check via socket', async () => {
-        const { validMx, validSmtp } = await verifyEmail({ emailAddress: 'foo@bar.com', verifySmtp: false, verifyMx: true });
+        const { validMx, validSmtp } = await verifyEmail({
+          emailAddress: 'foo@bar.com',
+          verifySmtp: false,
+          verifyMx: true,
+        });
         sinon.assert.called(self.resolveMxStub);
         sinon.assert.notCalled(self.connectStub);
         expect(validSmtp).toBe(null);

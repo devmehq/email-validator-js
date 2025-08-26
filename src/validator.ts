@@ -23,7 +23,7 @@ export function isValidEmailDomain(emailOrDomain: string): boolean {
     const result = isValid(emailDomain) || false;
     domainValidCache.set(emailDomain, result);
     return result;
-  } catch (e) {
+  } catch (_e) {
     domainValidCache.set(emailDomain, false);
     return false;
   }
@@ -40,7 +40,8 @@ export function isValidEmail(emailAddress: string): boolean {
   }
 
   // Updated regex to be more comprehensive
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
   // Additional checks
   const emailLower = emailAddress.toLowerCase();

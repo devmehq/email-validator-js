@@ -1,8 +1,8 @@
+import { promises as dnsPromises } from 'node:dns';
+import net, { Socket } from 'node:net';
 import expect from 'expect';
-import { clearAllCaches, verifyEmailBatch, DetailedVerificationResult } from '../src';
-import sinon, { SinonSandbox } from 'sinon';
-import { promises as dnsPromises } from 'dns';
-import net, { Socket } from 'net';
+import sinon, { type SinonSandbox } from 'sinon';
+import { clearAllCaches, type DetailedVerificationResult, verifyEmailBatch } from '../src';
 
 describe('Batch Email Verification', () => {
   let sandbox: SinonSandbox;
@@ -27,7 +27,13 @@ describe('Batch Email Verification', () => {
     });
 
     it('should verify multiple emails in parallel', async () => {
-      const emails = ['user1@example.com', 'user2@example.com', 'user3@example.com', 'invalid-email', 'user4@example.com'];
+      const emails = [
+        'user1@example.com',
+        'user2@example.com',
+        'user3@example.com',
+        'invalid-email',
+        'user4@example.com',
+      ];
 
       const result = await verifyEmailBatch({
         emailAddresses: emails,
@@ -48,7 +54,7 @@ describe('Batch Email Verification', () => {
       let maxConcurrent = 0;
       let currentConcurrent = 0;
 
-      const originalConnect = net.connect;
+      const _originalConnect = net.connect;
       sandbox.stub(net, 'connect').callsFake(() => {
         currentConcurrent++;
         maxConcurrent = Math.max(maxConcurrent, currentConcurrent);

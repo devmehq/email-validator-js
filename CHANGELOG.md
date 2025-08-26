@@ -1,5 +1,52 @@
 # Change Log
 
+## v2.3.0 - 2025-01-26
+
+### 🎉 Name Detection & Domain Suggestion Release
+
+This release introduces intelligent name detection from email addresses and domain typo detection with suggestions, enhancing the email validation capabilities.
+
+### Added
+- **Name Detection from Email Addresses**
+  - New `detectName()` function extracts first and last names from email addresses
+  - Supports common separators: dot (.), underscore (_), hyphen (-)
+  - Handles camelCase patterns (e.g., johnDoe@example.com)
+  - Removes email aliases (text after +) before detection
+  - Confidence scoring based on pattern reliability
+  - Custom detection method support via `nameDetectionMethod` parameter
+  - Integrated into `verifyEmail()` and `verifyEmailDetailed()` with `detectName` parameter
+  
+- **Domain Typo Detection and Suggestions**
+  - New `suggestEmailDomain()` function detects and corrects domain typos
+  - Supports 70+ common email domains (Gmail, Yahoo, Outlook, etc.)
+  - Uses string similarity algorithm from `string-similarity-js` package
+  - Smart similarity thresholds based on domain length
+  - Known typo patterns detected with 95% confidence
+  - Custom domain list support via `commonDomains` parameter
+  - Cached suggestions for 24-hour performance optimization
+  - Enabled by default in `verifyEmailDetailed()`
+  
+- **New Utility Functions**
+  - `isCommonDomain()` - Check if domain is in common list
+  - `getDomainSimilarity()` - Calculate similarity between two domains
+  - `COMMON_EMAIL_DOMAINS` - Exported constant with 70+ common domains
+  
+- **Enhanced Type Definitions**
+  - `DetectedName` interface for name detection results
+  - `DomainSuggestion` interface for domain suggestions
+  - `NameDetectionMethod` type for custom detection functions
+  - `DomainSuggestionMethod` type for custom suggestion functions
+
+### Changed
+- Updated `verifyEmail()`, `verifyEmailDetailed()`, and `verifyEmailBatch()` to support name detection and domain suggestions
+- Enhanced caching system to include domain suggestions (24-hour TTL)
+- Added `string-similarity-js` as a dependency for similarity calculations
+
+### Performance
+- Domain suggestions cached for 24 hours to avoid recalculating similarity scores
+- Name detection is lightweight with minimal performance impact
+- All features are optional and don't affect performance when disabled
+
 ## v2.2.1 - 2025-01-26
 
 ### Changed

@@ -1,8 +1,8 @@
+import { promises as dnsPromises } from 'node:dns';
+import net, { Socket } from 'node:net';
 import expect from 'expect';
+import sinon, { type SinonSandbox } from 'sinon';
 import { clearAllCaches, VerificationErrorCode, verifyEmailDetailed } from '../src';
-import sinon, { SinonSandbox } from 'sinon';
-import { promises as dnsPromises } from 'dns';
-import net, { Socket } from 'net';
 
 describe('Detailed Email Verification', () => {
   let sandbox: SinonSandbox;
@@ -28,7 +28,7 @@ describe('Detailed Email Verification', () => {
       expect(result.valid).toBe(false);
       expect(result.format.valid).toBe(false);
       expect(result.format.error).toBe(VerificationErrorCode.INVALID_FORMAT);
-      expect(result.metadata!.verificationTime).toBeGreaterThanOrEqual(0);
+      expect(result.metadata?.verificationTime).toBeGreaterThanOrEqual(0);
     });
 
     it('should detect disposable emails', async () => {
@@ -158,7 +158,7 @@ describe('Detailed Email Verification', () => {
         verifyMx: true,
         verifySmtp: true,
       });
-      expect(result1.metadata!.cached).toBe(false);
+      expect(result1.metadata?.cached).toBe(false);
 
       // Second call - should be cached
       const result2 = await verifyEmailDetailed({
@@ -166,7 +166,7 @@ describe('Detailed Email Verification', () => {
         verifyMx: true,
         verifySmtp: true,
       });
-      expect(result2.metadata!.cached).toBe(true);
+      expect(result2.metadata?.cached).toBe(true);
     });
 
     it('should validate email length constraints', async () => {
@@ -184,7 +184,13 @@ describe('Detailed Email Verification', () => {
     });
 
     it('should detect invalid patterns', async () => {
-      const invalidPatterns = ['test..test@example.com', '.test@example.com', 'test.@example.com', 'test@.example.com', 'test@example.com.'];
+      const invalidPatterns = [
+        'test..test@example.com',
+        '.test@example.com',
+        'test.@example.com',
+        'test@.example.com',
+        'test@example.com.',
+      ];
 
       for (const email of invalidPatterns) {
         const result = await verifyEmailDetailed({

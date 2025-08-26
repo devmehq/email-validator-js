@@ -37,6 +37,8 @@ export interface DetailedVerificationResult {
   disposable: boolean;
   freeProvider: boolean;
   suggestion?: string;
+  domainSuggestion?: DomainSuggestion | null;
+  detectedName?: DetectedName | null;
   metadata?: {
     verificationTime: number;
     cached: boolean;
@@ -50,6 +52,8 @@ export interface IVerifyEmailResult {
   validFormat: boolean;
   validMx: boolean | null;
   validSmtp: boolean | null;
+  detectedName?: DetectedName | null;
+  domainSuggestion?: DomainSuggestion | null;
 }
 
 /**
@@ -66,6 +70,11 @@ export interface IVerifyEmailParams {
   checkDisposable?: boolean;
   checkFree?: boolean;
   retryAttempts?: number;
+  detectName?: boolean;
+  nameDetectionMethod?: NameDetectionMethod;
+  suggestDomain?: boolean;
+  domainSuggestionMethod?: DomainSuggestionMethod;
+  commonDomains?: string[];
 }
 
 /**
@@ -80,6 +89,11 @@ export interface IBatchVerifyParams {
   checkDisposable?: boolean;
   checkFree?: boolean;
   detailed?: boolean;
+  detectName?: boolean;
+  nameDetectionMethod?: NameDetectionMethod;
+  suggestDomain?: boolean;
+  domainSuggestionMethod?: DomainSuggestionMethod;
+  commonDomains?: string[];
 }
 
 /**
@@ -119,10 +133,55 @@ export interface ConnectionPoolConfig {
 }
 
 /**
- * Email suggestion for typo correction
+ * Email suggestion for typo correction (deprecated - use DomainSuggestion)
  */
 export interface EmailSuggestion {
   original: string;
   suggested: string;
   confidence: number;
+}
+
+/**
+ * Domain suggestion for typo correction
+ */
+export interface DomainSuggestion {
+  original: string;
+  suggested: string;
+  confidence: number;
+}
+
+/**
+ * Custom domain suggestion function type
+ */
+export type DomainSuggestionMethod = (domain: string) => DomainSuggestion | null;
+
+/**
+ * Parameters for domain suggestion
+ */
+export interface ISuggestDomainParams {
+  domain: string;
+  customMethod?: DomainSuggestionMethod;
+  commonDomains?: string[];
+}
+
+/**
+ * Result of name detection from email
+ */
+export interface DetectedName {
+  firstName?: string;
+  lastName?: string;
+  confidence: number;
+}
+
+/**
+ * Custom name detection function type
+ */
+export type NameDetectionMethod = (email: string) => DetectedName | null;
+
+/**
+ * Parameters for name detection
+ */
+export interface IDetectNameParams {
+  email: string;
+  customMethod?: NameDetectionMethod;
 }

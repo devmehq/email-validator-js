@@ -1,6 +1,0 @@
-server-dist
-dist
-.next
-.env
-.prettierignore
-node_modules

@@ -49,6 +49,10 @@
 
 ✅ **NEW:** RFC 5321 compliant validation
 
+✅ **NEW:** Name detection from email addresses
+
+✅ **NEW:** Domain typo detection and suggestions with caching
+
 🚨 Check domain age and quality score - _**soon**_
 
 🚨 Check domain registration status - _**soon**_
@@ -137,6 +141,11 @@ Basic email verification with backward compatibility.
 - `verifySmtp` (boolean): Verify SMTP connection (default: false)
 - `smtpPort` (number): Custom SMTP port
 - `debug` (boolean): Enable debug logging (default: false)
+- `detectName` (boolean): Detect names from email address (default: false)
+- `nameDetectionMethod` (function): Custom name detection method
+- `suggestDomain` (boolean): Enable domain typo suggestions (default: false)
+- `domainSuggestionMethod` (function): Custom domain suggestion method
+- `commonDomains` (string[]): Custom list of domains for suggestions
 
 **Returns:**
 ```typescript
@@ -144,6 +153,8 @@ Basic email verification with backward compatibility.
   validFormat: boolean;
   validMx: boolean | null;
   validSmtp: boolean | null;
+  detectedName?: DetectedName | null;
+  domainSuggestion?: DomainSuggestion | null;
 }
 ```
 
@@ -152,9 +163,11 @@ Basic email verification with backward compatibility.
 Advanced verification with detailed results and error codes.
 
 **Additional Parameters:**
-- `checkDisposable` (boolean): Check for disposable emails (default: false)
-- `checkFree` (boolean): Check for free email providers (default: false)
+- `checkDisposable` (boolean): Check for disposable emails (default: true)
+- `checkFree` (boolean): Check for free email providers (default: true)
 - `retryAttempts` (number): Retry attempts for failures (default: 1)
+- `detectName` (boolean): Detect names from email address (default: false)
+- `suggestDomain` (boolean): Enable domain typo suggestions (default: true in detailed mode)
 
 **Returns:**
 ```typescript
@@ -176,6 +189,8 @@ Advanced verification with detailed results and error codes.
   };
   disposable: boolean;
   freeProvider: boolean;
+  detectedName?: DetectedName | null;
+  domainSuggestion?: DomainSuggestion | null;
   metadata?: {
     verificationTime: number;
     cached: boolean;
@@ -191,6 +206,8 @@ Verify multiple emails in parallel with concurrency control.
 - `emailAddresses` (string[], required): Array of emails to verify
 - `concurrency` (number): Parallel processing limit (default: 5)
 - `detailed` (boolean): Return detailed results (default: false)
+- `detectName` (boolean): Detect names from email addresses
+- `suggestDomain` (boolean): Enable domain typo suggestions
 - Other parameters from `verifyEmail`
 
 **Returns:**
@@ -207,19 +224,209 @@ Verify multiple emails in parallel with concurrency control.
 }
 ```
 
+### Name Detection Functions
+
+#### `detectName(email: string): DetectedName | null`
+Detect first and last name from email address.
+
+```typescript
+const name = detectName('john.doe@example.com');
+// Returns: { firstName: 'John', lastName: 'Doe', confidence: 0.9 }
+```
+
+**Detection Patterns:**
+- Dot separator: `john.doe` → John Doe (90% confidence)
+- Underscore: `jane_smith` → Jane Smith (80% confidence)
+- Hyphen: `mary-johnson` → Mary Johnson (80% confidence)
+- CamelCase: `johnDoe` → John Doe (70% confidence)
+- Single name: `alice` → Alice (50% confidence)
+
+**Features:**
+- Removes email aliases (text after +)
+- Strips trailing numbers
+- Proper name capitalization
+- Filters out common non-name prefixes (admin, support, info, etc.)
+
+#### `detectNameFromEmail(params: IDetectNameParams): DetectedName | null`
+Advanced name detection with custom method support.
+
+```typescript
+const customMethod = (email: string) => {
+  // Your custom logic
+  return { firstName: 'Custom', lastName: 'Name', confidence: 1.0 };
+};
+
+const name = detectNameFromEmail({
+  email: 'user@example.com',
+  customMethod: customMethod
+});
+```
+
+**Parameters:**
+- `email` (string): Email address
+- `customMethod` (function): Custom detection logic
+
+#### `defaultNameDetectionMethod(email: string): DetectedName | null`
+The default name detection implementation, exported for custom extensions.
+
+### Domain Suggestion Functions
+
+#### `suggestEmailDomain(email: string, commonDomains?: string[]): DomainSuggestion | null`
+Detect and suggest corrections for misspelled email domains.
+
+```typescript
+const suggestion = suggestEmailDomain('user@gmial.com');
+// Returns: { original: 'user@gmial.com', suggested: 'user@gmail.com', confidence: 0.95 }
+
+// With custom domain list
+const customDomains = ['company.com', 'enterprise.org'];
+const customSuggestion = suggestEmailDomain('user@compny.com', customDomains);
+```
+
+**Features:**
+- 70+ common email domains by default
+- String similarity algorithm
+- Known typo patterns (95% confidence)
+- Smart thresholds based on domain length
+- 24-hour caching for performance
+
+#### `suggestDomain(params: ISuggestDomainParams): DomainSuggestion | null`
+Advanced domain suggestion with custom method support.
+
+```typescript
+const suggestion = suggestDomain({
+  domain: 'gmial.com',
+  customMethod: myCustomMethod,
+  commonDomains: ['company.com']
+});
+```
+
+**Parameters:**
+- `domain` (string): Domain to check
+- `customMethod` (function): Custom suggestion logic
+- `commonDomains` (string[]): Custom domain list
+
+#### `defaultDomainSuggestionMethod(domain: string, commonDomains?: string[]): DomainSuggestion | null`
+The default domain suggestion implementation, exported for custom extensions.
+
+#### `isCommonDomain(domain: string, commonDomains?: string[]): boolean`
+Check if a domain is in the common domains list.
+
+```typescript
+isCommonDomain('gmail.com'); // true
+isCommonDomain('mycompany.com'); // false
+
+// With custom list
+isCommonDomain('mycompany.com', ['mycompany.com']); // true
+```
+
+#### `getDomainSimilarity(domain1: string, domain2: string): number`
+Calculate similarity score between two domains (0-1).
+
+```typescript
+getDomainSimilarity('gmail.com', 'gmial.com'); // 0.8
+getDomainSimilarity('gmail.com', 'yahoo.com'); // 0.3
+```
+
 ### Utility Functions
 
 #### `isDisposableEmail(emailOrDomain: string): boolean`
 Check if email uses a disposable provider.
 
+```typescript
+isDisposableEmail('user@tempmail.com'); // true
+isDisposableEmail('tempmail.com'); // true
+isDisposableEmail('gmail.com'); // false
+```
+
 #### `isFreeEmail(emailOrDomain: string): boolean`
 Check if email uses a free provider.
+
+```typescript
+isFreeEmail('user@gmail.com'); // true
+isFreeEmail('yahoo.com'); // true
+isFreeEmail('corporate.com'); // false
+```
 
 #### `isValidEmail(emailAddress: string): boolean`
 Validate email format (RFC 5321 compliant).
 
+```typescript
+isValidEmail('user@example.com'); // true
+isValidEmail('invalid.email'); // false
+```
+
+**Validation Rules:**
+- Proper @ symbol placement
+- Local part max 64 characters
+- Domain max 253 characters
+- No consecutive dots
+- No leading/trailing dots
+- Valid domain TLD
+
+#### `isValidEmailDomain(emailOrDomain: string): boolean`
+Validate if a domain has a valid TLD.
+
+```typescript
+isValidEmailDomain('example.com'); // true
+isValidEmailDomain('example.invalid'); // false
+```
+
 #### `clearAllCaches(): void`
-Clear all internal caches.
+Clear all internal caches (including domain suggestions).
+
+```typescript
+clearAllCaches();
+```
+
+### Types and Interfaces
+
+#### `DetectedName`
+```typescript
+interface DetectedName {
+  firstName?: string;
+  lastName?: string;
+  confidence: number; // 0-1 scale
+}
+```
+
+#### `DomainSuggestion`
+```typescript
+interface DomainSuggestion {
+  original: string;
+  suggested: string;
+  confidence: number; // 0-1 scale
+}
+```
+
+#### `NameDetectionMethod`
+```typescript
+type NameDetectionMethod = (email: string) => DetectedName | null;
+```
+
+#### `DomainSuggestionMethod`
+```typescript
+type DomainSuggestionMethod = (domain: string) => DomainSuggestion | null;
+```
+
+### Constants
+
+#### `COMMON_EMAIL_DOMAINS`
+Array of 70+ common email domains used for typo detection.
+
+```typescript
+import { COMMON_EMAIL_DOMAINS } from '@devmehq/email-validator-js';
+
+console.log(COMMON_EMAIL_DOMAINS);
+// ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', ...]
+```
+
+**Includes:**
+- Popular free providers (Gmail, Yahoo, Outlook, etc.)
+- Business email services (Google Workspace, Microsoft, etc.)
+- Privacy-focused providers (ProtonMail, Tutanota, etc.)
+- Regional providers (GMX, Yandex, QQ, etc.)
+- Hosting services (GoDaddy, Namecheap, etc.)
 
 ### Error Codes
 
@@ -320,6 +527,59 @@ const result = await verifyEmailBatch({
 // result.summary.valid: 2
 // result.summary.invalid: 1
 // result.summary.processingTime: 234
+```
+
+### Name Detection (NEW)
+```typescript
+import { detectName, verifyEmailDetailed } from '@devmehq/email-validator-js';
+
+// Standalone name detection
+const name = detectName('john.doe@example.com');
+// name: { firstName: 'John', lastName: 'Doe', confidence: 0.9 }
+
+// Integrated with email verification
+const result = await verifyEmailDetailed({
+  emailAddress: 'jane_smith@example.com',
+  detectName: true
+});
+// result.detectedName: { firstName: 'Jane', lastName: 'Smith', confidence: 0.8 }
+
+// Custom detection method
+const customMethod = (email: string) => {
+  // Your custom logic here
+  return { firstName: 'Custom', lastName: 'Name', confidence: 1.0 };
+};
+
+const resultCustom = await verifyEmail({
+  emailAddress: 'user@example.com',
+  detectName: true,
+  nameDetectionMethod: customMethod
+});
+```
+
+### Domain Typo Detection (NEW)
+```typescript
+import { suggestEmailDomain, verifyEmailDetailed } from '@devmehq/email-validator-js';
+
+// Standalone domain suggestion
+const suggestion = suggestEmailDomain('user@gmial.com');
+// suggestion: { original: 'user@gmial.com', suggested: 'user@gmail.com', confidence: 0.95 }
+
+// Integrated with email verification (enabled by default in detailed mode)
+const result = await verifyEmailDetailed({
+  emailAddress: 'john@yaho.com',
+  suggestDomain: true  // Default: true for detailed verification
+});
+// result.domainSuggestion: { original: 'john@yaho.com', suggested: 'john@yahoo.com', confidence: 0.9 }
+
+// With custom domain list
+const customDomains = ['company.com', 'enterprise.org'];
+const resultCustom = await verifyEmail({
+  emailAddress: 'user@compny.com',
+  suggestDomain: true,
+  commonDomains: customDomains
+});
+// resultCustom.domainSuggestion: { suggested: 'user@company.com', confidence: 0.85 }
 ```
 
 ### Handling Different Validation Scenarios
@@ -428,6 +688,7 @@ The library includes intelligent caching to improve performance:
 | Free Provider | 24 hours | Free email provider checks |
 | Domain Valid | 24 hours | Domain validation results |
 | SMTP | 30 minutes | SMTP verification results |
+| Domain Suggestions | 24 hours | Domain typo suggestions |
 
 ### Performance Tips
 
@@ -435,6 +696,8 @@ The library includes intelligent caching to improve performance:
 2. **Enable Caching**: Caching is automatic and reduces repeated lookups by ~90%
 3. **Adjust Timeouts**: Lower timeouts for faster responses, higher for accuracy
 4. **Skip SMTP**: If you only need format/MX validation, skip SMTP for 10x faster results
+5. **Domain Suggestions**: Cached for 24 hours to avoid recalculating similarity scores
+6. **Name Detection**: Lightweight operation with minimal performance impact
 
 ## 🗂️ Email Provider Databases
 
@@ -443,6 +706,19 @@ The library includes intelligent caching to improve performance:
 
 ### Free Email Providers (✅ Always Updated)  
 [View List](./src/free-email-providers.json) - 1,000+ free email providers
+
+### Common Email Domains (✅ NEW)
+Access the list of 70+ common email domains used for typo detection:
+
+```typescript
+import { COMMON_EMAIL_DOMAINS } from '@devmehq/email-validator-js';
+
+console.log(COMMON_EMAIL_DOMAINS);
+// ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', ...]
+
+// Use with your own domain validation
+const isCommon = COMMON_EMAIL_DOMAINS.includes('gmail.com'); // true
+```
 
 ## Testing
 

@@ -1,9 +1,9 @@
+import { promises as dnsPromises } from 'node:dns';
 import expect from 'expect';
+import sinon, { type SinonSandbox } from 'sinon';
+import { isDisposableEmail, isFreeEmail, isValidEmailDomain } from '../src';
 import { clearAllCaches, disposableCache, domainValidCache, freeCache, mxCache, smtpCache } from '../src/cache';
 import { resolveMxRecords } from '../src/dns';
-import { isDisposableEmail, isFreeEmail, isValidEmailDomain } from '../src';
-import sinon, { SinonSandbox } from 'sinon';
-import { promises as dnsPromises } from 'dns';
 
 describe('Caching System', () => {
   let sandbox: SinonSandbox;
@@ -20,7 +20,9 @@ describe('Caching System', () => {
 
   describe('MX Records Cache', () => {
     it('should cache MX records lookup', async () => {
-      const resolveMxStub = sandbox.stub(dnsPromises, 'resolveMx').resolves([{ exchange: 'mx1.example.com', priority: 10 }]);
+      const resolveMxStub = sandbox
+        .stub(dnsPromises, 'resolveMx')
+        .resolves([{ exchange: 'mx1.example.com', priority: 10 }]);
 
       // First call - should hit DNS
       const result1 = await resolveMxRecords('example.com');
@@ -39,7 +41,7 @@ describe('Caching System', () => {
       // First call - should hit DNS and fail
       try {
         await resolveMxRecords('invalid.com');
-      } catch (err) {
+      } catch (_err) {
         // Expected to fail
       }
       expect(resolveMxStub.callCount).toBe(1);
@@ -47,7 +49,7 @@ describe('Caching System', () => {
       // Second call - should use cached failure
       try {
         await resolveMxRecords('invalid.com');
-      } catch (err) {
+      } catch (_err) {
         // Expected to fail
       }
       expect(resolveMxStub.callCount).toBe(1); // Still 1, used cache

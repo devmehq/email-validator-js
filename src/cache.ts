@@ -1,4 +1,4 @@
-import { lru, LRU } from 'tiny-lru';
+import { type LRU, lru } from 'tiny-lru';
 
 // Use the original LRU type from tiny-lru
 export type Cache<T> = LRU<T>;
@@ -9,6 +9,7 @@ export const disposableCache = lru<boolean>(1000, 86400000); // 24 hour TTL for 
 export const freeCache = lru<boolean>(1000, 86400000); // 24 hour TTL for free email checks
 export const domainValidCache = lru<boolean>(1000, 86400000); // 24 hour TTL for domain validation
 export const smtpCache = lru<boolean | null>(500, 1800000); // 30 minute TTL for SMTP verification
+export const domainSuggestionCache = lru<{ suggested: string; confidence: number } | null>(1000, 86400000); // 24 hour TTL for domain suggestions
 
 // Helper to clear all caches
 export function clearAllCaches(): void {
@@ -17,4 +18,5 @@ export function clearAllCaches(): void {
   freeCache.clear();
   domainValidCache.clear();
   smtpCache.clear();
+  domainSuggestionCache.clear();
 }
