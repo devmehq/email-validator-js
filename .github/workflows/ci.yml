@@ -60,5 +60,5 @@ jobs:
         run: |
           git config --global user.email "support@dev.me"
           git config --global user.name "DEV.ME Team"
-          npm set //registry.npmjs.org/:_authToken $NPM_TOKEN
-          node release.mjs
+          npm i -g semantic-release @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
+          npx semantic-release --no-ci --debug
