@@ -910,13 +910,62 @@ yarn build
 ## Support
 
 For issues, questions, or commercial licensing:
-- 🐛 [Open an Issue](https://github.com/devmehq/email-validator-js/issues)
-- 📧 [Email Support](mailto:support@dev.me)
-- 📄 [Commercial License](https://dev.me/license/email-validator)
-- 🌐 [Visit Dev.me](https://dev.me)
 
-## LICENSE 
+🐛 [Open an Issue](https://github.com/devmehq/email-validator-js/issues)
+📧 [Email Support](mailto:support@dev.me)
+📄 [Commercial License](https://dev.me/license/email-validator)
+🌐 [Visit Dev.me](https://dev.me)
 
-[Business Source License 1.1](LICENSE.md) - see [LICENSE](LICENSE.md) file for details.
+## LICENSE
+Business Source License 1.1 - see [LICENSE](LICENSE.md) file for details.
 
-For commercial use, please visit [dev.me/license/email-validator](https://dev.me/license/email-validator).
+### 📝 When Do You Need a Commercial License?
+
+The BSL allows use only for non-production purposes. Here's a comprehensive guide to help you understand when you need a commercial license:
+
+| Use Case | Commercial License Required? | Details |
+|----------|-----------|---------|
+| **Personal & Learning** | | |
+| 🔬 Exploring email-validator-js for research or learning | ✅ **No** | Use freely for educational purposes |
+| 🎨 Personal hobby projects (non-commercial) | ✅ **No** | Build personal tools and experiments |
+| 🧪 Testing and evaluation in development environment | ✅ **No** | Test all features before purchasing |
+| **Development & Prototyping** | | |
+| 💡 Building proof-of-concept applications | ✅ **No** | Create demos and prototypes |
+| 🛠️ Internal tools (not customer-facing) | ✅ **No** | Use for internal development tools |
+| 📚 Open source projects (non-commercial) | ✅ **No** | Contribute to the community |
+| **Commercial & Production Use** | | |
+| 💰 Revenue-generating applications | ❌ **Yes** | Any app that generates income |
+| ☁️ Software as a Service (SaaS) products | ❌ **Yes** | Cloud-based service offerings |
+| 📦 Distributed commercial software | ❌ **Yes** | Software sold to customers |
+| 🏢 Enterprise production systems | ❌ **Yes** | Business-critical applications |
+| 🔄 Forking for commercial purposes | ❌ **Yes** | Creating derivative commercial products |
+| 🏭 Production use in any form | ❌ **Yes** | Live systems serving real users |
+| **Specific Scenarios** | | |
+| 🎓 Student projects and coursework | ✅ **No** | Academic use is encouraged |
+| 🏗️ CI/CD pipelines (for commercial products) | ❌ **Yes** | Part of commercial development |
+| 📧 Email validation in production APIs | ❌ **Yes** | Production service usage |
+| 🛒 E-commerce checkout validation | ❌ **Yes** | Revenue-related validation |
+| 📱 Mobile apps (free with ads or paid) | ❌ **Yes** | Monetized applications |
+
+### 💡 Quick Decision Guide
+
+Ask yourself these questions:
+1. **Will real users interact with this in production?** → You need a license
+2. **Will this help generate revenue?** → You need a license  
+3. **Is this for learning or testing only?** → No license needed
+4. **Is this an internal prototype or POC?** → No license needed
+
+### 🎯 Why Choose Our Commercial License?
+
+✨ **Unlimited Usage** - Use in all your production applications  
+🚀 **Priority Support** - Direct support from our engineering team  
+🔄 **Regular Updates** - Get the latest features and improvements  
+🛡️ **Legal Protection** - Full commercial rights and warranty  
+🏢 **Enterprise Ready** - Suitable for large-scale deployments
+
+### 📄 Get Your Commercial License
+
+Ready to use email-validator-js in production?
+
+🛍️ **[Purchase a License](https://dev.me/license/email-validator)** - Simple pricing, instant activation  
+📧 **[Contact Sales](mailto:sales@dev.me?subject=Interested%20in%20email-validator-js%20commercial%20license)** - For enterprise or custom needs  
