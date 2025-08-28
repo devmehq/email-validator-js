@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Validator - Browser Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: none;
+        }
+        .results.show {
+            display: block;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .valid {
+            border-left: 4px solid #28a745;
+        }
+        .invalid {
+            border-left: 4px solid #dc3545;
+        }
+        .suggestion {
+            color: #007bff;
+            margin-top: 5px;
+        }
+        .validator {
+            display: inline-block;
+            margin: 5px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .validator.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .validator.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .batch-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 100px;
+            font-family: monospace;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Email Validator - Browser Example</h1>
+        
+        <div class="form-group">
+            <label for="email">Single Email Validation:</label>
+            <input type="email" id="email" placeholder="Enter email address">
+        </div>
+        
+        <button onclick="validateSingle()">Validate Email</button>
+        
+        <div class="form-group" style="margin-top: 30px;">
+            <label for="batch">Batch Email Validation (one per line):</label>
+            <textarea id="batch" class="batch-input" placeholder="Enter multiple email addresses, one per line">john.doe@gmail.com
+jane@gmial.com
+test@mailinator.com
+user@outlook.com
+admin@tempmail.com</textarea>
+        </div>
+        
+        <button onclick="validateBatch()">Validate Batch</button>
+        <button onclick="clearResults()">Clear Results</button>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <script type="module">
+        import { validateEmailCore, validateEmailBatch } from './email-validator.js';
+        
+        window.validateSingle = async function() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Validating...</p>';
+            resultsDiv.classList.add('show');
+            
+            try {
+                const result = await validateEmailCore(email);
+                displayResults([result]);
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        };
+        
+        window.validateBatch = async function() {
+            const batchText = document.getElementById('batch').value;
+            if (!batchText) {
+                alert('Please enter email addresses');
+                return;
+            }
+            
+            const emails = batchText.split('\n').filter(e => e.trim());
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Validating batch...</p>';
+            resultsDiv.classList.add('show');
+            
+            try {
+                const results = await validateEmailBatch(emails);
+                displayResults(results);
+            } catch (error) {
+                resultsDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        };
+        
+        window.clearResults = function() {
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('email').value = '';
+        };
+        
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h3>Validation Results:</h3>';
+            
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `result-item ${result.valid ? 'valid' : 'invalid'}`;
+                
+                let html = `
+                    <strong>${result.email}</strong> - 
+                    <span style="color: ${result.valid ? '#28a745' : '#dc3545'}">
+                        ${result.valid ? 'Valid' : 'Invalid'}
+                    </span>
+                    <div>
+                `;
+                
+                // Show validators
+                Object.entries(result.validators).forEach(([name, validator]) => {
+                    html += `<span class="validator ${validator.valid ? 'pass' : 'fail'}">
+                        ${name}: ${validator.valid ? '✓' : '✗'}
+                    </span>`;
+                });
+                
+                // Show suggestion if any
+                if (result.validators.typo?.suggestion) {
+                    html += `<div class="suggestion">
+                        Did you mean: <strong>${result.validators.typo.suggestion}</strong>?
+                    </div>`;
+                }
+                
+                html += '</div>';
+                div.innerHTML = html;
+                resultsDiv.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>

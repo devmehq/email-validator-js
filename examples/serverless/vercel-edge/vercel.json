@@ -1,0 +1,27 @@
+{
+  "functions": {
+    "api/validate.js": {
+      "runtime": "@vercel/edge",
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "VALIDATION_CACHE_TTL": "3600",
+    "MAX_BATCH_SIZE": "100"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}

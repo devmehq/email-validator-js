@@ -1,0 +1,32 @@
+name = "email-validator-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+VALIDATION_CACHE_TTL = "3600"
+MAX_BATCH_SIZE = "100"
+
+[[kv_namespaces]]
+binding = "EMAIL_CACHE"
+id = "your-kv-namespace-id"
+preview_id = "your-preview-kv-namespace-id"
+
+[[durable_objects.bindings]]
+name = "EMAIL_VALIDATOR"
+class_name = "EmailValidatorDO"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["EmailValidatorDO"]
+
+[site]
+bucket = "./public"
+
+[triggers]
+crons = []
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.staging]
+vars = { ENVIRONMENT = "staging" }

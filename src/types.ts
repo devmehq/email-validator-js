@@ -235,3 +235,51 @@ export interface DomainRegistrationInfo {
   isPendingDelete?: boolean;
   isLocked?: boolean;
 }
+
+/**
+ * Options for domain suggester
+ */
+export interface DomainSuggesterOptions {
+  threshold?: number;
+  customDomains?: string[];
+}
+
+/**
+ * Options for email validation (serverless compatible)
+ */
+export interface ValidateEmailOptions {
+  validateSyntax?: boolean;
+  validateTypo?: boolean;
+  validateDisposable?: boolean;
+  validateFree?: boolean;
+  validateMx?: boolean;
+  validateSMTP?: boolean;
+  skipCache?: boolean;
+  batchSize?: number;
+  domainSuggesterOptions?: DomainSuggesterOptions;
+}
+
+/**
+ * Result of email validation (serverless compatible)
+ */
+export interface EmailValidationResult {
+  valid: boolean;
+  email: string;
+  local?: string;
+  domain?: string;
+  validators: {
+    syntax?: ValidatorResult;
+    typo?: ValidatorResult & { suggestion?: string };
+    disposable?: ValidatorResult;
+    free?: ValidatorResult;
+    mx?: ValidatorResult & { records?: string[]; error?: string };
+    smtp?: ValidatorResult & { error?: string };
+  };
+}
+
+/**
+ * Individual validator result
+ */
+export interface ValidatorResult {
+  valid: boolean;
+}
