@@ -51,27 +51,31 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Setup Git
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        run: |
+          git config --global user.email "support@dev.me"
+          git config --global user.name "DEV.ME Team"
+
+      - name: Install release-it
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        run: |
+          npm i -g release-it @release-it/conventional-changelog @release-it/bumper
+
       - name: Pre-release (develop branch only)
-        id: semantic_release
+        id: beta_release
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GIT_AUTHOR_NAME: DEV.ME Team
-          GIT_AUTHOR_EMAIL: support@dev.me
-          GIT_COMMITTER_NAME: DEV.ME Team
-          GIT_COMMITTER_EMAIL: support@dev.me
         run: |
-          # Install semantic-release and required plugins
-          npm i -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/npm
+          # Run release-it for beta release
+          npx release-it --config .release-it-beta.json --ci --preRelease=beta 2>&1 | tee release-output.txt
           
-          # Run semantic-release for pre-release
-          npx semantic-release --debug 2>&1 | tee release-output.txt
-          
-          # Extract version and tag info from release output
-          if grep -q "Published release" release-output.txt; then
+          # Extract version from output
+          if grep -q "🏁 Done" release-output.txt; then
             echo "release_published=true" >> $GITHUB_OUTPUT
-            VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+(-.+)?' release-output.txt | head -1)
+            VERSION=$(grep -oP '🚀 Let\'s release \K[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+' release-output.txt | head -1)
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "tag=v$VERSION" >> $GITHUB_OUTPUT
           else
@@ -86,17 +90,17 @@ jobs:
           
           # Check if release step was run (only on develop branch)
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            if [[ "${{ steps.semantic_release.outputs.release_published }}" == "true" ]]; then
+            if [[ "${{ steps.beta_release.outputs.release_published }}" == "true" ]]; then
               echo "### ✅ Pre-release Published Successfully!" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
-              echo "- **Version:** \`${{ steps.semantic_release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-              echo "- **Tag:** \`${{ steps.semantic_release.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- **Version:** \`${{ steps.beta_release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- **Tag:** \`${{ steps.beta_release.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
               echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
               echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
-              echo "- [NPM Package](https://www.npmjs.com/package/@devmehq/email-validator-js/v/${{ steps.semantic_release.outputs.version }})" >> $GITHUB_STEP_SUMMARY
-              echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_release.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
+              echo "- [NPM Package](https://www.npmjs.com/package/@devmehq/email-validator-js/v/${{ steps.beta_release.outputs.version }})" >> $GITHUB_STEP_SUMMARY
+              echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.beta_release.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
             else
               echo "### ℹ️ No Pre-release Published" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY

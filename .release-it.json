@@ -1,0 +1,69 @@
+{
+  "git": {
+    "commitMessage": "chore(release): v${version}",
+    "requireBranch": ["master", "main"],
+    "requireCleanWorkingDir": true,
+    "requireUpstream": true,
+    "push": true,
+    "tag": true,
+    "tagName": "v${version}",
+    "tagAnnotation": "Release v${version}",
+    "pushRepo": "origin"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}",
+    "draft": false,
+    "preRelease": false,
+    "tokenRef": "GITHUB_TOKEN",
+    "assets": null,
+    "autoGenerate": true
+  },
+  "npm": {
+    "publish": true,
+    "publishPath": ".",
+    "tag": null,
+    "otp": null,
+    "ignoreVersion": false,
+    "skipChecks": false
+  },
+  "hooks": {
+    "before:init": ["yarn lint", "yarn test"],
+    "after:bump": "yarn build",
+    "after:git:release": "echo Successfully released ${name} v${version} to ${repo.repository}.",
+    "after:release": "echo Successfully released v${version}!"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          { "type": "feat", "section": "Features" },
+          { "type": "fix", "section": "Bug Fixes" },
+          { "type": "perf", "section": "Performance Improvements" },
+          { "type": "revert", "section": "Reverts" },
+          { "type": "docs", "section": "Documentation" },
+          { "type": "style", "section": "Styles" },
+          { "type": "refactor", "section": "Code Refactoring" },
+          { "type": "test", "section": "Tests" },
+          { "type": "build", "section": "Build System" },
+          { "type": "ci", "section": "Continuous Integration" },
+          { "type": "chore", "section": "Chores" }
+        ]
+      },
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog",
+      "ignoreRecommendedBump": false,
+      "strictSemVer": true,
+      "gitRawCommitsOpts": {
+        "path": "."
+      }
+    },
+    "@release-it/bumper": {
+      "in": "package.json",
+      "out": "package.json"
+    }
+  },
+  "ci": false,
+  "verbose": 1
+}

@@ -75,7 +75,10 @@
     "lint:fix": "biome check --write",
     "prepare": "husky",
     "prepublishOnly": "yarn build",
-    "release": "semantic-release",
+    "release": "release-it",
+    "release:beta": "release-it --config .release-it-beta.json",
+    "release:ci": "release-it --ci",
+    "release:dry": "release-it --dry-run",
     "test": "jest",
     "test-ci": "jest"
   },
