@@ -3,7 +3,7 @@
  * Supports API Gateway and direct Lambda invocation
  */
 
-import type { ValidateEmailOptions, EmailValidationResult } from '../../types';
+import type { EmailValidationResult, ValidateEmailOptions } from '../../types';
 import { clearCache, validateEmailBatch, validateEmailCore } from '../core';
 
 // AWS Lambda handler types

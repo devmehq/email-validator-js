@@ -3,7 +3,7 @@
  * Supports Workers, Pages Functions, and Durable Objects
  */
 
-import type { ValidateEmailOptions, EmailValidationResult } from '../../types';
+import type { EmailValidationResult, ValidateEmailOptions } from '../../types';
 import { EdgeCache, validateEmailBatch, validateEmailCore } from '../core';
 
 // Cloudflare Workers types
