@@ -28,6 +28,7 @@
   "license": "BSL 1.1",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
@@ -66,9 +67,10 @@
     "docs/SERVERLESS.md"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p . && npm run build:serverless",
+    "build": "rm -rf dist && rollup -c rollup.config.js && yarn build:serverless",
+    "build:main": "rollup -c rollup.config.js",
     "build:serverless": "rollup -c rollup.config.serverless.js",
-    "build:tsc": "tsc -p tsconfig.serverless.json",
+    "build:tsc": "tsc -p . && tsc -p tsconfig.serverless.json",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "format": "biome format --write",
