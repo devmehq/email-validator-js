@@ -3,71 +3,75 @@ on:
   workflow_dispatch:
   workflow_call:
   push:
-    paths:
-      - 'src/**'
-      - '__tests__/**'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'release.config.js'
-      - '.github/workflows/ci.yml'
     branches:
       - '*'
       - '**'
       - '!master'
+      - '!main'
+  pull_request:
+    branches:
+      - master
+      - main
+      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-
-env:
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  CI: true
-
 jobs:
-  CI:
+  test:
+    name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
-    permissions:
-      packages: write
-      contents: write
-
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
-          fetch-depth: 30
-
-      - uses: FranzDiebold/github-env-vars-action@v2
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: 'yarn'
 
-      - name: Yarn
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Test
-        run: |
-          yarn test
+      - name: Verify dependency integrity
+        run: yarn audit || true
 
-      - name: Release
+      - name: Lint
+        run: yarn lint
+
+      - name: Test
+        run: yarn test
+
+      - name: Build
+        run: yarn build
+
+      - name: Pre-release (develop branch only)
         id: semantic_release
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GIT_AUTHOR_NAME: DEV.ME Team
+          GIT_AUTHOR_EMAIL: support@dev.me
+          GIT_COMMITTER_NAME: DEV.ME Team
+          GIT_COMMITTER_EMAIL: support@dev.me
         run: |
-          git config --global user.email "support@dev.me"
-          git config --global user.name "DEV.ME Team"
-          npm i -g semantic-release @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
-          npx semantic-release --no-ci --debug 2>&1 | tee release-output.txt
+          # Install semantic-release and required plugins
+          npm i -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/npm
+          
+          # Run semantic-release for pre-release
+          npx semantic-release --debug 2>&1 | tee release-output.txt
           
           # Extract version and tag info from release output
           if grep -q "Published release" release-output.txt; then
             echo "release_published=true" >> $GITHUB_OUTPUT
-            VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' release-output.txt | head -1)
+            VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+(-.+)?' release-output.txt | head -1)
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "tag=v$VERSION" >> $GITHUB_OUTPUT
           else

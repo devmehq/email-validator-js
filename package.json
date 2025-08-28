@@ -27,9 +27,6 @@
   },
   "license": "BSL 1.1",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.js",
@@ -62,20 +59,23 @@
       "types": "./dist/serverless/adapters/cloudflare.d.ts"
     }
   },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "docs/SERVERLESS.md"
+    "dist"
   ],
   "scripts": {
     "build": "rm -rf dist && rollup -c rollup.config.cjs && rollup -c rollup.config.serverless.cjs && cp src/*.json dist/",
     "build:main": "rollup -c rollup.config.cjs",
     "build:serverless": "rollup -c rollup.config.serverless.cjs",
+    "check": "biome check --write",
+    "format": "biome format --write",
     "lint": "biome check",
     "lint:fix": "biome check --write",
-    "format": "biome format --write",
-    "check": "biome check --write",
     "prepare": "husky",
     "prepublishOnly": "yarn build",
+    "release": "semantic-release",
     "test": "jest",
     "test-ci": "jest"
   },
@@ -83,6 +83,11 @@
     "src/**/*.{ts,tsx,js,jsx}": "biome check --write",
     "__tests__/**/*.{ts,tsx,js,jsx}": "biome check --write",
     "examples/**/*.{ts,tsx,js,jsx}": "biome check --write"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   },
   "dependencies": {
     "psl": "^1.15.0",
