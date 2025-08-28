@@ -56,9 +56,75 @@ jobs:
           yarn test
 
       - name: Release
+        id: semantic_release
         if: github.ref == 'refs/heads/develop'
         run: |
           git config --global user.email "support@dev.me"
           git config --global user.name "DEV.ME Team"
           npm i -g semantic-release @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
-          npx semantic-release --no-ci --debug
+          npx semantic-release --no-ci --debug 2>&1 | tee release-output.txt
+          
+          # Extract version and tag info from release output
+          if grep -q "Published release" release-output.txt; then
+            echo "release_published=true" >> $GITHUB_OUTPUT
+            VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' release-output.txt | head -1)
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "release_published=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Add CI Summary
+        if: always()
+        run: |
+          echo "## 🔬 CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if release step was run (only on develop branch)
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            if [[ "${{ steps.semantic_release.outputs.release_published }}" == "true" ]]; then
+              echo "### ✅ Pre-release Published Successfully!" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "- **Version:** \`${{ steps.semantic_release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- **Tag:** \`${{ steps.semantic_release.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+              echo "- [NPM Package](https://www.npmjs.com/package/@devmehq/email-validator-js/v/${{ steps.semantic_release.outputs.version }})" >> $GITHUB_STEP_SUMMARY
+              echo "- [GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.semantic_release.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "### ℹ️ No Pre-release Published" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "No pre-release was created. This could be because:" >> $GITHUB_STEP_SUMMARY
+              echo "- No relevant commits found for release" >> $GITHUB_STEP_SUMMARY
+              echo "- Commits don't follow conventional commit format" >> $GITHUB_STEP_SUMMARY
+              echo "- Release conditions not met" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "### ✅ CI Tests Passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All tests completed successfully on branch \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ **Note:** Releases are only created from the \`develop\` branch" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow:** \`${{ github.workflow }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run ID:** \`${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number:** \`${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actor:** \`${{ github.actor }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          
+          # Add PR information if available
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔀 Pull Request Information" >> $GITHUB_STEP_SUMMARY
+            echo "- **PR Number:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **PR Title:** ${{ github.event.pull_request.title }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Base Branch:** \`${{ github.event.pull_request.base.ref }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Head Branch:** \`${{ github.event.pull_request.head.ref }}\`" >> $GITHUB_STEP_SUMMARY
+          fi

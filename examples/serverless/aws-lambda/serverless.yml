@@ -1,0 +1,41 @@
+service: email-validator-lambda
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    NODE_ENV: production
+
+functions:
+  validateEmail:
+    handler: handler.validateEmailHTTP
+    events:
+      - http:
+          path: /validate
+          method: POST
+          cors: true
+      - http:
+          path: /validate
+          method: GET
+          cors: true
+      - http:
+          path: /validate/batch
+          method: POST
+          cors: true
+  
+  directValidate:
+    handler: handler.validateEmailDirect
+    description: Direct Lambda invocation for email validation
+  
+  cacheManager:
+    handler: handler.manageCache
+    description: Cache management function
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    lambdaPort: 3001

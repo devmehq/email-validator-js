@@ -28,12 +28,48 @@
   "license": "BSL 1.1",
   "author": "DEV.ME <support@dev.me> (https://dev.me)",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./serverless": {
+      "require": "./dist/serverless/index.js",
+      "import": "./dist/serverless/index.js",
+      "types": "./dist/serverless/index.d.ts"
+    },
+    "./serverless/core": {
+      "require": "./dist/serverless/core.js",
+      "import": "./dist/serverless/core.js",
+      "types": "./dist/serverless/core.d.ts"
+    },
+    "./serverless/aws": {
+      "require": "./dist/serverless/adapters/aws-lambda.js",
+      "import": "./dist/serverless/adapters/aws-lambda.js",
+      "types": "./dist/serverless/adapters/aws-lambda.d.ts"
+    },
+    "./serverless/vercel": {
+      "require": "./dist/serverless/adapters/vercel.js",
+      "import": "./dist/serverless/adapters/vercel.js",
+      "types": "./dist/serverless/adapters/vercel.d.ts"
+    },
+    "./serverless/cloudflare": {
+      "require": "./dist/serverless/adapters/cloudflare.js",
+      "import": "./dist/serverless/adapters/cloudflare.js",
+      "types": "./dist/serverless/adapters/cloudflare.d.ts"
+    }
+  },
   "files": [
-    "dist"
+    "dist",
+    "docs/SERVERLESS.md"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p .",
+    "build": "rm -rf dist && rollup -c rollup.config.cjs && rollup -c rollup.config.serverless.cjs",
+    "build:main": "rollup -c rollup.config.cjs",
+    "build:serverless": "rollup -c rollup.config.serverless.cjs",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "format": "biome format --write",
@@ -55,14 +91,23 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.2",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@types/jest": "^30.0.0",
     "@types/node": "24.3.0",
     "@types/sinon": "17.0.4",
+    "esbuild": "^0.25.9",
     "husky": "9.1.7",
     "jest": "^30.1.1",
     "lint-staged": "16.1.5",
+    "rollup": "^4.49.0",
+    "rollup-plugin-esbuild": "^6.2.1",
     "sinon": "21.0.0",
     "ts-jest": "^29.4.1",
+    "tslib": "^2.8.1",
     "typescript": "5.9.2"
   },
   "packageManager": "yarn@1.22.22+sha256.c17d3797fb9a9115bf375e31bfd30058cac6bc9c3b8807a3d8cb2094794b51ca",
