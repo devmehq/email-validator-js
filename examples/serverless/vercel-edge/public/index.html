@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Validator - Vercel Edge</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(to bottom, #f0f0f0, #ffffff);
+            min-height: 100vh;
+        }
+        h1 {
+            background: linear-gradient(to right, #0070f3, #00a8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #0070f3;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+        .result {
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .valid {
+            background: #d4f4dd;
+            border: 1px solid #4caf50;
+        }
+        .invalid {
+            background: #ffd4d4;
+            border: 1px solid #f44336;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .endpoint {
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            display: inline-block;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Email Validator</h1>
+    <p class="subtitle">Powered by Vercel Edge Functions</p>
+    
+    <div class="card">
+        <h2>Single Email Validation</h2>
+        <input type="email" id="email" placeholder="Enter email address">
+        <br><br>
+        <button onclick="validateSingle()">Validate Email</button>
+        <div id="single-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Batch Validation</h2>
+        <textarea id="batch" rows="5" placeholder="Enter multiple emails (one per line)">test@gmail.com
+user@gmial.com
+admin@mailinator.com</textarea>
+        <br><br>
+        <button onclick="validateBatch()">Validate Batch</button>
+        <div id="batch-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>API Endpoints</h2>
+        <p>You can also use these endpoints directly:</p>
+        <div>
+            <div class="endpoint">GET /api/validate?email=test@example.com</div>
+            <div class="endpoint">POST /api/validate</div>
+        </div>
+        <br>
+        <p>Example POST body:</p>
+        <pre>{
+  "email": "test@example.com",
+  "options": {
+    "validateTypo": true,
+    "validateDisposable": true,
+    "validateFree": true
+  }
+}</pre>
+    </div>
+
+    <script>
+        async function validateSingle() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Please enter an email');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('single-result');
+            resultDiv.innerHTML = '<p>Validating...</p>';
+            
+            try {
+                const response = await fetch(`/api/validate?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = data.data;
+                    resultDiv.innerHTML = `
+                        <div class="result ${result.valid ? 'valid' : 'invalid'}">
+                            <strong>${result.email}</strong><br>
+                            Status: ${result.valid ? 'Valid ✓' : 'Invalid ✗'}<br>
+                            ${result.validators.typo?.suggestion ? 
+                                `Did you mean: ${result.validators.typo.suggestion}?` : ''}
+                        </div>
+                        <details>
+                            <summary>Full Response</summary>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="result invalid">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result invalid">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function validateBatch() {
+            const batchText = document.getElementById('batch').value;
+            if (!batchText) {
+                alert('Please enter emails');
+                return;
+            }
+            
+            const emails = batchText.split('\n').filter(e => e.trim());
+            const resultDiv = document.getElementById('batch-result');
+            resultDiv.innerHTML = '<p>Validating batch...</p>';
+            
+            try {
+                const response = await fetch('/api/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emails })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const results = data.data;
+                    let html = '<h3>Results:</h3>';
+                    results.forEach(result => {
+                        html += `
+                            <div class="result ${result.valid ? 'valid' : 'invalid'}">
+                                <strong>${result.email}</strong> - 
+                                ${result.valid ? 'Valid ✓' : 'Invalid ✗'}
+                                ${result.validators.typo?.suggestion ? 
+                                    `<br>Did you mean: ${result.validators.typo.suggestion}?` : ''}
+                            </div>
+                        `;
+                    });
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="result invalid">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result invalid">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

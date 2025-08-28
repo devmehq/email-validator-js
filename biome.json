@@ -28,7 +28,8 @@
         "noExplicitAny": "warn",
         "noDebugger": "error",
         "noConsole": "off",
-        "noVar": "error"
+        "noVar": "error",
+        "useIterableCallbackReturn": "off"
       },
       "complexity": {
         "noBannedTypes": "warn",

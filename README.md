@@ -2,7 +2,7 @@
 
 [![NPM version](https://badgen.net/npm/v/@devmehq/email-validator-js)](https://npm.im/@devmehq/email-validator-js)
 [![Build Status](https://github.com/devmehq/email-validator-js/workflows/CI/badge.svg)](https://github.com/devmehq/email-validator-js/actions)
-[![Downloads](https://img.shields.io/npm/dm/email-validator-js.svg)](https://www.npmjs.com/package/email-validator-js)
+[![Downloads](https://img.shields.io/npm/dm/@devmehq/email-validator-js.svg)](https://www.npmjs.com/package/@devmehq/email-validator-js)
 [![UNPKG](https://img.shields.io/badge/UNPKG-OK-179BD7.svg)](https://unpkg.com/browse/@devmehq/email-validator-js@latest/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-BSL%201.1-blue.svg)](LICENSE.md)
@@ -56,6 +56,8 @@
 ✅ **NEW:** Get domain age via WHOIS lookup
 
 ✅ **NEW:** Get domain registration status via WHOIS lookup
+
+✅ **NEW:** Serverless support for AWS Lambda, Vercel Edge, Cloudflare Workers, and more
 
 ## Use Cases
 
@@ -787,6 +789,55 @@ clearAllCaches();
 ```
 
 **Note:** Yahoo, Hotmail, and some providers always return `validSmtp: true` as they don't allow mailbox verification.
+
+## 🌐 Serverless Deployment
+
+The package includes serverless adapters for major cloud platforms. The serverless implementation provides email validation without Node.js dependencies, making it suitable for edge computing environments.
+
+### AWS Lambda
+
+```javascript
+import { apiGatewayHandler } from '@devmehq/email-validator-js/serverless/aws';
+
+export const handler = apiGatewayHandler;
+```
+
+### Vercel Edge Functions
+
+```javascript
+import { edgeHandler } from '@devmehq/email-validator-js/serverless/vercel';
+
+export const config = {
+  runtime: 'edge',
+};
+
+export default edgeHandler;
+```
+
+### Cloudflare Workers
+
+```javascript
+import { workerHandler } from '@devmehq/email-validator-js/serverless/cloudflare';
+
+export default {
+  async fetch(request, env, ctx) {
+    return workerHandler(request, env, ctx);
+  },
+};
+```
+
+### Features in Serverless Mode
+
+- ✅ Syntax validation
+- ✅ Typo detection and domain suggestions
+- ✅ Disposable email detection (full database)
+- ✅ Free email provider detection (full database)
+- ✅ Batch processing
+- ✅ Built-in caching
+- ❌ MX record validation (requires DNS)
+- ❌ SMTP verification (requires TCP sockets)
+
+For detailed serverless documentation and more platform examples, see [docs/SERVERLESS.md](docs/SERVERLESS.md).
 
 ## 📊 Performance & Caching
 
