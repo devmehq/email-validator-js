@@ -2,13 +2,7 @@
  * Tests for serverless core functionality
  */
 
-import {
-  clearCache,
-  EdgeCache,
-  suggestDomain,
-  validateEmailBatch,
-  validateEmailCore,
-} from '../src/serverless/core';
+import { clearCache, EdgeCache, suggestDomain, validateEmailBatch, validateEmailCore } from '../src/serverless/core';
 
 describe('Serverless Core', () => {
   beforeEach(() => {
@@ -26,7 +20,7 @@ describe('Serverless Core', () => {
       const cache = new EdgeCache<string>(10, 100); // 100ms TTL
       cache.set('test', 'value');
       expect(cache.get('test')).toBe('value');
-      
+
       setTimeout(() => {
         expect(cache.get('test')).toBeUndefined();
         done();
@@ -39,7 +33,7 @@ describe('Serverless Core', () => {
       cache.set('2', 2);
       cache.set('3', 3);
       cache.set('4', 4); // This should evict oldest entries
-      
+
       expect(cache.size()).toBeLessThanOrEqual(3);
     });
 
@@ -54,11 +48,11 @@ describe('Serverless Core', () => {
 
   describe('validateEmailCore', () => {
     it('should validate valid email syntax', async () => {
-      const result = await validateEmailCore('test@example.com');
+      const result = await validateEmailCore('test@valid-domain.org');
       expect(result.valid).toBe(true);
-      expect(result.email).toBe('test@example.com');
+      expect(result.email).toBe('test@valid-domain.org');
       expect(result.local).toBe('test');
-      expect(result.domain).toBe('example.com');
+      expect(result.domain).toBe('valid-domain.org');
       expect(result.validators.syntax?.valid).toBe(true);
     });
 
@@ -85,22 +79,22 @@ describe('Serverless Core', () => {
     });
 
     it('should cache results', async () => {
-      const email = 'cached@example.com';
-      
+      const email = 'cached@valid-domain.org';
+
       // First call
       const result1 = await validateEmailCore(email);
-      
+
       // Second call should return cached result
       const result2 = await validateEmailCore(email);
-      
+
       expect(result1).toEqual(result2);
     });
 
     it('should skip cache when requested', async () => {
-      const email = 'nocache@example.com';
-      
+      const email = 'nocache@valid-domain.org';
+
       await validateEmailCore(email);
-      
+
       const result = await validateEmailCore(email, { skipCache: true });
       expect(result.email).toBe(email);
     });
@@ -111,7 +105,7 @@ describe('Serverless Core', () => {
         validateDisposable: false,
         validateFree: false,
       });
-      
+
       expect(result.validators.typo).toBeUndefined();
       expect(result.validators.disposable).toBeUndefined();
       expect(result.validators.free).toBeUndefined();
@@ -120,14 +114,10 @@ describe('Serverless Core', () => {
 
   describe('validateEmailBatch', () => {
     it('should validate multiple emails', async () => {
-      const emails = [
-        'valid@example.com',
-        'invalid-email',
-        'typo@gmial.com',
-      ];
-      
+      const emails = ['valid@valid-domain.org', 'invalid-email', 'typo@gmial.com'];
+
       const results = await validateEmailBatch(emails);
-      
+
       expect(results).toHaveLength(3);
       expect(results[0].valid).toBe(true);
       expect(results[1].valid).toBe(false);
@@ -135,13 +125,13 @@ describe('Serverless Core', () => {
     });
 
     it('should respect batch size option', async () => {
-      const emails = Array(10).fill('test@example.com');
-      
+      const emails = Array(10).fill('test@valid-domain.org');
+
       const results = await validateEmailBatch(emails, { batchSize: 3 });
-      
+
       expect(results).toHaveLength(10);
-      results.forEach(result => {
-        expect(result.email).toBe('test@example.com');
+      results.forEach((result) => {
+        expect(result.email).toBe('test@valid-domain.org');
       });
     });
   });
@@ -168,27 +158,27 @@ describe('Serverless Core', () => {
     });
 
     it('should respect threshold option', () => {
-      // With low threshold (strict)
-      expect(suggestDomain('gggmail.com', { threshold: 1 })).toBeNull();
-      
-      // With higher threshold (more lenient)
-      expect(suggestDomain('gggmail.com', { threshold: 3 })).toBe('gmail.com');
+      // With low threshold (strict) - use a domain with distance > 1
+      expect(suggestDomain('ggggmail.com', { threshold: 1 })).toBeNull();
+
+      // With higher threshold (more lenient) - same domain should match with higher threshold
+      expect(suggestDomain('ggggmail.com', { threshold: 3 })).toBe('gmail.com');
     });
   });
 
   describe('Cache control', () => {
     it('should clear all caches', async () => {
       // Add some data to cache
-      await validateEmailCore('test1@example.com');
-      await validateEmailCore('test2@example.com');
-      
+      await validateEmailCore('test1@valid-domain.org');
+      await validateEmailCore('test2@valid-domain.org');
+
       // Clear cache
       clearCache();
-      
+
       // Cache should be empty (we can't directly test this, but we can verify behavior)
       // If cache was cleared, the same validation would happen again
-      const result = await validateEmailCore('test1@example.com');
-      expect(result.email).toBe('test1@example.com');
+      const result = await validateEmailCore('test1@valid-domain.org');
+      expect(result.email).toBe('test1@valid-domain.org');
     });
   });
 });

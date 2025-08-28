@@ -190,15 +190,25 @@ export function suggestDomain(domain: string, options?: DomainSuggesterOptions):
     }
   }
 
+  // If domain is already in the list of common domains, it's correct
+  if (domains.includes(domain)) {
+    return null;
+  }
+
   // Find closest domain using Levenshtein distance
   let minDistance = Infinity;
   let suggestion: string | null = null;
 
   for (const commonDomain of domains) {
+    // Skip if it's the same domain (case-insensitive)
+    if (domain.toLowerCase() === commonDomain.toLowerCase()) {
+      return null;
+    }
+
     // Use string similarity to calculate distance
     const similarity = stringSimilarity(domain.toLowerCase(), commonDomain.toLowerCase());
     const distance = Math.round((1 - similarity) * Math.max(domain.length, commonDomain.length));
-    if (distance <= threshold && distance < minDistance) {
+    if (distance > 0 && distance <= threshold && distance < minDistance) {
       minDistance = distance;
       suggestion = commonDomain;
     }
@@ -278,8 +288,13 @@ export async function validateEmailCore(
     }
   }
 
-  // Overall valid status
-  result.valid = Object.values(result.validators).every((v) => v.valid !== false);
+  // Overall valid status - only syntax, typo, disposable, and MX matter for validity
+  // Free provider detection is informational only
+  const criticalValidators = ['syntax', 'typo', 'disposable', 'mx'];
+  result.valid = criticalValidators.every((key) => {
+    const validator = result.validators[key as keyof typeof result.validators];
+    return !validator || validator.valid !== false;
+  });
 
   // Cache result
   if (!options?.skipCache) {
