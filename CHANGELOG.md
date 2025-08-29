@@ -1,5 +1,24 @@
 # Change Log
 
+## v2.10.1 - 2025-08-29
+
+### 🐛 Bug Fixes & Improvements
+
+### Fixed
+- **Serverless Adapters**: Added missing `handler` export for AWS Lambda and Vercel Edge Functions adapters
+- **TypeScript**: Fixed type casting issues in serverless adapter tests
+- **Dependencies**: Added `@types/aws-lambda` for proper TypeScript support
+
+### Added
+- **Testing**: Comprehensive test suites for AWS Lambda adapter (287 lines)
+- **Testing**: Comprehensive test suites for Vercel Edge Functions adapter (328 lines)
+- **Testing**: All serverless adapters now have full test coverage
+
+### Improved
+- **Code Quality**: Fixed all linting issues with proper type annotations
+- **Test Coverage**: 241 tests passing across 15 test suites
+- **Developer Experience**: Better TypeScript support for serverless environments
+
 ## v2.10.0 - 2025-08-28
 
 ### 🚀 Serverless Platform Support
