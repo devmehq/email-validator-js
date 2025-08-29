@@ -837,7 +837,7 @@ export default {
 - ❌ MX record validation (requires DNS)
 - ❌ SMTP verification (requires TCP sockets)
 
-For detailed serverless documentation and more platform examples, see [docs/SERVERLESS.md](docs/SERVERLESS.md).
+For detailed serverless documentation and more platform examples, see [docs/SERVERLESS.md](SERVERLESS.md).
 
 ## 📊 Performance & Caching
 

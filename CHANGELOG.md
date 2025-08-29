@@ -1,5 +1,68 @@
 # Change Log
 
+## v2.10.1 - 2025-08-29
+
+### 🐛 Bug Fixes & Improvements
+
+### Fixed
+- **Serverless Adapters**: Added missing `handler` export for AWS Lambda and Vercel Edge Functions adapters
+- **TypeScript**: Fixed type casting issues in serverless adapter tests
+- **Dependencies**: Added `@types/aws-lambda` for proper TypeScript support
+
+### Added
+- **Testing**: Comprehensive test suites for AWS Lambda adapter (287 lines)
+- **Testing**: Comprehensive test suites for Vercel Edge Functions adapter (328 lines)
+- **Testing**: All serverless adapters now have full test coverage
+
+### Improved
+- **Code Quality**: Fixed all linting issues with proper type annotations
+- **Test Coverage**: 241 tests passing across 15 test suites
+- **Developer Experience**: Better TypeScript support for serverless environments
+
+## v2.10.0 - 2025-08-28
+
+### 🚀 Serverless Platform Support
+
+This release introduces comprehensive serverless platform support with dedicated adapters for AWS Lambda, Cloudflare Workers, Vercel Edge Functions, and Deno Deploy, enabling email validation at the edge with optimized performance.
+
+### Added
+- **Serverless Core Module**
+  - Edge-optimized email validation without Node.js dependencies
+  - Built-in EdgeCache for high-performance caching at the edge
+  - Batch validation support with configurable concurrency
+  - Lightweight bundle size (~15KB gzipped)
+
+- **Platform Adapters**
+  - **AWS Lambda**: Full support for API Gateway v1/v2 and ALB triggers
+  - **Cloudflare Workers**: Native Workers API with KV storage integration
+  - **Vercel Edge Functions**: Edge runtime support with streaming responses
+  - **Deno Deploy**: Native Deno server with TypeScript support
+
+- **API Features**
+  - RESTful endpoints for single and batch validation
+  - CORS support with configurable origins
+  - Rate limiting and request validation
+  - Comprehensive error handling and logging
+  - Health check endpoints
+
+- **Performance Optimizations**
+  - Edge caching with TTL configuration
+  - Parallel batch processing
+  - Minimal cold start times
+  - Optimized bundle sizes per platform
+
+### Improved
+- **Module System**: New modular exports for tree-shaking
+- **TypeScript Support**: Enhanced types for serverless environments
+- **Documentation**: Comprehensive serverless deployment guides
+- **Testing**: Platform-specific test suites
+
+### Technical Details
+- Zero Node.js dependencies in serverless core
+- Platform-agnostic validation logic
+- Streaming response support for large batches
+- Environment-based configuration
+
 ## v2.6.0 - 2025-08-26
 
 ### 🚀 Enhanced Name Detection Release

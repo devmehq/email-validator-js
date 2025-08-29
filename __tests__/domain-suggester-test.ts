@@ -1,4 +1,5 @@
 import expect from 'expect';
+import type { DomainSuggestionMethod } from '../src';
 import {
   COMMON_EMAIL_DOMAINS,
   defaultDomainSuggestionMethod,
@@ -7,7 +8,6 @@ import {
   suggestDomain,
   suggestEmailDomain,
 } from '../src';
-import type { DomainSuggestionMethod } from '../src/types';
 
 describe('Domain Suggestion', () => {
   describe('suggestEmailDomain', () => {

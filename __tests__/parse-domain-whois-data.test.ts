@@ -1,8 +1,12 @@
 import { parseWhoisData } from '../src/whois-parser';
+import { amazonCaData } from './domain-whois-data/amazon-ca-data';
+import { bbcCoUkData } from './domain-whois-data/bbc-co-uk-data';
+import { googleOrgData } from './domain-whois-data/google-org-data';
 import { inMtData } from './domain-whois-data/in-mt-data';
 import { meIoData } from './domain-whois-data/me-io-data';
 import { meabedComData } from './domain-whois-data/meabed-com-data';
 import { roleAiData } from './domain-whois-data/role-ai-data';
+import { wikipediaOrgData } from './domain-whois-data/wikipedia-org-data';
 
 describe('parseDomainWhoisJson', () => {
   // Helper function to compare results, handling timezone differences in dates
@@ -54,5 +58,37 @@ describe('parseDomainWhoisJson', () => {
       domain: 'meabed.com',
     });
     compareResults(result, meabedComData.output);
+  });
+
+  it('should parse whois json google.org', async () => {
+    const result = parseWhoisData({
+      rawData: googleOrgData.input,
+      domain: 'google.org',
+    });
+    compareResults(result, googleOrgData.output);
+  });
+
+  it('should parse whois json wikipedia.org', async () => {
+    const result = parseWhoisData({
+      rawData: wikipediaOrgData.input,
+      domain: 'wikipedia.org',
+    });
+    compareResults(result, wikipediaOrgData.output);
+  });
+
+  it('should parse whois json bbc.co.uk', async () => {
+    const result = parseWhoisData({
+      rawData: bbcCoUkData.input,
+      domain: 'bbc.co.uk',
+    });
+    compareResults(result, bbcCoUkData.output);
+  });
+
+  it('should parse whois json amazon.ca', async () => {
+    const result = parseWhoisData({
+      rawData: amazonCaData.input,
+      domain: 'amazon.ca',
+    });
+    compareResults(result, amazonCaData.output);
   });
 });
