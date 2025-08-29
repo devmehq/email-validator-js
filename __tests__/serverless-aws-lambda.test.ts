@@ -3,6 +3,7 @@
  */
 
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { handler } from '../src/serverless/adapters/aws-lambda';
 
 // Mock the serverless core module
 jest.mock('../src/serverless/core', () => ({
@@ -31,8 +32,6 @@ jest.mock('../src/serverless/core', () => ({
   ),
   clearCache: jest.fn(),
 }));
-
-import { handler } from '../src/serverless/adapters/aws-lambda';
 
 describe('AWS Lambda Adapter', () => {
   const mockContext: Context = {
