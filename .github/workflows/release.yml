@@ -3,9 +3,11 @@ on:
   workflow_dispatch:
   workflow_call:
   push:
+    paths:
+      - 'src/**'
+      - 'yarn.lock'
     branches:
-      - master
-      - main
+      - 'master'
 
 permissions:
   contents: read
@@ -15,7 +17,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    
+
     permissions:
       contents: write
       issues: write
@@ -68,7 +70,7 @@ jobs:
         run: |
           # Run release-it in CI mode
           npx release-it --ci 2>&1 | tee release-output.txt
-          
+
           # Extract version from output
           if grep -q "🏁 Done" release-output.txt; then
             echo "release_published=true" >> $GITHUB_OUTPUT
@@ -81,13 +83,13 @@ jobs:
           else
             echo "release_published=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Add Release Summary
         if: always()
         run: |
           echo "## 📦 Release Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [[ "${{ steps.release.outputs.release_published }}" == "true" ]]; then
             echo "### ✅ Release Published Successfully!" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -107,7 +109,7 @@ jobs:
             echo "- Commits don't follow conventional commit format" >> $GITHUB_STEP_SUMMARY
             echo "- Release conditions not met" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Build Information" >> $GITHUB_STEP_SUMMARY
           echo "- **Workflow:** \`${{ github.workflow }}\`" >> $GITHUB_STEP_SUMMARY

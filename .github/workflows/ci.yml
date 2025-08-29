@@ -3,16 +3,17 @@ on:
   workflow_dispatch:
   workflow_call:
   push:
+    paths:
+      - 'src/**'
+      - '__tests__/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'release.config.js'
+      - '.github/workflows/ci.yml'
     branches:
       - '*'
       - '**'
       - '!master'
-      - '!main'
-  pull_request:
-    branches:
-      - master
-      - main
-      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -71,7 +72,7 @@ jobs:
         run: |
           # Run release-it for beta release
           npx release-it --config .release-it-beta.json --ci --preRelease=beta 2>&1 | tee release-output.txt
-          
+
           # Extract version from output
           if grep -q "🏁 Done" release-output.txt; then
             echo "release_published=true" >> $GITHUB_OUTPUT
@@ -81,13 +82,13 @@ jobs:
           else
             echo "release_published=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Add CI Summary
         if: always()
         run: |
           echo "## 🔬 CI Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Check if release step was run (only on develop branch)
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             if [[ "${{ steps.beta_release.outputs.release_published }}" == "true" ]]; then
@@ -116,7 +117,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "ℹ️ **Note:** Releases are only created from the \`develop\` branch" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Build Information" >> $GITHUB_STEP_SUMMARY
           echo "- **Workflow:** \`${{ github.workflow }}\`" >> $GITHUB_STEP_SUMMARY
@@ -126,7 +127,7 @@ jobs:
           echo "- **Run Number:** \`${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Actor:** \`${{ github.actor }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Event:** \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
-          
+
           # Add PR information if available
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "" >> $GITHUB_STEP_SUMMARY
