@@ -73,13 +73,6 @@
       }
     ],
     [
-      "@semantic-release/changelog",
-      {
-        "changelogFile": "CHANGELOG.md",
-        "changelogTitle": "# Changelog\n\nAll notable changes to this project will be documented in this file. See [Conventional Commits](https://conventionalcommits.org) for commit guidelines."
-      }
-    ],
-    [
       "@semantic-release/npm",
       {
         "npmPublish": true,
@@ -97,19 +90,6 @@
         "labels": false,
         "releasedLabels": false,
         "addReleases": "bottom"
-      }
-    ],
-    [
-      "@semantic-release/git",
-      {
-        "assets": [
-          "package.json",
-          "package-lock.json",
-          "yarn.lock",
-          "npm-shrinkwrap.json",
-          "CHANGELOG.md"
-        ],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ]
   ],

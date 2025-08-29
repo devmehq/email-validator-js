@@ -17,8 +17,8 @@ This project uses semantic-release for automated versioning and publishing based
 - Triggered automatically on push to `master` or `main` branch
 - Creates stable version (e.g., `1.2.3`)
 - Publishes to NPM without pre-release tag
-- Creates GitHub release
-- Updates CHANGELOG.md
+- Creates GitHub release with notes
+- Creates git tag (no commit)
 - Runs tests and build before release
 
 #### Beta Pre-release (develop)
@@ -87,10 +87,10 @@ Semantic-release configuration with best practices:
 - Multi-branch support with version patterns
 - Granular release rules based on commit types and scopes
 - Conventional commits preset with custom sections
-- Automated changelog generation with emojis
+- Release notes generation with emojis (no file commits)
 - NPM publishing configuration
 - GitHub release integration
-- Git assets management
+- Git tagging only (no commits)
 
 ### `.commitlintrc.json`
 Enforces conventional commit format in commit messages.
@@ -123,10 +123,9 @@ Semantic-release automatically:
    - `BREAKING CHANGE`: Major version
    - Other types: Patch or no release based on configuration
 3. Generates release notes with categorized changes
-4. Updates CHANGELOG.md with formatted sections
-5. Creates git tag with version
-6. Creates GitHub release with notes
-7. Publishes to NPM with appropriate tag
+4. Creates git tag with version (no commit)
+5. Creates GitHub release with notes
+6. Publishes to NPM with appropriate tag
 
 ## Environment Variables
 
@@ -138,8 +137,9 @@ Required secrets in GitHub repository:
 
 Release notes are automatically generated from commit messages and included in:
 - GitHub releases
-- CHANGELOG.md
-- NPM release
+- NPM release metadata
+
+Note: No CHANGELOG.md file is maintained (tags and GitHub releases serve as the changelog)
 
 ## Troubleshooting
 
@@ -182,4 +182,4 @@ Release notes are automatically generated from commit messages and included in:
 
 ## Version History
 
-Check `CHANGELOG.md` for detailed version history.
+Check GitHub releases or git tags for detailed version history.
