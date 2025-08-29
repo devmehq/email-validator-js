@@ -9,8 +9,14 @@ on:
     branches:
       - 'master'
 
-permissions:
-  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  CI: true
 
 jobs:
   release:
@@ -64,11 +70,11 @@ jobs:
           GIT_COMMITTER_EMAIL: support@dev.me
         run: |
           # Install semantic-release and required plugins
-          npm i -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/npm
-          
+          npm i -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/npm @semantic-release/commit-analyzer
+
           # Run semantic-release
           npx semantic-release --debug 2>&1 | tee release-output.txt
-          
+
           # Extract version and tag info from release output
           if grep -q "Published release" release-output.txt; then
             echo "release_published=true" >> $GITHUB_OUTPUT
