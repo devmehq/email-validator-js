@@ -192,8 +192,218 @@ export const config = {
   regions: ['iad1'], // Specify regions if needed
 };
 
+// Main handler that matches test expectations
+export async function handler(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
+  // Handle CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
+
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-store, max-age=0',
+    'X-Powered-By': 'Vercel Edge Functions',
+  };
+
+  try {
+    // Health check endpoint
+    if (pathname === '/api/health' && request.method === 'GET') {
+      return new Response(
+        JSON.stringify({
+          status: 'healthy',
+          platform: 'vercel',
+          timestamp: new Date().toISOString(),
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
+    // Single email validation
+    if (pathname === '/api/validate' && request.method === 'POST') {
+      // Check content type
+      const contentType = request.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return new Response(JSON.stringify({ error: 'Content-Type must be application/json' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      let body: any;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      if (!body.email) {
+        return new Response(JSON.stringify({ error: 'Email is required' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      // Parse options from query params
+      const options: Partial<ValidateEmailOptions> = {};
+      if (url.searchParams.has('skipCache')) {
+        options.skipCache = url.searchParams.get('skipCache') === 'true';
+      }
+      if (url.searchParams.has('validateTypo')) {
+        options.validateTypo = url.searchParams.get('validateTypo') === 'true';
+      }
+
+      const result = await validateEmailCore(body.email, options);
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      });
+    }
+
+    // Batch validation
+    if (pathname === '/api/validate/batch' && request.method === 'POST') {
+      // Check content type
+      const contentType = request.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return new Response(JSON.stringify({ error: 'Content-Type must be application/json' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      let body: any;
+      try {
+        body = await request.json();
+      } catch {
+        return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      if (!body.emails || !Array.isArray(body.emails)) {
+        return new Response(JSON.stringify({ error: 'Emails array is required' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      if (body.emails.length === 0) {
+        return new Response(JSON.stringify({ error: 'Emails array is required' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      if (body.emails.length > 100) {
+        return new Response(JSON.stringify({ error: 'Maximum 100 emails allowed per batch' }), {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+
+      // Parse options from query params
+      const options: Record<string, any> = {};
+      if (url.searchParams.has('batchSize')) {
+        const batchSizeParam = url.searchParams.get('batchSize');
+        if (batchSizeParam) {
+          options.batchSize = parseInt(batchSizeParam, 10);
+        }
+      }
+
+      const results = await validateEmailBatch(body.emails, options);
+      return new Response(JSON.stringify({ results }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      });
+    }
+
+    // Method not allowed
+    if (
+      (pathname === '/api/validate' || pathname === '/api/validate/batch') &&
+      request.method !== 'POST' &&
+      request.method !== 'OPTIONS'
+    ) {
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
+      });
+    }
+
+    // Not found
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    });
+  } catch (error) {
+    console.error('Handler error:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    });
+  }
+}
+
 // Export handlers
 export default {
   edgeHandler,
   nodeHandler,
+  handler,
 };

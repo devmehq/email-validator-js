@@ -185,9 +185,171 @@ export async function cacheHandler(
   }
 }
 
+// Main handler matching test expectations
+export async function handler(event: any, _context: any): Promise<any> {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  };
+
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers,
+      body: '',
+    };
+  }
+
+  // Handle health check
+  if (event.path === '/health' && event.httpMethod === 'GET') {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+      }),
+    };
+  }
+
+  // Handle single email validation
+  if (event.path === '/validate' && event.httpMethod === 'POST') {
+    try {
+      let body: any = {};
+
+      // Handle base64 encoded body
+      if (event.isBase64Encoded) {
+        const decoded = Buffer.from(event.body || '', 'base64').toString('utf-8');
+        body = JSON.parse(decoded);
+      } else {
+        body = event.body ? JSON.parse(event.body) : {};
+      }
+
+      // Check for email
+      if (!body.email) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Email is required' }),
+        };
+      }
+
+      // Parse options from query params
+      const options: Record<string, any> = {};
+      if (event.queryStringParameters) {
+        if (event.queryStringParameters.skipCache === 'true') {
+          options.skipCache = true;
+        }
+        if (event.queryStringParameters.validateTypo === 'false') {
+          options.validateTypo = false;
+        }
+      }
+
+      const result = await validateEmailCore(body.email, options);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(result),
+      };
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Invalid request body' }),
+        };
+      }
+      console.error('Validation error:', error);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Internal server error' }),
+      };
+    }
+  }
+
+  // Handle batch validation
+  if (event.path === '/validate/batch' && event.httpMethod === 'POST') {
+    try {
+      let body: any = {};
+
+      // Handle base64 encoded body
+      if (event.isBase64Encoded) {
+        const decoded = Buffer.from(event.body || '', 'base64').toString('utf-8');
+        body = JSON.parse(decoded);
+      } else {
+        body = event.body ? JSON.parse(event.body) : {};
+      }
+
+      // Check for emails array
+      if (!body.emails || !Array.isArray(body.emails)) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Emails array is required' }),
+        };
+      }
+
+      if (body.emails.length === 0) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Emails array is required' }),
+        };
+      }
+
+      if (body.emails.length > 100) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: 'Maximum 100 emails allowed per batch' }),
+        };
+      }
+
+      const results = await validateEmailBatch(body.emails);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ results }),
+      };
+    } catch (error) {
+      console.error('Batch validation error:', error);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Internal server error' }),
+      };
+    }
+  }
+
+  // Handle unsupported methods
+  if (
+    (event.path === '/validate' || event.path === '/validate/batch') &&
+    event.httpMethod !== 'POST' &&
+    event.httpMethod !== 'OPTIONS'
+  ) {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
+  // Handle unknown routes
+  return {
+    statusCode: 404,
+    headers,
+    body: JSON.stringify({ error: 'Not found' }),
+  };
+}
+
 // Export handlers
 export default {
   apiGatewayHandler,
   lambdaHandler,
   cacheHandler,
+  handler,
 };

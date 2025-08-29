@@ -85,11 +85,6 @@
     "__tests__/**/*.{ts,tsx,js,jsx}": "biome check --write",
     "examples/**/*.{ts,tsx,js,jsx}": "biome check --write"
   },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
   "dependencies": {
     "psl": "^1.15.0",
     "string-similarity-js": "^2.1.4",
@@ -102,6 +97,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.4",
+    "@types/aws-lambda": "^8.10.152",
     "@types/jest": "^30.0.0",
     "@types/node": "24.3.0",
     "@types/sinon": "17.0.4",
