@@ -8,8 +8,9 @@ const typescript = require('@rollup/plugin-typescript');
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
+// Only keep Node.js built-in modules as external
+// Bundle all npm dependencies for serverless environments
 const external = [
-  ...Object.keys(pkg.dependencies || {}),
   'node:dns',
   'node:net',
   'node:tls',
@@ -70,7 +71,7 @@ module.exports = [
       format: 'esm',
       sourcemap: true,
     },
-    external: ['string-similarity-js'],
+    external: [], // Bundle all dependencies including string-similarity-js
     plugins: [...plugins, declarationPlugin],
   },
   
@@ -82,7 +83,7 @@ module.exports = [
       format: 'cjs',
       sourcemap: true,
     },
-    external: ['string-similarity-js'],
+    external: [], // Bundle all dependencies including string-similarity-js
     plugins,
   },
   
