@@ -1,4 +1,5 @@
 import net from 'node:net';
+import type { VerifyMailboxSMTPParams } from './types';
 
 /**
  * @param  {String} smtpReply A message from the SMTP server.
@@ -30,8 +31,6 @@ function isInvalidMailboxError(smtpReply: string): boolean {
 function isMultilineGreet(smtpReply: string): boolean {
   return Boolean(smtpReply && /^(250|220)-/.test(smtpReply));
 }
-
-import type { VerifyMailboxSMTPParams } from './types';
 
 export async function verifyMailboxSMTP(params: VerifyMailboxSMTPParams): Promise<boolean | null> {
   // Port 587 → STARTTLS
