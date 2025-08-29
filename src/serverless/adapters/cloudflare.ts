@@ -11,13 +11,16 @@ import { EdgeCache, validateEmailBatch, validateEmailCore } from '../core';
 // KVNamespace interface for TypeScript
 interface KVNamespace {
   get<T = unknown>(key: string, type?: 'text' | 'json' | 'arrayBuffer' | 'stream'): Promise<T | null>;
+
   put(key: string, value: string | ArrayBuffer | ReadableStream, options?: { expirationTtl?: number }): Promise<void>;
+
   delete(key: string): Promise<void>;
 }
 
 // DurableObject interfaces
 interface DurableObjectNamespace {
   idFromName(name: string): DurableObjectId;
+
   get(id: DurableObjectId): DurableObjectStub;
 }
 
@@ -35,7 +38,9 @@ interface DurableObjectState {
 
 interface DurableObjectStorage {
   get<T = unknown>(key: string): Promise<T | undefined>;
+
   put<T = unknown>(key: string, value: T): Promise<void>;
+
   delete(key: string): Promise<void>;
 }
 
@@ -52,12 +57,14 @@ export interface CloudflareEnv {
   EMAIL_CACHE?: KVNamespace;
   // Durable Object namespace
   EMAIL_VALIDATOR?: DurableObjectNamespace;
+
   // Environment variables
   [key: string]: unknown;
 }
 
 export interface CloudflareContext {
   waitUntil(promise: Promise<unknown>): void;
+
   passThroughOnException(): void;
 }
 
