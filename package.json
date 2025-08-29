@@ -81,9 +81,13 @@
     "test-ci": "jest"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx,js,jsx}": "biome check --write",
-    "__tests__/**/*.{ts,tsx,js,jsx}": "biome check --write",
-    "examples/**/*.{ts,tsx,js,jsx}": "biome check --write"
+    "*.{js,ts,jsx,tsx}": [
+      "biome check --write --no-errors-on-unmatched",
+      "biome format --write --no-errors-on-unmatched"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "biome format --write --no-errors-on-unmatched"
+    ]
   },
   "dependencies": {
     "psl": "^1.15.0",
