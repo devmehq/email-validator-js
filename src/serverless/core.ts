@@ -163,6 +163,7 @@ const TYPO_PATTERNS = [
 // Platform-agnostic DNS resolution interface
 export interface DNSResolver {
   resolveMx(domain: string): Promise<Array<{ exchange: string; priority: number }>>;
+
   resolveTxt(domain: string): Promise<string[]>;
 }
 
