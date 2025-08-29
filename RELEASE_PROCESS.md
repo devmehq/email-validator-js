@@ -1,7 +1,7 @@
 # Release Process Documentation
 
 ## Overview
-This project uses release-it for automated versioning and publishing based on conventional commits.
+This project uses semantic-release for automated versioning and publishing based on conventional commits.
 
 ## Release Workflow
 
@@ -82,19 +82,15 @@ git cz
 
 ## Configuration Files
 
-### `.release-it.json`
-Main release-it configuration for production releases:
-- Git configuration and tagging
-- GitHub release settings
-- NPM publishing settings
-- Build and test hooks
-- Conventional changelog generation
-
-### `.release-it-beta.json`
-Beta release configuration for develop branch:
-- Pre-release versioning
-- Beta NPM tags
-- GitHub pre-release settings
+### `.releaserc.json`
+Semantic-release configuration with best practices:
+- Multi-branch support with version patterns
+- Granular release rules based on commit types and scopes
+- Conventional commits preset with custom sections
+- Automated changelog generation with emojis
+- NPM publishing configuration
+- GitHub release integration
+- Git assets management
 
 ### `.commitlintrc.json`
 Enforces conventional commit format in commit messages.
@@ -107,14 +103,9 @@ Contains release script and commitizen configuration.
 
 ## Manual Release
 
-### Production Release
+### Trigger Release
 ```bash
 yarn release
-```
-
-### Beta Release
-```bash
-yarn release:beta
 ```
 
 ### Dry Run (Preview)
@@ -122,28 +113,20 @@ yarn release:beta
 yarn release:dry
 ```
 
-### CI Mode (Non-interactive)
-```bash
-yarn release:ci
-```
+## Automated Release Process
 
-## Interactive Release Process
-
-Release-it provides an interactive CLI that will:
-1. Show current version and proposed new version
-2. Allow you to select version bump type (patch/minor/major)
-3. Generate changelog from conventional commits
-4. Create git tag and push
-5. Create GitHub release
-6. Publish to NPM
-
-## Release Hooks
-
-The release process includes these hooks:
-- **before:init**: Runs linting and tests
-- **after:bump**: Builds the project
-- **after:git:release**: Logs success message
-- **after:release**: Final success message
+Semantic-release automatically:
+1. Analyzes commits since last release using conventional commit format
+2. Determines version bump based on commit types:
+   - `feat`: Minor version (new features)
+   - `fix`: Patch version (bug fixes)
+   - `BREAKING CHANGE`: Major version
+   - Other types: Patch or no release based on configuration
+3. Generates release notes with categorized changes
+4. Updates CHANGELOG.md with formatted sections
+5. Creates git tag with version
+6. Creates GitHub release with notes
+7. Publishes to NPM with appropriate tag
 
 ## Environment Variables
 
@@ -163,9 +146,8 @@ Release notes are automatically generated from commit messages and included in:
 ### No Release Created
 - Ensure commits follow conventional format
 - Check if there are releasable commits since last version
-- Verify branch configuration in `.release-it.json`
-- Ensure working directory is clean
-- Check upstream is set correctly
+- Verify branch configuration in `.releaserc.json`
+- Check release rules for your commit types
 
 ### NPM Publishing Failed
 - Verify NPM_TOKEN is set in GitHub secrets
@@ -186,17 +168,17 @@ Release notes are automatically generated from commit messages and included in:
 5. When ready for production, merge develop to master
 6. Production version is automatically released
 
-## Release-it Features
+## Semantic-Release Features
 
-- **Interactive Mode**: Step-by-step guided release process
-- **Dry Run**: Preview release without making changes
-- **Conventional Changelog**: Automatic changelog generation
-- **Version Bumping**: Smart version increments based on commits
-- **Git Integration**: Automatic tagging and pushing
-- **GitHub Releases**: Create releases with notes
-- **NPM Publishing**: Automatic package publishing
-- **Hooks**: Custom scripts at various stages
-- **CI Mode**: Non-interactive for automation
+- **Automated Versioning**: Version determined by commit analysis
+- **Conventional Commits**: Full conventionalcommits preset support
+- **Multi-Branch Support**: Different strategies per branch
+- **Pre-releases**: Beta, alpha, RC, and next versions
+- **Smart Release Rules**: Granular control over what triggers releases
+- **Emoji Sections**: Enhanced changelog readability with emojis
+- **GitHub Integration**: Automated releases with notes
+- **NPM Publishing**: Automatic package publishing with tags
+- **CI/CD Optimized**: Designed for automated pipelines
 
 ## Version History
 
