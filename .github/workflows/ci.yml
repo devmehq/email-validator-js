@@ -8,8 +8,6 @@ on:
       - '__tests__/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'release.config.js'
-      - '.github/workflows/ci.yml'
     branches:
       - '*'
       - '**'
@@ -65,10 +63,10 @@ jobs:
         run: |
           # Install semantic-release and required plugins
           npm i -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/changelog @semantic-release/npm
-          
+
           # Run semantic-release for pre-release
           npx semantic-release --debug 2>&1 | tee release-output.txt
-          
+
           # Extract version and tag info from release output
           if grep -q "Published release" release-output.txt; then
             echo "release_published=true" >> $GITHUB_OUTPUT
