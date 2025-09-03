@@ -30,7 +30,7 @@ export async function verifyEmailBatch(params: IBatchVerifyParams): Promise<Batc
   const results = new Map<string, DetailedVerificationResult | IVerifyEmailResult>();
 
   // Process emails in batches
-  const batches: string[][] = [];
+  const batches = [];
   for (let i = 0; i < emailAddresses.length; i += concurrency) {
     batches.push(emailAddresses.slice(i, i + concurrency));
   }

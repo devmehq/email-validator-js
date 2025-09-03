@@ -96,7 +96,7 @@ const TYPO_PATTERNS: Record<string, string[]> = {
  * Calculate similarity threshold based on domain length
  * Shorter domains need higher similarity to avoid false positives
  */
-function getSimilarityThreshold(domain: string): number {
+function getSimilarityThreshold(domain: string) {
   const length = domain.length;
   if (length <= 6) return 0.85; // Short domains need high similarity
   if (length <= 10) return 0.8; // Medium domains
@@ -106,7 +106,7 @@ function getSimilarityThreshold(domain: string): number {
 /**
  * Check if a domain is likely a typo based on common patterns
  */
-function _isLikelyTypo(domain: string): boolean {
+function _isLikelyTypo(domain: string) {
   // Check if domain matches any known typo patterns
   for (const patterns of Object.values(TYPO_PATTERNS)) {
     if (patterns.includes(domain.toLowerCase())) {
@@ -292,7 +292,7 @@ export function suggestEmailDomain(email: string, commonDomains?: string[]): Dom
  * @param commonDomains - Optional custom list of common domains
  * @returns True if domain is common, false otherwise
  */
-export function isCommonDomain(domain: string, commonDomains?: string[]): boolean {
+export function isCommonDomain(domain: string, commonDomains?: string[]) {
   const domainsToCheck = commonDomains || COMMON_EMAIL_DOMAINS;
   return domainsToCheck.includes(domain.toLowerCase());
 }
@@ -303,6 +303,6 @@ export function isCommonDomain(domain: string, commonDomains?: string[]): boolea
  * @param domain2 - Second domain
  * @returns Similarity score between 0 and 1
  */
-export function getDomainSimilarity(domain1: string, domain2: string): number {
+export function getDomainSimilarity(domain1: string, domain2: string) {
   return stringSimilarity(domain1.toLowerCase(), domain2.toLowerCase());
 }

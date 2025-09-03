@@ -381,32 +381,32 @@ const COMMON_LAST_NAMES = new Set([
 ]);
 
 // Check if a string looks like a year
-function isYearLike(str: string): boolean {
+function isYearLike(str: string) {
   return /^(19|20)\d{2}$/.test(str);
 }
 
 // Check if a string is a known first name
-function isKnownFirstName(str: string): boolean {
+function isKnownFirstName(str: string) {
   return COMMON_FIRST_NAMES.has(str.toLowerCase());
 }
 
 // Check if a string is a known last name
-function isKnownLastName(str: string): boolean {
+function isKnownLastName(str: string) {
   return COMMON_LAST_NAMES.has(str.toLowerCase());
 }
 
 // Check if a string is a title/honorific
-function isTitle(str: string): boolean {
+function isTitle(str: string) {
   return COMMON_TITLES.includes(str.toLowerCase().replace('.', ''));
 }
 
 // Check if a string is a middle name indicator
-function _isMiddleNameIndicator(str: string): boolean {
+function _isMiddleNameIndicator(str: string) {
   return MIDDLE_NAME_INDICATORS.includes(str.toLowerCase());
 }
 
 // Score how likely a string is to be a first name
-function getFirstNameScore(str: string): number {
+function getFirstNameScore(str: string) {
   const lower = str.toLowerCase();
   if (COMMON_FIRST_NAMES.has(lower)) return 1.0;
   if (COMMON_LAST_NAMES.has(lower)) return 0.3; // Some overlap
@@ -415,7 +415,7 @@ function getFirstNameScore(str: string): number {
 }
 
 // Score how likely a string is to be a last name
-function getLastNameScore(str: string): number {
+function getLastNameScore(str: string) {
   const lower = str.toLowerCase();
   if (COMMON_LAST_NAMES.has(lower)) return 1.0;
   if (COMMON_FIRST_NAMES.has(lower)) return 0.3; // Some overlap
@@ -426,7 +426,7 @@ function getLastNameScore(str: string): number {
 /**
  * Intelligently capitalize names, handling special cases
  */
-function capitalizeName(str: string): string {
+function capitalizeName(str: string) {
   if (!str) return '';
 
   // Handle special name patterns
@@ -488,7 +488,7 @@ function capitalizeName(str: string): string {
 /**
  * Capitalize first letter of a word (legacy compatibility)
  */
-function _capitalizeFirstLetter(str: string): string {
+function _capitalizeFirstLetter(str: string) {
   return capitalizeName(str);
 }
 
@@ -592,7 +592,7 @@ function parseCompositeNamePart(part: string): {
 /**
  * Check if string is likely a name (not containing invalid patterns)
  */
-function isLikelyName(str: string, allowNumbers: boolean = false, allowSingleLetter: boolean = false): boolean {
+function isLikelyName(str: string, allowNumbers = false, allowSingleLetter = false) {
   if (!str) return false;
 
   // Allow single letters if explicitly permitted (for patterns like j7.d2)
