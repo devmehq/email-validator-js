@@ -1,107 +1,70 @@
-const { readFileSync } = require('fs');
-const esbuild = require('rollup-plugin-esbuild').default;
-const json = require('@rollup/plugin-json');
-const resolve = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-const terser = require('@rollup/plugin-terser');
-const typescript = require('@rollup/plugin-typescript');
+import { defineConfig } from 'rolldown';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8'));
 
-// Only keep Node.js built-in modules as external
-// Bundle all npm dependencies for serverless environments
+// For serverless, we want to bundle everything except node builtins
 const external = [
-  'node:dns',
-  'node:net',
-  'node:tls',
+  /^node:/,
 ];
 
-const plugins = [
-  json({
-    compact: true,
-    preferConst: true,
-  }),
-  resolve({
-    browser: true,
-    preferBuiltins: false,
+const baseConfig = {
+  external: [],  // Bundle everything for serverless
+  resolve: {
     extensions: ['.ts', '.js', '.json'],
-  }),
-  commonjs(),
-  esbuild({
-    target: 'es2015',
-    tsconfig: './tsconfig.json',
-    sourceMap: true,
-  }),
-];
-
-// For declaration generation only
-const declarationPlugin = typescript({
-  tsconfig: './tsconfig.json',
-  declaration: true,
-  declarationDir: './dist/serverless',
-  emitDeclarationOnly: true,
-  rootDir: './src',
-  include: ['src/serverless/**/*', 'src/types.ts'],
-  exclude: ['**/*.test.ts', '**/*.spec.ts', '__tests__/**/*'],
-  compilerOptions: {
-    module: 'esnext',
-    sourceMap: true,
+    mainFields: ['module', 'main'],
   },
-});
+  platform: 'neutral',
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
+};
 
-const productionPlugins = [
-  ...plugins,
-  terser({
-    compress: {
-      drop_console: true,
-      drop_debugger: true,
-    },
-    format: {
-      comments: false,
-    },
-  }),
-];
-
-module.exports = [
+// Export array of configurations for multiple builds
+export default [
   // Core serverless bundle (ESM)
-  {
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/core.ts',
     output: {
       file: 'dist/serverless/core.esm.js',
       format: 'esm',
       sourcemap: true,
     },
-    external: [], // Bundle all dependencies including string-similarity-js
-    plugins: [...plugins, declarationPlugin],
-  },
+  }),
   
   // Core serverless bundle (CommonJS)
-  {
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/core.ts',
     output: {
       file: 'dist/serverless/core.cjs.js',
       format: 'cjs',
       sourcemap: true,
     },
-    external: [], // Bundle all dependencies including string-similarity-js
-    plugins,
-  },
+  }),
   
-  // Core serverless bundle (Minified UMD for browsers)
-  {
+  // Core serverless bundle (UMD for browsers)
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/core.ts',
     output: {
       file: 'dist/serverless/core.min.js',
       format: 'umd',
       name: 'EmailValidator',
       sourcemap: false,
+      globals: {
+        'string-similarity-js': 'stringSimilarity',
+      },
     },
-    external: [],
-    plugins: productionPlugins,
-  },
+  }),
   
   // AWS Lambda adapter
-  {
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/adapters/aws-lambda.ts',
     output: [
       {
@@ -115,12 +78,12 @@ module.exports = [
         sourcemap: true,
       },
     ],
-    external,
-    plugins,
-  },
+    external,  // AWS Lambda has Node.js runtime
+  }),
   
   // Vercel adapter
-  {
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/adapters/vercel.ts',
     output: [
       {
@@ -134,12 +97,12 @@ module.exports = [
         sourcemap: true,
       },
     ],
-    external,
-    plugins,
-  },
+    external,  // Vercel has Node.js runtime
+  }),
   
   // Cloudflare adapter
-  {
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/adapters/cloudflare.ts',
     output: [
       {
@@ -153,12 +116,12 @@ module.exports = [
         sourcemap: true,
       },
     ],
-    external,
-    plugins,
-  },
+    external,  // Cloudflare Workers has limited Node.js support
+  }),
   
   // Complete bundle with all adapters
-  {
+  defineConfig({
+    ...baseConfig,
     input: 'src/serverless/index.ts',
     output: [
       {
@@ -173,6 +136,5 @@ module.exports = [
       },
     ],
     external,
-    plugins,
-  },
+  }),
 ];
