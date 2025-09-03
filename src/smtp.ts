@@ -5,7 +5,7 @@ import type { VerifyMailboxSMTPParams } from './types';
  * @param  {String} smtpReply A message from the SMTP server.
  * @return {Boolean} True if over quota.
  */
-function isOverQuota(smtpReply: string): boolean {
+function isOverQuota(smtpReply: string) {
   return Boolean(smtpReply && /(over quota)/gi.test(smtpReply));
 }
 
@@ -15,7 +15,7 @@ function isOverQuota(smtpReply: string): boolean {
  * @param {String} smtpReply A response from the SMTP server.
  * @return {boolean} True if the error is recognized as a mailbox missing error.
  */
-function isInvalidMailboxError(smtpReply: string): boolean {
+function isInvalidMailboxError(smtpReply: string) {
   return Boolean(
     smtpReply &&
       /^(510|511|513|550|551|553)/.test(smtpReply) &&
@@ -28,7 +28,7 @@ function isInvalidMailboxError(smtpReply: string): boolean {
  * @param {String} smtpReply A message from the SMTP server.
  * @return {Boolean} True if this is a multiline greet.
  */
-function isMultilineGreet(smtpReply: string): boolean {
+function isMultilineGreet(smtpReply: string) {
   return Boolean(smtpReply && /^(250|220)-/.test(smtpReply));
 }
 

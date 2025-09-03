@@ -4,7 +4,7 @@ import { domainValidCache } from './cache';
 /**
  * Validates if email domain is valid TLD
  */
-export function isValidEmailDomain(emailOrDomain: string): boolean {
+export function isValidEmailDomain(emailOrDomain: string) {
   let [_, emailDomain] = emailOrDomain?.split('@') || [];
   if (!emailDomain) {
     emailDomain = _;
@@ -34,7 +34,7 @@ export function isValidEmailDomain(emailOrDomain: string): boolean {
  * @param emailAddress - The email address to validate
  * @returns true if email format is valid
  */
-export function isValidEmail(emailAddress: string): boolean {
+export function isValidEmail(emailAddress: string) {
   if (!emailAddress || typeof emailAddress !== 'string') {
     return false;
   }

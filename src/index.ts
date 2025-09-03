@@ -32,7 +32,7 @@ export { getDomainAge, getDomainRegistrationStatus } from './whois';
 let disposableEmailProviders: Set<string>;
 let freeEmailProviders: Set<string>;
 
-export function isDisposableEmail(emailOrDomain: string): boolean {
+export function isDisposableEmail(emailOrDomain: string) {
   const parts = emailOrDomain.split('@');
   const emailDomain = parts.length > 1 ? parts[1] : parts[0];
   if (!emailDomain) {
@@ -54,7 +54,7 @@ export function isDisposableEmail(emailOrDomain: string): boolean {
   return result;
 }
 
-export function isFreeEmail(emailOrDomain: string): boolean {
+export function isFreeEmail(emailOrDomain: string) {
   const parts = emailOrDomain.split('@');
   const emailDomain = parts.length > 1 ? parts[1] : parts[0];
   if (!emailDomain) {
