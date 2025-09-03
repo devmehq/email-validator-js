@@ -110,6 +110,11 @@ npm install @devmehq/email-validator-js
 - Node.js >= 12.0
 - TypeScript >= 4.0 (for TypeScript users)
 
+### Build System
+- Uses Rollup for efficient bundling and tree-shaking
+- Optimized build output with separate CJS and ESM modules
+- Serverless builds for edge environments
+
 ## Quick Start
 
 ```typescript
@@ -925,11 +930,18 @@ email-validator-js/
 
 ### Scripts
 ```bash
-yarn build      # Build TypeScript
-yarn test       # Run tests
+yarn build      # Build TypeScript with Rollup
+yarn test       # Run tests with Jest
 yarn lint       # Run ESLint
 yarn lint-fix   # Fix ESLint issues
+yarn typecheck  # Run TypeScript type checking
 ```
+
+### Build Optimizations
+- **Type Safety**: Improved type inference reduces redundant type declarations
+- **Bundle Size**: Optimized with tree-shaking and minification
+- **Performance**: Faster builds with parallelized compilation
+- **Code Quality**: Strict TypeScript mode with comprehensive type checking
 
 ## Contributing
 

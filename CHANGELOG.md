@@ -1,5 +1,27 @@
 # Change Log
 
+## v2.10.2 - 2025-09-03
+
+### 🔧 Maintenance & Improvements
+
+### Changed
+- **Build System**: Reverted from Rolldown back to Rollup for better stability and ecosystem compatibility
+- **Type System**: Improved TypeScript type inference throughout the codebase
+  - Removed duplicate type definitions
+  - Leveraged automatic type inference where possible
+  - Reduced redundant type declarations for better maintainability
+  - Maintained strict type safety while simplifying code
+
+### Fixed
+- **Dependencies**: Updated all non-major dependencies to latest versions (#529)
+- **Build Configuration**: Restored stable Rollup configuration for consistent builds
+
+### Technical Details
+- Removed redundant `types.d.ts` file (271 lines of duplicate definitions)
+- Improved type inference in batch processing, domain suggestion, and name detection modules
+- Simplified array and object type declarations using TypeScript's inference capabilities
+- All tests passing with enhanced type safety
+
 ## v2.10.1 - 2025-08-29
 
 ### 🐛 Bug Fixes & Improvements
