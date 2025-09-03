@@ -103,7 +103,7 @@
     "esbuild": "^0.25.9",
     "husky": "9.1.7",
     "jest": "^30.1.1",
-    "lint-staged": "16.1.5",
+    "lint-staged": "16.1.6",
     "rolldown": "^1.0.0-beta.34",
     "sinon": "21.0.0",
     "ts-jest": "^29.4.1",
