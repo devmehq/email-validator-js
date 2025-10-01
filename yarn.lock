@@ -1013,9 +1013,9 @@
     tslib "^2.4.0"
 
 "@types/aws-lambda@^8.10.152":
-  version "8.10.152"
-  resolved "https://registry.npmjs.org/@types/aws-lambda/-/aws-lambda-8.10.152.tgz"
-  integrity sha512-soT/c2gYBnT5ygwiHPmd9a1bftj462NWVk2tKCc1PYHSIacB2UwbTS2zYG4jzag1mRDuzg/OjtxQjQ2NKRB6Rw==
+  version "8.10.153"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.153.tgz#c9a39d53b98a22ee466b475e58a48fa08768dc34"
+  integrity sha512-j5zuETAQtPKuU8ZeqtcLdqLxQeNffX1Dd1Sr3tP56rYZD21Ph49iIqWbiHHqwLXugsMPSsgX/bAZI29Patlbbw==
 
 "@types/babel__core@^7.20.5":
   version "7.20.5"
@@ -1089,10 +1089,10 @@
   dependencies:
     undici-types "~7.12.0"
 
-"@types/node@24.6.0":
-  version "24.6.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-24.6.0.tgz#5dd8d4eca0bba7dd81d853e7fadc96b322ff84f6"
-  integrity sha512-F1CBxgqwOMc4GKJ7eY22hWhBVQuMYTtqI8L0FcszYcpYX0fzfDGpez22Xau8Mgm7O9fI+zA/TYIdq3tGWfweBA==
+"@types/node@24.6.1":
+  version "24.6.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-24.6.1.tgz#29cd365beb4419b3b8271c7464f1a563446d7481"
+  integrity sha512-ljvjjs3DNXummeIaooB4cLBKg2U6SPI6Hjra/9rRIy7CpM0HpLtG9HptkMKAb4HYWy5S7HUvJEuWgr/y0U8SHw==
   dependencies:
     undici-types "~7.13.0"
 
@@ -3230,10 +3230,10 @@ type-fest@^4.41.0:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.41.0.tgz#6ae1c8e5731273c2bf1f58ad39cbae2c91a46c58"
   integrity sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==
 
-typescript@5.9.2:
-  version "5.9.2"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-5.9.2.tgz"
-  integrity sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==
+typescript@5.9.3:
+  version "5.9.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.9.3.tgz#5b4f59e15310ab17a216f5d6cf53ee476ede670f"
+  integrity sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==
 
 uglify-js@^3.1.4:
   version "3.19.3"
