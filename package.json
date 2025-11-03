@@ -103,7 +103,7 @@
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/aws-lambda": "^8.10.152",
     "@types/jest": "^30.0.0",
-    "@types/node": "24.9.2",
+    "@types/node": "24.10.0",
     "@types/sinon": "17.0.4",
     "esbuild": "^0.25.9",
     "husky": "9.1.7",
