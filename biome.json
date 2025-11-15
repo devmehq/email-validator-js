@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.5/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -46,19 +46,21 @@
     }
   },
   "files": {
-    "includes": ["src/**/*.ts", "__tests__/**/*.ts", "examples/**/*.ts"],
-    "ignoreUnknown": true,
-    "experimentalScannerIgnores": [
-      "node_modules/**",
-      "dist/**",
-      "build/**",
-      "coverage/**",
-      "*.json",
-      "*.md",
-      "*.yml",
-      "*.yaml",
-      ".git/**",
-      ".husky/**"
-    ]
+    "includes": [
+      "src/**/*.ts",
+      "__tests__/**/*.ts",
+      "examples/**/*.ts",
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!**/build",
+      "!!**/coverage",
+      "!!**/*.json",
+      "!!**/*.md",
+      "!!**/*.yml",
+      "!!**/*.yaml",
+      "!!**/.git",
+      "!!**/.husky"
+    ],
+    "ignoreUnknown": true
   }
 }
