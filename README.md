@@ -72,7 +72,7 @@
 
 ## API / Cloud Hosted Service
 
-We offer this `email verification and validation and more advanced features` in our Scalable Cloud API Service Offering - You could try it here [Email Verification](https://email-check.xyz/products/email)
+We offer this `email verification and validation and more advanced features` in our Scalable Cloud API Service Offering - You could try it here [Email Verification](https://email-check.app/products/email)
 
 ---
 
@@ -90,7 +90,7 @@ email-validator-js is licensed under [Business Source License 1.1](LICENSE.md).
 | Using email-validator-js to build software that is provided as a service (SaaS) | **Yes** |
 | Forking email-validator-js for any production purposes | **Yes** |
 
-📄 **For commercial licensing**, visit [email-check.xyz/license/email-validator](https://email-check.xyz/license/email-validator) or contact us at [sales@email-check.xyz](mailto:sales@email-check.xyz?subject=Interested%20in%20email-validator-js%20commercial%20license).
+📄 **For commercial licensing**, visit [email-check.app/license/email-validator](https://email-check.app/license/email-validator) or contact us at [sales@email-check.app](mailto:sales@email-check.app?subject=Interested%20in%20email-validator-js%20commercial%20license).
 
 ---
 
@@ -975,9 +975,9 @@ yarn build
 For issues, questions, or commercial licensing:
 
 🐛 [Open an Issue](https://github.com/devmehq/email-validator-js/issues)
-📧 [Email Support](mailto:support@email-check.xyz)
-📄 [Commercial License](https://email-check.xyz/license/email-validator)
-🌐 [Visit email-check.xyz](https://email-check.xyz)
+📧 [Email Support](mailto:support@email-check.app)
+📄 [Commercial License](https://email-check.app/license/email-validator)
+🌐 [Visit email-check.app](https://email-check.app)
 
 ## LICENSE
 Business Source License 1.1 - see [LICENSE](LICENSE.md) file for details.
@@ -1030,5 +1030,5 @@ Ask yourself these questions:
 
 Ready to use email-validator-js in production?
 
-🛍️ **[Purchase a License](https://email-check.xyz/license/email-validator)** - Simple pricing, instant activation  
-📧 **[Contact Sales](mailto:sales@email-check.xyz?subject=Interested%20in%20email-validator-js%20commercial%20license)** - For enterprise or custom needs  
+🛍️ **[Purchase a License](https://email-check.app/license/email-validator)** - Simple pricing, instant activation  
+📧 **[Contact Sales](mailto:sales@email-check.app?subject=Interested%20in%20email-validator-js%20commercial%20license)** - For enterprise or custom needs  
