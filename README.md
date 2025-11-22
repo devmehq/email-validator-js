@@ -1,4 +1,3 @@
-```markdown
 # 🎉 email-validator-js Has a New Home!
 
 **This repository is archived and no longer maintained.**
@@ -61,4 +60,4 @@ git submodule add https://github.com/email-check-app/email-validator-js.git path
 Huge thanks for choosing email-validator-js – your feedback has shaped it into what it is today. Excited for the next chapter!
 
 → https://github.com/email-check-app/email-validator-js
-```
+
